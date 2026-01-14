@@ -1,98 +1,252 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { CalendarGrid } from '@/components/CalendarGrid';
+import { EventCard } from '@/components/EventCard';
+import { TodayHighlight } from '@/components/TodayHighlight';
+import { getEventsForDate } from '@/data/hijri-events';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { generateHijriMonthCalendar, getHijriMonthName, getTodayHijri } from '@/utils/hijri-date';
+import React, { useMemo, useState } from 'react';
+import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const todayHijri = getTodayHijri();
+  const [currentMonth, setCurrentMonth] = useState(todayHijri.month);
+  const [currentYear, setCurrentYear] = useState(todayHijri.year);
+  const [selectedDay, setSelectedDay] = useState(todayHijri.day);
+
+  const calendarDays = useMemo(() => 
+    generateHijriMonthCalendar(currentYear, currentMonth),
+    [currentYear, currentMonth]
+  );
+
+  const selectedEvents = useMemo(() => 
+    getEventsForDate(currentMonth, selectedDay),
+    [currentMonth, selectedDay]
+  );
+
+  const todayEvents = useMemo(() => 
+    getEventsForDate(todayHijri.month, todayHijri.day),
+    [todayHijri.month, todayHijri.day]
+  );
+
+  const monthName = getHijriMonthName(currentMonth);
+
+  const goToPreviousMonth = () => {
+    if (currentMonth === 1) {
+      setCurrentMonth(12);
+      setCurrentYear(currentYear - 1);
+    } else {
+      setCurrentMonth(currentMonth - 1);
+    }
+    setSelectedDay(1);
+  };
+
+  const goToNextMonth = () => {
+    if (currentMonth === 12) {
+      setCurrentMonth(1);
+      setCurrentYear(currentYear + 1);
+    } else {
+      setCurrentMonth(currentMonth + 1);
+    }
+    setSelectedDay(1);
+  };
+
+  const goToToday = () => {
+    setCurrentMonth(todayHijri.month);
+    setCurrentYear(todayHijri.year);
+    setSelectedDay(todayHijri.day);
+  };
+
+  const isViewingToday = currentMonth === todayHijri.month && 
+                          currentYear === todayHijri.year && 
+                          selectedDay === todayHijri.day;
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+      
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* App Header */}
+        <View style={styles.header}>
+          <Text style={[styles.appTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+            🌙 Hijri Calendar
+          </Text>
+          <Text style={[styles.appSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+            التقويم الهجري
+          </Text>
+        </View>
+
+        {/* Today's Highlight Card */}
+        <TodayHighlight
+          hijriDate={todayHijri}
+          gregorianDate={new Date()}
+          events={todayEvents}
+        />
+
+        {/* Month Navigation */}
+        <View style={[styles.monthNavigation, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+          <TouchableOpacity onPress={goToPreviousMonth} style={styles.navButton}>
+            <Text style={[styles.navButtonText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>‹</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity onPress={goToToday} style={styles.monthTitleContainer}>
+            <Text style={[styles.monthTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+              {monthName.name} {currentYear}
+            </Text>
+            <Text style={[styles.monthTitleArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+              {monthName.arabic}
+            </Text>
+            {!isViewingToday && (
+              <Text style={styles.todayButton}>Tap to go to today</Text>
+            )}
+          </TouchableOpacity>
+          
+          <TouchableOpacity onPress={goToNextMonth} style={styles.navButton}>
+            <Text style={[styles.navButtonText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>›</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Calendar Grid */}
+        <View style={[styles.calendarContainer, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+          <CalendarGrid
+            days={calendarDays}
+            month={currentMonth}
+            year={currentYear}
+            todayDay={todayHijri.day}
+            todayMonth={todayHijri.month}
+            selectedDay={selectedDay}
+            onDaySelect={setSelectedDay}
+          />
+        </View>
+
+        {/* Selected Day Events */}
+        <View style={styles.eventsSection}>
+          <Text style={[styles.eventsSectionTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+            {selectedDay} {monthName.name}
+          </Text>
+          
+          {selectedEvents.length > 0 ? (
+            selectedEvents.map(event => (
+              <EventCard key={event.id} event={event} />
+            ))
+          ) : (
+            <View style={[styles.noEventsCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+              <Text style={[styles.noEventsText, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+                No special events on this day.
+              </Text>
+              <Text style={[styles.noEventsSubtext, { color: isDark ? '#757575' : '#9E9E9E' }]}>
+                Remember to maintain your daily prayers and Adhkar.
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Bottom padding */}
+        <View style={{ height: 100 }} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  appTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+  },
+  appSubtitle: {
+    fontSize: 18,
+    textAlign: 'right',
+    marginTop: 4,
+  },
+  monthNavigation: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
+    marginHorizontal: 16,
+    marginTop: 8,
+    borderRadius: 16,
+    padding: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  stepContainer: {
-    gap: 8,
+  navButton: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  navButtonText: {
+    fontSize: 36,
+    fontWeight: '300',
+  },
+  monthTitleContainer: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  monthTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  monthTitleArabic: {
+    fontSize: 16,
+    marginTop: 2,
+  },
+  todayButton: {
+    fontSize: 11,
+    color: '#4CAF50',
+    marginTop: 4,
+  },
+  calendarContainer: {
+    marginHorizontal: 16,
+    marginTop: 12,
+    borderRadius: 16,
+    paddingVertical: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  eventsSection: {
+    marginTop: 20,
+  },
+  eventsSectionTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginHorizontal: 20,
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  noEventsCard: {
+    marginHorizontal: 16,
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  noEventsText: {
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  noEventsSubtext: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 8,
   },
 });
