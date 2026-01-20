@@ -1,8 +1,11 @@
 import { EventCard } from '@/components/EventCard';
 import { EventListItem } from '@/components/EventListItem';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { HIJRI_MONTHS, ISLAMIC_EVENTS, IslamicEvent } from '@/data/hijri-events';
+import { HIJRI_MONTHS_ML, ISLAMIC_EVENTS_ML, IslamicEventML } from '@/data/hijri-events-ml';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import React, { useMemo, useState } from 'react';
+import { router } from 'expo-router';
+import { useMemo, useState } from 'react';
 import { FlatList, Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 type FilterType = 'all' | 'religious' | 'wafat' | 'birth' | 'historic';
@@ -10,50 +13,81 @@ type FilterType = 'all' | 'religious' | 'wafat' | 'birth' | 'historic';
 export default function EventsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const { language, t } = useLanguage();
+  const isMalayalam = language === 'ml';
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
-  const [selectedEvent, setSelectedEvent] = useState<IslamicEvent | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<IslamicEvent | IslamicEventML | null>(null);
+
+  // Get the appropriate events and months based on language
+  const events = isMalayalam ? ISLAMIC_EVENTS_ML : ISLAMIC_EVENTS;
+  const months = isMalayalam ? HIJRI_MONTHS_ML : HIJRI_MONTHS;
 
   const filteredEvents = useMemo(() => {
-    let events = [...ISLAMIC_EVENTS];
+    let eventList = [...events];
 
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      events = events.filter(
-        event =>
-          event.title.toLowerCase().includes(query) ||
-          event.titleArabic.includes(query) ||
-          event.description.toLowerCase().includes(query)
+      eventList = eventList.filter(
+        event => {
+          if (isMalayalam) {
+            const mlEvent = event as IslamicEventML;
+            return mlEvent.title.toLowerCase().includes(query) ||
+              mlEvent.titleMl.toLowerCase().includes(query) ||
+              mlEvent.titleArabic.includes(query) ||
+              mlEvent.descriptionMl.toLowerCase().includes(query);
+          }
+          const enEvent = event as IslamicEvent;
+          return enEvent.title.toLowerCase().includes(query) ||
+            enEvent.titleArabic.includes(query) ||
+            enEvent.description.toLowerCase().includes(query);
+        }
       );
     }
 
     // Filter by month
     if (selectedMonth !== null) {
-      events = events.filter(event => event.month === selectedMonth);
+      eventList = eventList.filter(event => event.month === selectedMonth);
     }
 
     // Filter by type
     if (selectedFilter !== 'all') {
-      events = events.filter(event => event.type === selectedFilter);
+      eventList = eventList.filter(event => event.type === selectedFilter);
     }
 
     // Sort by month and day
-    return events.sort((a, b) => {
+    return eventList.sort((a, b) => {
       if (a.month !== b.month) return a.month - b.month;
       return a.day - b.day;
     });
-  }, [searchQuery, selectedMonth, selectedFilter]);
+  }, [searchQuery, selectedMonth, selectedFilter, events, isMalayalam]);
 
-  const filterButtons: { type: FilterType; label: string; icon: string }[] = [
-    { type: 'all', label: 'All', icon: '📅' },
-    { type: 'religious', label: 'Religious', icon: '🕌' },
-    { type: 'wafat', label: 'Wafat', icon: '🕯️' },
-    { type: 'birth', label: 'Birth', icon: '🌟' },
-    { type: 'historic', label: 'Historic', icon: '📜' },
+  const filterButtons: { type: FilterType; label: string; labelMl: string; icon: string }[] = [
+    { type: 'all', label: 'All', labelMl: 'എല്ലാം', icon: '📅' },
+    { type: 'religious', label: 'Religious', labelMl: 'മതപരം', icon: '🕌' },
+    { type: 'wafat', label: 'Wafat', labelMl: 'വഫാത്ത്', icon: '🕯️' },
+    { type: 'birth', label: 'Birth', labelMl: 'ജനനം', icon: '🌟' },
+    { type: 'historic', label: 'Historic', labelMl: 'ചരിത്രം', icon: '📜' },
   ];
+
+  // Get display title based on language
+  const getEventTitle = (event: IslamicEvent | IslamicEventML): string => {
+    if (isMalayalam && 'titleMl' in event) {
+      return event.titleMl;
+    }
+    return event.title;
+  };
+
+  // Get display description based on language
+  const getEventDescription = (event: IslamicEvent | IslamicEventML): string => {
+    if (isMalayalam && 'descriptionMl' in event) {
+      return event.descriptionMl;
+    }
+    return event.description;
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
@@ -61,12 +95,17 @@ export default function EventsScreen() {
       
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-          Islamic Events
-        </Text>
-        <Text style={[styles.subtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
-          المناسبات الإسلامية
-        </Text>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Text style={[styles.backIcon, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>←</Text>
+        </TouchableOpacity>
+        <View>
+          <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+            {isMalayalam ? 'ഇസ്ലാമിക മുഹൂർത്തങ്ങൾ' : 'Islamic Events'}
+          </Text>
+          <Text style={[styles.subtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+            المناسبات الإسلامية
+          </Text>
+        </View>
       </View>
 
       {/* Search Bar */}
@@ -74,7 +113,7 @@ export default function EventsScreen() {
         <Text style={styles.searchIcon}>🔍</Text>
         <TextInput
           style={[styles.searchInput, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
-          placeholder="Search events..."
+          placeholder={isMalayalam ? 'പരിപാടികൾ തിരയുക...' : 'Search events...'}
           placeholderTextColor={isDark ? '#757575' : '#BDBDBD'}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -107,10 +146,10 @@ export default function EventsScreen() {
               { color: selectedMonth === null ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
             ]}
           >
-            All Months
+            {isMalayalam ? 'എല്ലാ മാസങ്ങളും' : 'All Months'}
           </Text>
         </TouchableOpacity>
-        {HIJRI_MONTHS.map(month => (
+        {months.map(month => (
           <TouchableOpacity
             key={month.number}
             style={[
@@ -126,7 +165,7 @@ export default function EventsScreen() {
                 { color: selectedMonth === month.number ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
               ]}
             >
-              {month.name}
+              {isMalayalam && 'nameEn' in month ? month.name : month.name}
             </Text>
           </TouchableOpacity>
         ))}
@@ -151,7 +190,7 @@ export default function EventsScreen() {
                 { color: selectedFilter === filter.type ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
               ]}
             >
-              {filter.label}
+              {isMalayalam ? filter.labelMl : filter.label}
             </Text>
           </TouchableOpacity>
         ))}
@@ -162,14 +201,19 @@ export default function EventsScreen() {
         data={filteredEvents}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <EventListItem event={item} onPress={() => setSelectedEvent(item)} />
+          <EventListItem 
+            event={item} 
+            onPress={() => setSelectedEvent(item)}
+            displayTitle={getEventTitle(item)}
+            isMalayalam={isMalayalam}
+          />
         )}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={[styles.emptyText, { color: isDark ? '#757575' : '#9E9E9E' }]}>
-              No events found
+              {isMalayalam ? 'ഇവൻ്റുകളൊന്നും കണ്ടെത്തിയില്ല' : 'No events found'}
             </Text>
           </View>
         }
@@ -186,11 +230,20 @@ export default function EventsScreen() {
         <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
           <View style={styles.modalHeader}>
             <TouchableOpacity onPress={() => setSelectedEvent(null)} style={styles.closeButton}>
-              <Text style={[styles.closeButtonText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>✕ Close</Text>
+              <Text style={[styles.closeButtonText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>
+                {isMalayalam ? '✕ അടയ്ക്കുക' : '✕ Close'}
+              </Text>
             </TouchableOpacity>
           </View>
           <ScrollView showsVerticalScrollIndicator={false}>
-            {selectedEvent && <EventCard event={selectedEvent} />}
+            {selectedEvent && (
+              <EventCard 
+                event={selectedEvent} 
+                displayTitle={getEventTitle(selectedEvent)}
+                displayDescription={getEventDescription(selectedEvent)}
+                isMalayalam={isMalayalam}
+              />
+            )}
             <View style={{ height: 40 }} />
           </ScrollView>
         </SafeAreaView>
@@ -207,6 +260,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    marginRight: 12,
+    padding: 4,
+  },
+  backIcon: {
+    fontSize: 24,
+    fontWeight: '600',
   },
   title: {
     fontSize: 28,
@@ -214,7 +277,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    textAlign: 'right',
     marginTop: 4,
   },
   searchContainer: {

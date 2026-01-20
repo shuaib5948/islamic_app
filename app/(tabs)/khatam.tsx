@@ -1,42 +1,79 @@
 import { JuzCard, JuzProgressGrid } from '@/components/JuzCard';
 import { KhatamGroupCard } from '@/components/KhatamGroupCard';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
-    calculateKhatamProgress,
-    getJuzInfo,
-    getRemainingJuz,
-    KHATAM_DUA,
-    KhatamGroup,
-    QURAN_JUZ
+  calculateKhatamProgress,
+  getJuzInfo,
+  getRemainingJuz,
+  KHATAM_DUA,
+  KhatamGroup,
+  QURAN_JUZ
 } from '@/data/quran-khatam';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import {
-    assignJuz,
-    createKhatamGroup,
-    deleteKhatamGroup,
-    getReminders,
-    loadKhatamGroups,
-    markJuzCompleted,
-    markJuzIncomplete,
-    removeAssignment,
+  assignJuz,
+  createKhatamGroup,
+  deleteKhatamGroup,
+  getReminders,
+  loadKhatamGroups,
+  markJuzCompleted,
+  markJuzIncomplete,
+  removeAssignment,
 } from '@/utils/khatam-storage';
-import React, { useCallback, useEffect, useState } from 'react';
+import { router } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import {
-    Alert,
-    Modal,
-    RefreshControl,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  Modal,
+  RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 export default function KhatamScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const { language } = useLanguage();
+  const isMalayalam = language === 'ml';
+
+  // Labels with Malayalam translations
+  const labels = {
+    title: isMalayalam ? 'ഖുർആൻ ഖത്തം' : 'Quran Khatam',
+    subtitle: 'ختم القرآن الجماعي',
+    reminders: isMalayalam ? '⚠️ ഓർമ്മപ്പെടുത്തലുകൾ' : '⚠️ Reminders',
+    juzRemaining: isMalayalam ? 'ജുസ് ബാക്കി' : 'Juz remaining',
+    daysLeft: isMalayalam ? 'ദിവസങ്ങൾ ബാക്കി' : 'days left',
+    groupKhatam: isMalayalam ? '🤝 ഗ്രൂപ്പ് ഖത്തം' : '🤝 Group Khatam',
+    infoText: isMalayalam 
+      ? '30 ജുസ് പങ്കെടുക്കുന്നവർക്കിടയിൽ വിതരണം ചെയ്ത് ഗ്രൂപ്പ് ഖുർആൻ ഖത്തം സംഘടിപ്പിക്കുക. പുരോഗതി ട്രാക്ക് ചെയ്യുക, സമയപരിധി നിശ്ചയിക്കുക, ഒരുമിച്ച് ഖുർആൻ പൂർത്തിയാക്കുക!'
+      : 'Organize a group Quran Khatam by distributing 30 Juz among participants. Track progress, set deadlines, and complete the Quran together!',
+    createNew: isMalayalam ? '+ പുതിയ ഖത്തം ഗ്രൂപ്പ് സൃഷ്ടിക്കുക' : '+ Create New Khatam Group',
+    noGroups: isMalayalam ? 'ഖത്തം ഗ്രൂപ്പുകളൊന്നുമില്ല' : 'No Khatam Groups',
+    createFirst: isMalayalam ? 'നിങ്ങളുടെ ആദ്യ ഗ്രൂപ്പ് ഖത്തം സൃഷ്ടിച്ച് ആരംഭിക്കുക' : 'Create your first group Khatam to get started',
+    createKhatam: isMalayalam ? 'പുതിയ ഖത്തം സൃഷ്ടിക്കുക' : 'Create New Khatam',
+    groupName: isMalayalam ? 'ഗ്രൂപ്പ് പേര്' : 'Group Name',
+    description: isMalayalam ? 'വിവരണം' : 'Description',
+    dedication: isMalayalam ? 'ആർക്കുവേണ്ടി (ഇസാലെ സവാബ്)' : 'Dedication (Isale Sawab)',
+    targetDate: isMalayalam ? 'ലക്ഷ്യ തീയതി (YYYY-MM-DD)' : 'Target Date (YYYY-MM-DD)',
+    cancel: isMalayalam ? 'റദ്ദാക്കുക' : 'Cancel',
+    create: isMalayalam ? 'സൃഷ്ടിക്കുക' : 'Create',
+    assignJuz: isMalayalam ? 'ജുസ് നിയോഗിക്കുക' : 'Assign Juz',
+    participantName: isMalayalam ? 'പങ്കെടുക്കുന്നയാളുടെ പേര്' : 'Participant Name',
+    assign: isMalayalam ? 'നിയോഗിക്കുക' : 'Assign',
+    khatamComplete: isMalayalam ? '🎉 ഖത്തം പൂർത്തിയായി!' : '🎉 Khatam Complete!',
+    duaTitle: isMalayalam ? 'ഖത്തം ദുആ' : 'Khatam Dua',
+    delete: isMalayalam ? 'ഇല്ലാതാക്കുക' : 'Delete',
+    progress: isMalayalam ? 'പുരോഗതി' : 'Progress',
+    assigned: isMalayalam ? 'നിയോഗിച്ചത്' : 'Assigned',
+    completed: isMalayalam ? 'പൂർത്തിയായി' : 'Completed',
+    remaining: isMalayalam ? 'ബാക്കി' : 'Remaining',
+  };
 
   const [groups, setGroups] = useState<KhatamGroup[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<KhatamGroup | null>(null);
@@ -199,48 +236,42 @@ export default function KhatamScreen() {
     >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-          📖 Quran Khatam
-        </Text>
-        <Text style={[styles.subtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
-          ختم القرآن الجماعي
-        </Text>
+        <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
+          <Text style={[styles.headerBackIcon, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>←</Text>
+        </TouchableOpacity>
+        <View>
+          <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+            📖 {labels.title}
+          </Text>
+          <Text style={[styles.subtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+            {labels.subtitle}
+          </Text>
+        </View>
       </View>
 
       {/* Reminders */}
       {reminders.length > 0 && (
         <View style={[styles.reminderContainer, { backgroundColor: isDark ? '#B71C1C' : '#FFEBEE' }]}>
           <Text style={[styles.reminderTitle, { color: isDark ? '#FFFFFF' : '#C62828' }]}>
-            ⚠️ Reminders
+            {labels.reminders}
           </Text>
           {reminders.map(reminder => (
             <Text 
               key={reminder.group.id} 
               style={[styles.reminderText, { color: isDark ? '#FFCDD2' : '#D32F2F' }]}
             >
-              • {reminder.group.name}: {reminder.incompleteCount} Juz remaining, {reminder.daysLeft} days left
+              • {reminder.group.name}: {reminder.incompleteCount} {labels.juzRemaining}, {reminder.daysLeft} {labels.daysLeft}
             </Text>
           ))}
         </View>
       )}
-
-      {/* Info Card */}
-      <View style={[styles.infoCard, { backgroundColor: isDark ? '#1B5E20' : '#E8F5E9' }]}>
-        <Text style={[styles.infoTitle, { color: isDark ? '#FFFFFF' : '#1B5E20' }]}>
-          🤝 Group Khatam
-        </Text>
-        <Text style={[styles.infoText, { color: isDark ? 'rgba(255,255,255,0.9)' : '#2E7D32' }]}>
-          Organize a group Quran Khatam by distributing 30 Juz among participants. 
-          Track progress, set deadlines, and complete the Quran together!
-        </Text>
-      </View>
 
       {/* Create New Button */}
       <TouchableOpacity 
         style={[styles.createButton, { backgroundColor: '#2E7D32' }]}
         onPress={() => setShowCreateModal(true)}
       >
-        <Text style={styles.createButtonText}>+ Create New Khatam Group</Text>
+        <Text style={styles.createButtonText}>{labels.createNew}</Text>
       </TouchableOpacity>
 
       {/* Groups List */}
@@ -267,19 +298,6 @@ export default function KhatamScreen() {
           </Text>
         </View>
       )}
-
-      {/* Dua for Khatam */}
-      <View style={[styles.duaCard, { backgroundColor: isDark ? '#1A237E' : '#E8EAF6' }]}>
-        <Text style={[styles.duaTitle, { color: isDark ? '#FFFFFF' : '#1A237E' }]}>
-          📿 Dua for Completing Quran
-        </Text>
-        <Text style={[styles.duaArabic, { color: isDark ? '#FFFFFF' : '#1A237E' }]}>
-          {KHATAM_DUA.arabic}
-        </Text>
-        <Text style={[styles.duaTranslation, { color: isDark ? 'rgba(255,255,255,0.8)' : '#3F51B5' }]}>
-          {KHATAM_DUA.translation}
-        </Text>
-      </View>
 
       <View style={{ height: 100 }} />
     </ScrollView>
@@ -569,6 +587,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerBackButton: {
+    marginRight: 12,
+    padding: 4,
+  },
+  headerBackIcon: {
+    fontSize: 24,
+    fontWeight: '600',
   },
   title: {
     fontSize: 28,
@@ -576,7 +604,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    textAlign: 'right',
     marginTop: 4,
   },
   reminderContainer: {

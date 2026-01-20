@@ -1,7 +1,9 @@
 /**
  * Hijri Date Utilities
- * Converts Gregorian dates to Hijri (Islamic) calendar
+ * Converts Gregorian dates to Hijri (Islamic) calendar using Aladhan API
  */
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface HijriDate {
   year: number;
@@ -33,6 +35,14 @@ const HIJRI_MONTH_DAYS = [30, 29, 30, 29, 30, 29, 30, 29, 30, 29, 30, 29];
 // Leap year pattern in a 30-year cycle (years 2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29 are leap)
 const LEAP_YEARS = [2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29];
 
+const HIJRI_CACHE_KEY = 'hijri_date_cache';
+
+interface HijriCacheData {
+  gregorianDate: string;
+  hijriDate: HijriDate;
+  timestamp: number;
+}
+
 /**
  * Check if a Hijri year is a leap year
  */
@@ -52,7 +62,138 @@ export const getDaysInHijriMonth = (month: number, year: number): number => {
 };
 
 /**
- * Convert Julian Day Number to Hijri date
+ * Fetch Hijri date from Aladhan API
+ * Using the correct endpoint: /v1/gToH/{date}
+ * Also supports adjustment for Kerala/India region
+ */
+const fetchHijriFromAPI = async (date: Date): Promise<HijriDate | null> => {
+  try {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    
+    // Use gToH (Gregorian to Hijri) endpoint with adjustment for India
+    // Adjustment: 0 = Umm al-Qura, 1 = +1 day (common in India/Kerala)
+    const url = `https://api.aladhan.com/v1/gToH/${day}-${month}-${year}?adjustment=1`;
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.code === 200 && data.data?.hijri) {
+      const hijri = data.data.hijri;
+      return {
+        year: parseInt(hijri.year, 10),
+        month: parseInt(hijri.month.number, 10),
+        day: parseInt(hijri.day, 10),
+        monthName: hijri.month.en,
+        monthNameArabic: hijri.month.ar,
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching Hijri date from API:', error);
+    return null;
+  }
+};
+
+/**
+ * Fetch Gregorian date from Hijri using Aladhan API
+ */
+const fetchGregorianFromAPI = async (hijriYear: number, hijriMonth: number, hijriDay: number): Promise<Date | null> => {
+  try {
+    const day = hijriDay.toString().padStart(2, '0');
+    const month = hijriMonth.toString().padStart(2, '0');
+    
+    const url = `https://api.aladhan.com/v1/hToG/${day}-${month}-${hijriYear}?adjustment=1`;
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.code === 200 && data.data?.gregorian) {
+      const greg = data.data.gregorian;
+      return new Date(
+        parseInt(greg.year, 10),
+        parseInt(greg.month.number, 10) - 1,
+        parseInt(greg.day, 10)
+      );
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching Gregorian date from API:', error);
+    return null;
+  }
+};
+
+/**
+ * Get cached Hijri date
+ */
+const getCachedHijri = async (dateKey: string): Promise<HijriDate | null> => {
+  try {
+    const cached = await AsyncStorage.getItem(HIJRI_CACHE_KEY);
+    if (cached) {
+      const cacheData: Record<string, HijriCacheData> = JSON.parse(cached);
+      const entry = cacheData[dateKey];
+      if (entry) {
+        return entry.hijriDate;
+      }
+    }
+  } catch (error) {
+    console.error('Error reading Hijri cache:', error);
+  }
+  return null;
+};
+
+/**
+ * Save Hijri date to cache
+ */
+const saveHijriToCache = async (dateKey: string, hijriDate: HijriDate): Promise<void> => {
+  try {
+    const cached = await AsyncStorage.getItem(HIJRI_CACHE_KEY);
+    const cacheData: Record<string, HijriCacheData> = cached ? JSON.parse(cached) : {};
+    
+    cacheData[dateKey] = {
+      gregorianDate: dateKey,
+      hijriDate,
+      timestamp: Date.now(),
+    };
+    
+    // Keep only last 60 days in cache
+    const keys = Object.keys(cacheData);
+    if (keys.length > 60) {
+      const sortedKeys = keys.sort((a, b) => cacheData[a].timestamp - cacheData[b].timestamp);
+      for (let i = 0; i < keys.length - 60; i++) {
+        delete cacheData[sortedKeys[i]];
+      }
+    }
+    
+    await AsyncStorage.setItem(HIJRI_CACHE_KEY, JSON.stringify(cacheData));
+  } catch (error) {
+    console.error('Error saving Hijri cache:', error);
+  }
+};
+
+/**
+ * Fallback: Convert Julian Day Number to Hijri date (mathematical calculation)
  */
 const jdToHijri = (jd: number): HijriDate => {
   const l = Math.floor(jd) - 1948440 + 10632;
@@ -74,7 +215,7 @@ const jdToHijri = (jd: number): HijriDate => {
 };
 
 /**
- * Convert Gregorian date to Julian Day Number
+ * Fallback: Convert Gregorian date to Julian Day Number
  */
 const gregorianToJD = (year: number, month: number, day: number): number => {
   if (month <= 2) {
@@ -87,14 +228,14 @@ const gregorianToJD = (year: number, month: number, day: number): number => {
 };
 
 /**
- * Convert Hijri date to Julian Day Number
+ * Fallback: Convert Hijri date to Julian Day Number
  */
 const hijriToJD = (year: number, month: number, day: number): number => {
   return Math.floor((11 * year + 3) / 30) + 354 * year + 30 * month - Math.floor((month - 1) / 2) + day - 385 + 1948440 - 1;
 };
 
 /**
- * Convert Julian Day Number to Gregorian date
+ * Fallback: Convert Julian Day Number to Gregorian date
  */
 const jdToGregorian = (jd: number): { year: number; month: number; day: number } => {
   const z = Math.floor(jd + 0.5);
@@ -111,15 +252,46 @@ const jdToGregorian = (jd: number): { year: number; month: number; day: number }
 };
 
 /**
- * Convert Gregorian date to Hijri date
+ * Fallback: Mathematical Gregorian to Hijri conversion
  */
-export const gregorianToHijri = (date: Date): HijriDate => {
+const gregorianToHijriFallback = (date: Date): HijriDate => {
   const jd = gregorianToJD(date.getFullYear(), date.getMonth() + 1, date.getDate());
   return jdToHijri(jd);
 };
 
 /**
- * Convert Hijri date to Gregorian date
+ * Convert Gregorian date to Hijri date (uses API with cache, falls back to math)
+ */
+export const gregorianToHijri = (date: Date): HijriDate => {
+  // Return synchronous fallback for immediate use
+  return gregorianToHijriFallback(date);
+};
+
+/**
+ * Convert Gregorian date to Hijri date (async version with API)
+ */
+export const gregorianToHijriAsync = async (date: Date): Promise<HijriDate> => {
+  const dateKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+  
+  // Check cache first
+  const cached = await getCachedHijri(dateKey);
+  if (cached) {
+    return cached;
+  }
+  
+  // Try API
+  const apiResult = await fetchHijriFromAPI(date);
+  if (apiResult) {
+    await saveHijriToCache(dateKey, apiResult);
+    return apiResult;
+  }
+  
+  // Fallback to mathematical calculation
+  return gregorianToHijriFallback(date);
+};
+
+/**
+ * Convert Hijri date to Gregorian date (sync - uses mathematical fallback)
  */
 export const hijriToGregorian = (year: number, month: number, day: number): Date => {
   const jd = hijriToJD(year, month, day);
@@ -128,10 +300,32 @@ export const hijriToGregorian = (year: number, month: number, day: number): Date
 };
 
 /**
- * Get today's Hijri date
+ * Convert Hijri date to Gregorian date (async - uses API)
+ */
+export const hijriToGregorianAsync = async (year: number, month: number, day: number): Promise<Date> => {
+  const apiResult = await fetchGregorianFromAPI(year, month, day);
+  if (apiResult) {
+    return apiResult;
+  }
+  
+  // Fallback to mathematical calculation
+  const jd = hijriToJD(year, month, day);
+  const greg = jdToGregorian(jd);
+  return new Date(greg.year, greg.month - 1, greg.day);
+};
+
+/**
+ * Get today's Hijri date (sync - uses fallback)
  */
 export const getTodayHijri = (): HijriDate => {
   return gregorianToHijri(new Date());
+};
+
+/**
+ * Get today's Hijri date (async - uses API)
+ */
+export const getTodayHijriAsync = async (): Promise<HijriDate> => {
+  return gregorianToHijriAsync(new Date());
 };
 
 /**
@@ -161,7 +355,26 @@ export const getArabicWeekdayName = (date: Date): string => {
 };
 
 /**
- * Generate calendar days for a Hijri month
+ * Generate calendar days for a Hijri month (async - uses API)
+ */
+export const generateHijriMonthCalendarAsync = async (year: number, month: number): Promise<{ day: number; gregorianDate: Date; weekday: number }[]> => {
+  const daysInMonth = getDaysInHijriMonth(month, year);
+  const days: { day: number; gregorianDate: Date; weekday: number }[] = [];
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const gregorianDate = await hijriToGregorianAsync(year, month, day);
+    days.push({
+      day,
+      gregorianDate,
+      weekday: gregorianDate.getDay(),
+    });
+  }
+
+  return days;
+};
+
+/**
+ * Generate calendar days for a Hijri month (sync - uses fallback)
  */
 export const generateHijriMonthCalendar = (year: number, month: number): { day: number; gregorianDate: Date; weekday: number }[] => {
   const daysInMonth = getDaysInHijriMonth(month, year);
@@ -184,4 +397,15 @@ export const generateHijriMonthCalendar = (year: number, month: number): { day: 
  */
 export const getHijriMonthName = (month: number): { name: string; arabic: string } => {
   return HIJRI_MONTH_NAMES[month - 1];
+};
+
+/**
+ * Clear Hijri date cache
+ */
+export const clearHijriCache = async (): Promise<void> => {
+  try {
+    await AsyncStorage.removeItem(HIJRI_CACHE_KEY);
+  } catch (error) {
+    console.error('Error clearing Hijri cache:', error);
+  }
 };

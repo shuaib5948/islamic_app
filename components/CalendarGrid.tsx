@@ -158,12 +158,13 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    padding: 2,
+    justifyContent: 'center',
+    flex: 1,
   },
   dayContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -175,34 +176,34 @@ const styles = StyleSheet.create({
     borderWidth: 0,
   },
   dayText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
   gregorianDay: {
-    fontSize: 10,
-    marginTop: 2,
+    fontSize: 9,
+    marginTop: 1,
   },
   eventIndicator: {
     position: 'absolute',
-    bottom: 4,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    bottom: 3,
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
   },
   gridContainer: {
-    paddingHorizontal: 8,
+    width: '100%',
   },
   weekHeader: {
     flexDirection: 'row',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   weekDayCell: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 6,
   },
   weekDayText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
   },
   daysGrid: {
@@ -211,12 +212,12 @@ const styles = StyleSheet.create({
   },
   dayCell: {
     width: '14.28%',
-    aspectRatio: 1,
+    paddingVertical: 4,
     alignItems: 'center',
     justifyContent: 'center',
   },
   emptyCell: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
   },
 });

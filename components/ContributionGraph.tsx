@@ -6,7 +6,9 @@ import {
 } from '@/data/prayer-tracker';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface ContributionGraphProps {
   data: Record<string, DailyPrayers>;
@@ -19,6 +21,18 @@ export const ContributionGraph: React.FC<ContributionGraphProps> = ({ data, week
 
   const days = weeks * 7;
   const dates = useMemo(() => getLastNDays(days), [days]);
+
+  // Calculate cell size based on screen width - fit perfectly inside container
+  const CONTAINER_PADDING = 32; // 16 padding on container
+  const CARD_MARGIN = 32; // 16 margin on each side
+  const DAY_LABEL_WIDTH = 20;
+  const GRID_GAP = 2;
+  const TOTAL_GAPS = weeks - 1;
+  
+  const containerWidth = SCREEN_WIDTH - CARD_MARGIN - CONTAINER_PADDING;
+  const gridWidth = containerWidth - DAY_LABEL_WIDTH - 4;
+  const cellSize = Math.floor((gridWidth - (TOTAL_GAPS * GRID_GAP)) / weeks);
+  const actualGridWidth = (cellSize * weeks) + (TOTAL_GAPS * GRID_GAP);
 
   // Organize dates into weeks (columns) with days (rows)
   const weeksData = useMemo(() => {
@@ -53,11 +67,11 @@ export const ContributionGraph: React.FC<ContributionGraphProps> = ({ data, week
     return result;
   }, [dates]);
 
-  const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
-  // Get month labels
+  // Get month labels with positions
   const monthLabels = useMemo(() => {
-    const labels: { label: string; position: number }[] = [];
+    const labels: { label: string; weekIndex: number }[] = [];
     let lastMonth = -1;
 
     weeksData.forEach((week, weekIndex) => {
@@ -67,7 +81,7 @@ export const ContributionGraph: React.FC<ContributionGraphProps> = ({ data, week
           const month = date.getMonth();
           if (month !== lastMonth) {
             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            labels.push({ label: monthNames[month], position: weekIndex });
+            labels.push({ label: monthNames[month], weekIndex });
             lastMonth = month;
           }
           break;
@@ -78,80 +92,93 @@ export const ContributionGraph: React.FC<ContributionGraphProps> = ({ data, week
     return labels;
   }, [weeksData]);
 
+  const cellGap = 2;
+
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
       <View style={styles.headerRow}>
-        <View>
-          <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
-            📈 Prayer Consistency
-          </Text>
-          <Text style={[styles.subtitle, { color: isDark ? '#8B949E' : '#64748B' }]}>
-            Last {weeks} weeks
-          </Text>
-        </View>
+        <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+          📈 Prayer Consistency
+        </Text>
+        <Text style={[styles.subtitle, { color: isDark ? '#8B949E' : '#64748B' }]}>
+          Last {weeks} weeks
+        </Text>
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={styles.graphContainer}>
-          {/* Month labels */}
-          <View style={styles.monthLabelsContainer}>
-            <View style={styles.dayLabelsSpace} />
-            {monthLabels.map((item, index) => (
+      {/* Month Labels */}
+      <View style={[styles.monthLabelsRow, { marginLeft: DAY_LABEL_WIDTH + 4 }]}>
+        {monthLabels.map((item, index) => (
+          <Text
+            key={index}
+            style={[
+              styles.monthLabel,
+              { 
+                color: isDark ? '#8B949E' : '#64748B',
+                position: 'absolute',
+                left: item.weekIndex * (cellSize + cellGap),
+              }
+            ]}
+          >
+            {item.label}
+          </Text>
+        ))}
+      </View>
+
+      <View style={styles.graphContent}>
+        {/* Day labels */}
+        <View style={[styles.dayLabelsContainer, { width: DAY_LABEL_WIDTH }]}>
+          {dayLabels.map((day, index) => (
+            <View key={index} style={{ height: cellSize + cellGap, justifyContent: 'center' }}>
               <Text
-                key={index}
                 style={[
-                  styles.monthLabel,
-                  { color: isDark ? '#9E9E9E' : '#757575', left: item.position * 14 },
+                  styles.dayLabel,
+                  { color: isDark ? '#8B949E' : '#64748B' },
                 ]}
               >
-                {item.label}
+                {index % 2 === 1 ? day : ''}
               </Text>
-            ))}
-          </View>
-
-          <View style={styles.graphContent}>
-            {/* Day labels */}
-            <View style={styles.dayLabelsContainer}>
-              {dayLabels.map((day, index) => (
-                <Text
-                  key={day}
-                  style={[
-                    styles.dayLabel,
-                    { color: isDark ? '#9E9E9E' : '#757575' },
-                    index % 2 === 1 && styles.dayLabelVisible,
-                  ]}
-                >
-                  {index % 2 === 1 ? day : ''}
-                </Text>
-              ))}
             </View>
-
-            {/* Grid */}
-            <View style={styles.grid}>
-              {weeksData.map((week, weekIndex) => (
-                <View key={weekIndex} style={styles.weekColumn}>
-                  {week.map((dateStr, dayIndex) => {
-                    if (!dateStr) {
-                      return <View key={dayIndex} style={styles.emptyCell} />;
-                    }
-
-                    const dailyPrayers = data[dateStr];
-                    const level = dailyPrayers ? getContributionLevel(dailyPrayers) : 0;
-                    const color = getContributionColor(level, isDark);
-
-                    return (
-                      <View
-                        key={dateStr}
-                        style={[styles.cell, { backgroundColor: color }]}
-                      />
-                    );
-                  })}
-                </View>
-              ))}
-            </View>
-          </View>
+          ))}
         </View>
-      </ScrollView>
+
+        {/* Grid */}
+        <View style={[styles.grid, { width: actualGridWidth }]}>
+          {weeksData.map((week, weekIndex) => (
+            <View key={weekIndex} style={styles.weekColumn}>
+              {week.map((dateStr, dayIndex) => {
+                if (!dateStr) {
+                  return (
+                    <View 
+                      key={dayIndex} 
+                      style={{ width: cellSize, height: cellSize, marginBottom: cellGap, marginRight: weekIndex < weeksData.length - 1 ? cellGap : 0 }} 
+                    />
+                  );
+                }
+
+                const dailyPrayers = data[dateStr];
+                const level = dailyPrayers ? getContributionLevel(dailyPrayers) : 0;
+                const color = getContributionColor(level, isDark);
+
+                return (
+                  <View
+                    key={dateStr}
+                    style={[
+                      styles.cell, 
+                      { 
+                        backgroundColor: color, 
+                        width: cellSize, 
+                        height: cellSize,
+                        marginBottom: cellGap,
+                        marginRight: weekIndex < weeksData.length - 1 ? cellGap : 0,
+                      }
+                    ]}
+                  />
+                );
+              })}
+            </View>
+          ))}
+        </View>
+      </View>
 
       {/* Legend */}
       <View style={styles.legendContainer}>
@@ -170,91 +197,70 @@ export const ContributionGraph: React.FC<ContributionGraphProps> = ({ data, week
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 16,
+    padding: 16,
     marginHorizontal: 16,
     marginVertical: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 4,
+    overflow: 'hidden',
   },
   headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   subtitle: {
-    fontSize: 13,
+    fontSize: 12,
   },
-  graphContainer: {
-    paddingRight: 16,
-  },
-  monthLabelsContainer: {
-    flexDirection: 'row',
-    marginBottom: 4,
-    position: 'relative',
+  monthLabelsRow: {
     height: 16,
-  },
-  dayLabelsSpace: {
-    width: 28,
+    position: 'relative',
+    marginBottom: 4,
   },
   monthLabel: {
     fontSize: 10,
-    position: 'absolute',
+    fontWeight: '500',
   },
   graphContent: {
     flexDirection: 'row',
   },
   dayLabelsContainer: {
     marginRight: 4,
-    justifyContent: 'space-between',
   },
   dayLabel: {
     fontSize: 9,
-    height: 12,
-    lineHeight: 12,
+    fontWeight: '500',
+    textAlign: 'center',
   },
-  dayLabelVisible: {},
   grid: {
     flexDirection: 'row',
   },
-  weekColumn: {
-    marginRight: 2,
-  },
+  weekColumn: {},
   cell: {
-    width: 12,
-    height: 12,
-    borderRadius: 3,
-    marginBottom: 2,
-  },
-  emptyCell: {
-    width: 12,
-    height: 12,
-    marginBottom: 2,
+    borderRadius: 2,
   },
   legendContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    marginTop: 16,
-    gap: 4,
+    marginTop: 10,
+    gap: 3,
   },
   legendText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '500',
-    marginHorizontal: 6,
+    marginHorizontal: 4,
   },
   legendCell: {
-    width: 12,
-    height: 12,
-    borderRadius: 3,
+    width: 10,
+    height: 10,
+    borderRadius: 2,
   },
 });

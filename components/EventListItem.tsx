@@ -1,14 +1,27 @@
 import { HIJRI_MONTHS, IslamicEvent } from '@/data/hijri-events';
+import { HIJRI_MONTHS_ML, IslamicEventML } from '@/data/hijri-events-ml';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+// Event type icons
+const TYPE_ICONS: { [key: string]: keyof typeof Ionicons.glyphMap } = {
+  religious: 'star',
+  wafat: 'heart-outline',
+  birth: 'sparkles',
+  historic: 'book-outline',
+  default: 'calendar-outline',
+};
+
 interface EventListItemProps {
-  event: IslamicEvent;
+  event: IslamicEvent | IslamicEventML;
   onPress: () => void;
+  displayTitle?: string;
+  isMalayalam?: boolean;
 }
 
-export const EventListItem: React.FC<EventListItemProps> = ({ event, onPress }) => {
+export const EventListItem: React.FC<EventListItemProps> = ({ event, onPress, displayTitle, isMalayalam = false }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
@@ -27,22 +40,16 @@ export const EventListItem: React.FC<EventListItemProps> = ({ event, onPress }) 
     }
   };
 
-  const getTypeIcon = () => {
-    switch (event.type) {
-      case 'religious':
-        return '🕌';
-      case 'wafat':
-        return '🕯️';
-      case 'birth':
-        return '🌟';
-      case 'historic':
-        return '📜';
-      default:
-        return '📅';
-    }
+  const getTypeIcon = (): keyof typeof Ionicons.glyphMap => {
+    return TYPE_ICONS[event.type] || TYPE_ICONS.default;
   };
 
-  const monthName = HIJRI_MONTHS.find(m => m.number === event.month)?.name || '';
+  const months = isMalayalam ? HIJRI_MONTHS_ML : HIJRI_MONTHS;
+  const month = months.find(m => m.number === event.month);
+  const monthName = month?.name || '';
+
+  const title = displayTitle || event.title;
+  const description = isMalayalam && 'descriptionMl' in event ? event.descriptionMl : event.description;
 
   return (
     <TouchableOpacity 
@@ -59,12 +66,17 @@ export const EventListItem: React.FC<EventListItemProps> = ({ event, onPress }) 
       
       <View style={styles.contentContainer}>
         <View style={styles.titleRow}>
-          <Text style={styles.icon}>{getTypeIcon()}</Text>
+          <Ionicons 
+            name={getTypeIcon()} 
+            size={14} 
+            color={isDark ? '#B0BEC5' : '#757575'} 
+            style={styles.iconStyle}
+          />
           <Text 
             style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
             numberOfLines={1}
           >
-            {event.title}
+            {title}
           </Text>
         </View>
         <Text 
@@ -77,31 +89,46 @@ export const EventListItem: React.FC<EventListItemProps> = ({ event, onPress }) 
           style={[styles.description, { color: isDark ? '#9E9E9E' : '#616161' }]}
           numberOfLines={2}
         >
-          {event.description}
+          {description}
         </Text>
         
         {/* Feature indicators */}
         <View style={styles.featuresRow}>
           {event.dhikr && event.dhikr.length > 0 && (
             <View style={[styles.featureTag, { backgroundColor: isDark ? '#1B5E20' : '#E8F5E9' }]}>
-              <Text style={[styles.featureText, { color: isDark ? '#81C784' : '#2E7D32' }]}>📿 Dhikr</Text>
+              <View style={styles.featureContent}>
+                <Ionicons name="ellipse-outline" size={10} color={isDark ? '#81C784' : '#2E7D32'} />
+                <Text style={[styles.featureText, { color: isDark ? '#81C784' : '#2E7D32' }]}>
+                  {' '}{isMalayalam ? 'ദിക്ർ' : 'Dhikr'}
+                </Text>
+              </View>
             </View>
           )}
           {event.dua && event.dua.length > 0 && (
             <View style={[styles.featureTag, { backgroundColor: isDark ? '#0D47A1' : '#E3F2FD' }]}>
-              <Text style={[styles.featureText, { color: isDark ? '#90CAF9' : '#1565C0' }]}>🤲 Dua</Text>
+              <View style={styles.featureContent}>
+                <Ionicons name="hand-left-outline" size={10} color={isDark ? '#90CAF9' : '#1565C0'} />
+                <Text style={[styles.featureText, { color: isDark ? '#90CAF9' : '#1565C0' }]}>
+                  {' '}{isMalayalam ? 'ദുആ' : 'Dua'}
+                </Text>
+              </View>
             </View>
           )}
           {event.aurad && event.aurad.length > 0 && (
             <View style={[styles.featureTag, { backgroundColor: isDark ? '#4A148C' : '#F3E5F5' }]}>
-              <Text style={[styles.featureText, { color: isDark ? '#CE93D8' : '#7B1FA2' }]}>📖 Aurad</Text>
+              <View style={styles.featureContent}>
+                <Ionicons name="book-outline" size={10} color={isDark ? '#CE93D8' : '#7B1FA2'} />
+                <Text style={[styles.featureText, { color: isDark ? '#CE93D8' : '#7B1FA2' }]}>
+                  {' '}{isMalayalam ? 'ഔറാദ്' : 'Aurad'}
+                </Text>
+              </View>
             </View>
           )}
         </View>
       </View>
 
       <View style={styles.arrowContainer}>
-        <Text style={[styles.arrow, { color: isDark ? '#757575' : '#BDBDBD' }]}>›</Text>
+        <Ionicons name="chevron-forward" size={20} color={isDark ? '#757575' : '#BDBDBD'} />
       </View>
     </TouchableOpacity>
   );
@@ -147,8 +174,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 2,
   },
-  icon: {
-    fontSize: 14,
+  iconStyle: {
     marginRight: 6,
   },
   title: {
@@ -176,6 +202,10 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 10,
   },
+  featureContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   featureText: {
     fontSize: 10,
     fontWeight: '500',
@@ -183,9 +213,5 @@ const styles = StyleSheet.create({
   arrowContainer: {
     justifyContent: 'center',
     paddingLeft: 8,
-  },
-  arrow: {
-    fontSize: 24,
-    fontWeight: '300',
   },
 });

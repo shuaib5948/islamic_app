@@ -1,40 +1,84 @@
 import { ContributionGraph } from '@/components/ContributionGraph';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
-    DailyPrayers,
-    PRAYERS,
-    PrayerName,
-    PrayerStats,
-    PrayerStatus,
-    STATUS_CONFIG,
-    createEmptyDailyPrayers,
-    formatDateKey,
-    getPrayerInfo,
+  DailyPrayers,
+  PRAYERS,
+  PrayerName,
+  PrayerStats,
+  PrayerStatus,
+  createEmptyDailyPrayers,
+  formatDateKey,
+  getPrayerInfo,
 } from '@/data/prayer-tracker';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import {
-    calculateStats,
-    getContributionData,
-    getPrayersForDate,
-    updatePrayerStatus,
+  calculateStats,
+  getContributionData,
+  getPrayersForDate,
+  updatePrayerStatus,
 } from '@/utils/prayer-storage';
-import React, { useCallback, useEffect, useState } from 'react';
 import {
-    Dimensions,
-    RefreshControl,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  PrayerTimes,
+  PrayerTimesData,
+  formatTimeDisplay,
+  getDefaultPrayerTimes,
+  getNextPrayerInfo,
+  getPrayerTimes,
+} from '@/utils/prayer-times';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  Dimensions,
+  Modal,
+  RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+
+// Prayer icon mapping (using Ionicons)
+const PRAYER_ICONS: Record<PrayerName, string> = {
+  fajr: 'sunny-outline',
+  dhuhr: 'sunny',
+  asr: 'partly-sunny-outline',
+  maghrib: 'cloudy-night-outline',
+  isha: 'moon-outline',
+};
 
 const { width } = Dimensions.get('window');
 
 export default function PrayerScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const { language } = useLanguage();
+  const isMalayalam = language === 'ml';
+
+  // Labels with Malayalam translations
+  const labels = {
+    prayerTracker: isMalayalam ? 'നമസ്കാര ട്രാക്കർ' : 'Prayer Tracker',
+    buildConsistency: isMalayalam ? 'സ്ഥിരത വളർത്തുക' : 'Build Consistency in Salah',
+    nextPrayer: isMalayalam ? 'അടുത്ത നമസ്കാരം' : 'Next Prayer',
+    timeLeft: isMalayalam ? 'സമയം ബാക്കി' : 'time left',
+    todayProgress: isMalayalam ? 'ഇന്നത്തെ പുരോഗതി' : "Today's Progress",
+    prayersCompleted: isMalayalam ? 'നമസ്കാരങ്ങൾ പൂർത്തിയായി' : 'prayers completed',
+    markPrayer: isMalayalam ? 'നമസ്കാരം രേഖപ്പെടുത്തുക' : 'Mark Prayer',
+    onTime: isMalayalam ? 'സമയത്ത് (അദാ)' : 'On-time (Adaah)',
+    late: isMalayalam ? 'വൈകി (ഖളാ)' : 'Late (Qada)',
+    howCompleted: isMalayalam ? 'എങ്ങനെ പൂർത്തിയാക്കി?' : 'How was it completed?',
+    cancel: isMalayalam ? 'റദ്ദാക്കുക' : 'Cancel',
+    dayStreak: isMalayalam ? 'ദിവസ സ്ട്രീക്ക്' : 'Day Streak',
+    consistency: isMalayalam ? 'സ്ഥിരത' : 'Consistency',
+    thisMonth: isMalayalam ? 'ഈ മാസം' : 'This Month',
+    allPrayersComplete: isMalayalam ? 'എല്ലാ നമസ്കാരങ്ങളും പൂർത്തിയായി! 🎉' : 'All prayers complete! 🎉',
+    keepGoing: isMalayalam ? 'തുടരുക!' : 'Keep going!',
+    loadingLocation: isMalayalam ? 'സ്ഥാനം കണ്ടെത്തുന്നു...' : 'Getting location...',
+  };
 
   const today = formatDateKey(new Date());
   const [selectedDate, setSelectedDate] = useState(today);
@@ -42,6 +86,37 @@ export default function PrayerScreen() {
   const [stats, setStats] = useState<PrayerStats | null>(null);
   const [contributionData, setContributionData] = useState<Record<string, DailyPrayers>>({});
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedPrayer, setSelectedPrayer] = useState<PrayerName | null>(null);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Prayer times state
+  const [prayerTimesData, setPrayerTimesData] = useState<PrayerTimesData | null>(null);
+  const [loadingPrayerTimes, setLoadingPrayerTimes] = useState(true);
+
+  // Update current time every minute for countdown
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Load prayer times based on location
+  const loadPrayerTimes = useCallback(async (forceRefresh = false) => {
+    setLoadingPrayerTimes(true);
+    try {
+      const data = await getPrayerTimes(3, forceRefresh); // Method 3 = Muslim World League
+      setPrayerTimesData(data);
+    } catch (error) {
+      console.error('Error loading prayer times:', error);
+    } finally {
+      setLoadingPrayerTimes(false);
+    }
+  }, []);
+
+  // Get current prayer times (from API or fallback)
+  const prayerTimes: PrayerTimes = useMemo(() => {
+    return prayerTimesData?.times || getDefaultPrayerTimes();
+  }, [prayerTimesData]);
 
   const loadData = useCallback(async () => {
     const prayers = await getPrayersForDate(selectedDate);
@@ -55,27 +130,53 @@ export default function PrayerScreen() {
   }, [selectedDate]);
 
   useEffect(() => {
+    loadPrayerTimes();
+  }, [loadPrayerTimes]);
+
+  useEffect(() => {
     loadData();
   }, [loadData]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadData();
+    await Promise.all([loadData(), loadPrayerTimes(true)]);
     setRefreshing(false);
-  }, [loadData]);
+  }, [loadData, loadPrayerTimes]);
+
+  const handlePrayerTap = (prayer: PrayerName) => {
+    const currentStatus = dailyPrayers.prayers[prayer];
+    if (currentStatus === 'not_tracked') {
+      setSelectedPrayer(prayer);
+      setShowStatusModal(true);
+    } else {
+      // Toggle off if already marked
+      handlePrayerUpdate(prayer, 'not_tracked');
+    }
+  };
 
   const handlePrayerUpdate = async (prayer: PrayerName, status: PrayerStatus) => {
     await updatePrayerStatus(selectedDate, prayer, status);
     await loadData();
+    setShowStatusModal(false);
+    setSelectedPrayer(null);
   };
 
   // Calculate today's progress
   const statuses = Object.values(dailyPrayers.prayers);
-  const prayedCount = statuses.filter(s => s === 'prayed').length;
+  const completedCount = statuses.filter(s => s === 'prayed' || s === 'late').length;
+  const onTimeCount = statuses.filter(s => s === 'prayed').length;
   const lateCount = statuses.filter(s => s === 'late').length;
-  const qazaCount = statuses.filter(s => s === 'qaza').length;
-  const missedCount = statuses.filter(s => s === 'missed').length;
-  const completionPercentage = Math.round(((prayedCount + lateCount) / 5) * 100);
+
+  // Get next prayer using location-based times
+  const getNextPrayer = useMemo(() => {
+    const nextPrayer = getNextPrayerInfo(prayerTimes, currentTime);
+    return {
+      name: nextPrayer.name as PrayerName,
+      info: getPrayerInfo(nextPrayer.name as PrayerName),
+      timeLeft: nextPrayer.timeLeft,
+      timeString: formatTimeDisplay(nextPrayer.time),
+    };
+  }, [currentTime, prayerTimes]);
 
   // Get last 7 days for quick selection
   const getRecentDates = () => {
@@ -89,20 +190,7 @@ export default function PrayerScreen() {
   };
 
   const recentDates = getRecentDates();
-
-  const dateObj = new Date(selectedDate);
   const isToday = selectedDate === today;
-  const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-  const dateStr = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  const isFriday = dateObj.getDay() === 5;
-
-  // Get greeting based on time
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
-  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#0D1117' : '#F8FAFC' }]}>
@@ -115,333 +203,357 @@ export default function PrayerScreen() {
         {/* Header Section */}
         <View style={styles.headerSection}>
           <View style={styles.headerTop}>
-            <View>
-              <Text style={[styles.greeting, { color: isDark ? '#8B949E' : '#64748B' }]}>
-                {getGreeting()} 👋
-              </Text>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color={isDark ? '#FFFFFF' : '#0F172A'} />
+            </TouchableOpacity>
+            <View style={styles.headerTitles}>
               <Text style={[styles.headerTitle, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
-                Prayer Tracker
+                {labels.prayerTracker}
               </Text>
-            </View>
-            <View style={[styles.streakBadge, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
-              <Text style={styles.streakIcon}>🔥</Text>
-              <Text style={[styles.streakText, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
-                {stats?.currentStreak || 0}
-              </Text>
-              <Text style={[styles.streakLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>
-                day streak
+              <Text style={[styles.headerSubtitle, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                {labels.buildConsistency}
               </Text>
             </View>
           </View>
-        </View>
-
-        {/* Date Selector */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.dateScrollView}
-          contentContainerStyle={styles.dateScrollContent}
-        >
-          {recentDates.map((date) => {
-            const d = new Date(date);
-            const dayNum = d.getDate();
-            const day = d.toLocaleDateString('en-US', { weekday: 'short' });
-            const isSelected = date === selectedDate;
-            const isTodayDate = date === today;
-
-            return (
-              <TouchableOpacity
-                key={date}
-                onPress={() => setSelectedDate(date)}
-                style={[
-                  styles.dateChip,
-                  {
-                    backgroundColor: isSelected
-                      ? '#10B981'
-                      : isDark
-                      ? '#1C2128'
-                      : '#FFFFFF',
-                  },
-                  isTodayDate && !isSelected && styles.todayChipBorder,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.dateChipDay,
-                    { color: isSelected ? 'rgba(255,255,255,0.8)' : isDark ? '#8B949E' : '#64748B' },
-                  ]}
-                >
-                  {day}
+          {/* Location indicator */}
+          <View style={[styles.locationContainer, { backgroundColor: isDark ? '#1C2128' : '#F1F5F9' }]}>
+            {loadingPrayerTimes ? (
+              <View style={styles.locationRow}>
+                <ActivityIndicator size="small" color={isDark ? '#8B949E' : '#64748B'} />
+                <Text style={[styles.locationText, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                  {labels.loadingLocation}
                 </Text>
-                <Text
-                  style={[
-                    styles.dateChipNum,
-                    { color: isSelected ? '#FFFFFF' : isDark ? '#FFFFFF' : '#0F172A' },
-                  ]}
-                >
-                  {dayNum}
+              </View>
+            ) : (
+              <TouchableOpacity style={styles.locationRow} onPress={() => loadPrayerTimes(true)}>
+                <Ionicons name="location-outline" size={16} color={isDark ? '#8B949E' : '#64748B'} />
+                <Text style={[styles.locationText, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+                  {prayerTimesData?.location?.city || 'Unknown Location'}{prayerTimesData?.location?.country ? `, ${prayerTimesData.location.country}` : ''}
                 </Text>
-                {isTodayDate && (
-                  <View style={[styles.todayDot, { backgroundColor: isSelected ? '#FFFFFF' : '#10B981' }]} />
-                )}
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-
-        {/* Progress Card */}
-        <View style={[styles.progressCard, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
-          <View style={styles.progressHeader}>
-            <View>
-              <Text style={[styles.progressDate, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
-                {dayName} {isFriday && '🕌'}
-              </Text>
-              <Text style={[styles.progressDateFull, { color: isDark ? '#8B949E' : '#64748B' }]}>
-                {dateStr}
-              </Text>
-            </View>
-            {!isToday && (
-              <TouchableOpacity
-                onPress={() => setSelectedDate(today)}
-                style={styles.goTodayBtn}
-              >
-                <Text style={styles.goTodayText}>Today →</Text>
+                <Ionicons name="refresh-outline" size={14} color={isDark ? '#6B7280' : '#9CA3AF'} style={{ marginLeft: 6 }} />
               </TouchableOpacity>
             )}
           </View>
+        </View>
 
-          {/* Circular Progress */}
-          <View style={styles.circularProgressContainer}>
-            <View style={[styles.circularOuter, { borderColor: isDark ? '#30363D' : '#E2E8F0' }]}>
-              <View
-                style={[
-                  styles.circularProgress,
-                  {
-                    backgroundColor: completionPercentage >= 80 ? '#10B981' :
-                                    completionPercentage >= 60 ? '#F59E0B' :
-                                    completionPercentage >= 40 ? '#EF4444' : isDark ? '#30363D' : '#E2E8F0',
-                  },
-                ]}
-              >
-                <Text style={[styles.progressPercentage, { color: '#FFFFFF' }]}>
-                  {completionPercentage}%
+        {/* Combined Card: Next Prayer + Today's Goal */}
+        <View style={[styles.combinedCard, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
+          {/* Left: Next Prayer */}
+          <View style={styles.combinedLeft}>
+            <Text style={[styles.combinedLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>
+              {labels.nextPrayer}
+            </Text>
+            {loadingPrayerTimes ? (
+              <ActivityIndicator size="small" color="#10B981" style={{ marginVertical: 10 }} />
+            ) : (
+              <>
+                <View style={styles.nextPrayerNameRow}>
+                  <Ionicons 
+                    name={PRAYER_ICONS[getNextPrayer.name] as any} 
+                    size={20} 
+                    color={isDark ? '#FFFFFF' : '#0F172A'} 
+                    style={{ marginRight: 6 }}
+                  />
+                  <Text style={[styles.combinedPrayerName, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+                    {getNextPrayer.info?.label}
+                  </Text>
+                </View>
+                <Text style={[styles.combinedCountdown, { color: '#10B981' }]}>
+                  {getNextPrayer.timeLeft}
                 </Text>
-                <Text style={[styles.progressLabel, { color: 'rgba(255,255,255,0.8)' }]}>
-                  Complete
+                <Text style={[styles.combinedTime, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                  at {getNextPrayer.timeString}
                 </Text>
-              </View>
-            </View>
+              </>
+            )}
           </View>
 
-          {/* Stats Row */}
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <View style={[styles.statDot, { backgroundColor: '#10B981' }]} />
-              <Text style={[styles.statValue, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>{prayedCount}</Text>
-              <Text style={[styles.statLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>On Time</Text>
+          {/* Divider */}
+          <View style={[styles.combinedDivider, { backgroundColor: isDark ? '#30363D' : '#E2E8F0' }]} />
+
+          {/* Right: Today's Goal */}
+          <View style={styles.combinedRight}>
+            <Text style={[styles.combinedLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>
+              {labels.todayProgress}
+            </Text>
+            <View style={[
+              styles.goalCircle,
+              { 
+                borderColor: completedCount === 5 ? '#10B981' : isDark ? '#30363D' : '#E2E8F0',
+                backgroundColor: completedCount === 5 ? 'rgba(16, 185, 129, 0.1)' : 'transparent'
+              }
+            ]}>
+              <Text style={[styles.goalCount, { color: completedCount === 5 ? '#10B981' : isDark ? '#FFFFFF' : '#0F172A' }]}>
+                {completedCount}/5
+              </Text>
             </View>
-            <View style={styles.statItem}>
-              <View style={[styles.statDot, { backgroundColor: '#F59E0B' }]} />
-              <Text style={[styles.statValue, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>{lateCount}</Text>
-              <Text style={[styles.statLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>Late</Text>
-            </View>
-            <View style={styles.statItem}>
-              <View style={[styles.statDot, { backgroundColor: '#8B5CF6' }]} />
-              <Text style={[styles.statValue, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>{qazaCount}</Text>
-              <Text style={[styles.statLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>Qaza</Text>
-            </View>
-            <View style={styles.statItem}>
-              <View style={[styles.statDot, { backgroundColor: '#EF4444' }]} />
-              <Text style={[styles.statValue, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>{missedCount}</Text>
-              <Text style={[styles.statLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>Missed</Text>
-            </View>
+            {completedCount === 5 ? (
+              <Text style={styles.goalCompleteText}>🎉 Done!</Text>
+            ) : (
+              <View style={styles.goalMiniStats}>
+                <Text style={[styles.goalMiniStat, { color: '#10B981' }]}>✓{onTimeCount}</Text>
+                <Text style={[styles.goalMiniStat, { color: '#F59E0B' }]}>⏱{lateCount}</Text>
+              </View>
+            )}
           </View>
         </View>
 
-        {/* Prayer List */}
-        <View style={styles.prayerSection}>
-          <Text style={[styles.sectionTitle, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
-            Daily Prayers
-          </Text>
+        {/* Date Navigator - Single Line */}
+        <View style={styles.dateNavigator}>
+          <TouchableOpacity
+            onPress={() => {
+              const d = new Date(selectedDate);
+              d.setDate(d.getDate() - 1);
+              setSelectedDate(formatDateKey(d));
+            }}
+            style={styles.dateArrowBtn}
+          >
+            <Text style={[styles.dateArrow, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>‹</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            onPress={() => setSelectedDate(today)}
+            style={styles.dateDisplay}
+          >
+            <Text style={[styles.dateText, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+              {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+              {isToday && <Text style={styles.todayBadge}> • Today</Text>}
+            </Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            onPress={() => {
+              const d = new Date(selectedDate);
+              d.setDate(d.getDate() + 1);
+              if (d <= new Date()) {
+                setSelectedDate(formatDateKey(d));
+              }
+            }}
+            style={[styles.dateArrowBtn, new Date(selectedDate) >= new Date(today) && styles.dateArrowDisabled]}
+            disabled={new Date(selectedDate) >= new Date(today)}
+          >
+            <Text style={[styles.dateArrow, { color: new Date(selectedDate) >= new Date(today) ? (isDark ? '#30363D' : '#E2E8F0') : (isDark ? '#FFFFFF' : '#0F172A') }]}>›</Text>
+          </TouchableOpacity>
+        </View>
 
+        {/* Prayer List - Clean Card Design */}
+        <View style={styles.prayerSection}>
           {PRAYERS.map((prayer) => {
             const info = getPrayerInfo(prayer.name);
             const status = dailyPrayers.prayers[prayer.name];
+            const isCompleted = status === 'prayed' || status === 'late';
+            const isLate = status === 'late';
+            const time = prayerTimes[prayer.name];
 
             return (
-              <View
+              <TouchableOpacity
                 key={prayer.name}
-                style={[styles.prayerCard, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}
+                onPress={() => handlePrayerTap(prayer.name)}
+                activeOpacity={0.7}
+                style={[
+                  styles.prayerCard,
+                  { 
+                    backgroundColor: isLate 
+                      ? (isDark ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.08)')
+                      : (isDark ? '#1C2128' : '#FFFFFF')
+                  },
+                  isCompleted && (isLate ? styles.prayerCardLate : styles.prayerCardCompleted),
+                ]}
               >
-                <View style={styles.prayerInfo}>
-                  <View style={[styles.prayerIconContainer, {
-                    backgroundColor: status === 'prayed' ? 'rgba(16, 185, 129, 0.15)' :
-                                    status === 'late' ? 'rgba(245, 158, 11, 0.15)' :
-                                    status === 'qaza' ? 'rgba(139, 92, 246, 0.15)' :
-                                    status === 'missed' ? 'rgba(239, 68, 68, 0.15)' :
-                                    isDark ? '#30363D' : '#F1F5F9',
-                  }]}>
-                    <Text style={styles.prayerIcon}>{info?.icon}</Text>
+                <View style={styles.prayerLeft}>
+                  <View style={[
+                    styles.prayerIconContainer,
+                    {
+                      backgroundColor: isCompleted
+                        ? status === 'prayed' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.2)'
+                        : isDark ? '#30363D' : '#F1F5F9',
+                    }
+                  ]}>
+                    <Ionicons 
+                      name={PRAYER_ICONS[prayer.name] as any} 
+                      size={22} 
+                      color={isCompleted 
+                        ? status === 'prayed' ? '#10B981' : '#F59E0B'
+                        : isDark ? '#8B949E' : '#64748B'
+                      } 
+                    />
                   </View>
                   <View>
-                    <Text style={[styles.prayerName, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
-                      {info?.label}
-                    </Text>
-                    <Text style={[styles.prayerArabic, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                    <View style={styles.prayerNameRow}>
+                      <Text style={[styles.prayerName, { color: isLate ? '#F59E0B' : (isDark ? '#FFFFFF' : '#0F172A') }]}>
+                        {info?.label}
+                      </Text>
+                      <Text style={[styles.prayerTime, { color: isLate ? '#D97706' : (isDark ? '#8B949E' : '#64748B') }]}>
+                        {formatTimeDisplay(time)}
+                      </Text>
+                    </View>
+                    <Text style={[styles.prayerArabic, { color: isLate ? '#D97706' : (isDark ? '#8B949E' : '#64748B') }]}>
                       {info?.arabic}
                     </Text>
                   </View>
                 </View>
 
-                <View style={styles.statusButtons}>
-                  {(['prayed', 'late', 'qaza', 'missed'] as PrayerStatus[]).map((s) => {
-                    const config = STATUS_CONFIG[s];
-                    const isSelected = status === s;
-
-                    return (
-                      <TouchableOpacity
-                        key={s}
-                        onPress={() => handlePrayerUpdate(prayer.name, s)}
-                        style={[
-                          styles.statusBtn,
-                          {
-                            backgroundColor: isSelected ? config.color : 'transparent',
-                            borderColor: config.color,
-                            borderWidth: isSelected ? 0 : 1.5,
-                          },
-                        ]}
-                      >
-                        <Text style={[styles.statusBtnIcon, { opacity: isSelected ? 1 : 0.7 }]}>
-                          {config.icon}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
+                <View style={styles.prayerRight}>
+                  {isCompleted ? (
+                    <View style={[
+                      styles.completedBadge,
+                      { backgroundColor: status === 'prayed' ? '#10B981' : '#F59E0B' }
+                    ]}>
+                      <Ionicons 
+                        name={status === 'prayed' ? 'checkmark' : 'time-outline'} 
+                        size={12} 
+                        color="#FFFFFF" 
+                        style={{ marginRight: 4 }}
+                      />
+                      <Text style={styles.completedBadgeText}>
+                        {status === 'prayed' ? 'On-time' : 'Late'}
+                      </Text>
+                    </View>
+                  ) : (
+                    <View style={[styles.markButton, { borderColor: isDark ? '#30363D' : '#E2E8F0' }]}>
+                      <Text style={[styles.markButtonText, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                        Tap to mark
+                      </Text>
+                    </View>
+                  )}
                 </View>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </View>
 
-        {/* Quick Status Legend */}
-        <View style={[styles.legendCard, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
-          <View style={styles.legendRow}>
-            {(['prayed', 'late', 'qaza', 'missed'] as PrayerStatus[]).map((s) => {
-              const config = STATUS_CONFIG[s];
-              return (
-                <View key={s} style={styles.legendItem}>
-                  <View style={[styles.legendDot, { backgroundColor: config.color }]} />
-                  <Text style={[styles.legendText, { color: isDark ? '#8B949E' : '#64748B' }]}>
-                    {config.label}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        </View>
-
-        {/* Contribution Graph */}
+        {/* Consistency Calendar */}
         <ContributionGraph data={contributionData} weeks={12} />
 
-        {/* Overall Stats */}
+        {/* Stats Summary */}
         {stats && (
-          <View style={[styles.overallStatsCard, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
-            <Text style={[styles.overallTitle, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
-              📊 30-Day Overview
-            </Text>
-
-            <View style={styles.overallGrid}>
-              <View style={styles.overallItem}>
-                <Text style={[styles.overallValue, { color: '#10B981' }]}>
-                  {stats.totalPrayed}
-                </Text>
-                <Text style={[styles.overallLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>
-                  On Time
-                </Text>
-              </View>
-              <View style={styles.overallItem}>
-                <Text style={[styles.overallValue, { color: '#F59E0B' }]}>
-                  {stats.totalLate}
-                </Text>
-                <Text style={[styles.overallLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>
-                  Late
-                </Text>
-              </View>
-              <View style={styles.overallItem}>
-                <Text style={[styles.overallValue, { color: '#8B5CF6' }]}>
-                  {stats.totalQaza}
-                </Text>
-                <Text style={[styles.overallLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>
-                  Qaza
-                </Text>
-              </View>
-              <View style={styles.overallItem}>
-                <Text style={[styles.overallValue, { color: '#EF4444' }]}>
-                  {stats.totalMissed}
-                </Text>
-                <Text style={[styles.overallLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>
-                  Missed
-                </Text>
-              </View>
-            </View>
-
-            {/* Progress Bar */}
-            <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBarBg, { backgroundColor: isDark ? '#30363D' : '#E2E8F0' }]}>
-                <View
-                  style={[
-                    styles.progressBarFill,
-                    {
-                      width: `${stats.consistencyPercentage}%`,
-                      backgroundColor: stats.consistencyPercentage >= 80 ? '#10B981' :
-                                      stats.consistencyPercentage >= 60 ? '#F59E0B' : '#EF4444',
-                    },
-                  ]}
-                />
-              </View>
-              <Text style={[styles.progressBarText, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
-                {stats.consistencyPercentage}% Consistency
+          <View style={[styles.statsCard, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
+            <View style={styles.statsTitleRow}>
+              <Ionicons name="stats-chart" size={18} color={isDark ? '#FFFFFF' : '#0F172A'} style={{ marginRight: 8 }} />
+              <Text style={[styles.statsTitle, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+                30-Day Summary
               </Text>
             </View>
+            
+            <View style={styles.statsGrid}>
+              <View style={styles.statsItem}>
+                <Text style={[styles.statsValue, { color: '#10B981' }]}>{stats.totalPrayed}</Text>
+                <Text style={[styles.statsLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>On-time</Text>
+              </View>
+              <View style={styles.statsItem}>
+                <Text style={[styles.statsValue, { color: '#F59E0B' }]}>{stats.totalLate}</Text>
+                <Text style={[styles.statsLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>Late</Text>
+              </View>
+              <View style={styles.statsItem}>
+                <Text style={[styles.statsValue, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>{stats.consistencyPercentage}%</Text>
+                <Text style={[styles.statsLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>Consistency</Text>
+              </View>
+            </View>
 
-            {/* Streaks */}
-            <View style={styles.streaksContainer}>
+            {/* Streak Cards */}
+            <View style={styles.streakCardsRow}>
               <View style={[styles.streakCard, { backgroundColor: isDark ? '#30363D' : '#F8FAFC' }]}>
-                <Text style={styles.streakEmoji}>🔥</Text>
-                <Text style={[styles.streakValue, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+                <Ionicons name="flame" size={20} color="#F59E0B" />
+                <Text style={[styles.streakCardValue, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
                   {stats.currentStreak}
                 </Text>
                 <Text style={[styles.streakCardLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>
-                  Current Streak
+                  Current
                 </Text>
               </View>
               <View style={[styles.streakCard, { backgroundColor: isDark ? '#30363D' : '#F8FAFC' }]}>
-                <Text style={styles.streakEmoji}>🏆</Text>
-                <Text style={[styles.streakValue, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+                <Ionicons name="trophy" size={20} color="#10B981" />
+                <Text style={[styles.streakCardValue, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
                   {stats.longestStreak}
                 </Text>
                 <Text style={[styles.streakCardLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>
-                  Longest Streak
+                  Best
                 </Text>
               </View>
             </View>
           </View>
         )}
 
-        {/* Motivation Card */}
-        <View style={[styles.motivationCard, { backgroundColor: '#10B981' }]}>
-          <Text style={styles.motivationIcon}>💡</Text>
-          <View style={styles.motivationContent}>
-            <Text style={styles.motivationTitle}>Daily Reminder</Text>
-            <Text style={styles.motivationText}>
-              "The first matter that the slave will be brought to account for on the Day of Judgment is the prayer."
-            </Text>
-            <Text style={styles.motivationSource}>— Prophet Muhammad ﷺ</Text>
-          </View>
+        {/* Motivation Quote */}
+        <View style={[styles.quoteCard, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
+          <Ionicons name="bulb-outline" size={24} color={isDark ? '#F59E0B' : '#F59E0B'} style={{ marginBottom: 8 }} />
+          <Text style={[styles.quoteText, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+            "The first matter the slave will be brought to account for is prayer."
+          </Text>
+          <Text style={[styles.quoteSource, { color: isDark ? '#8B949E' : '#64748B' }]}>
+            — Prophet Muhammad ﷺ
+          </Text>
         </View>
 
         <View style={{ height: 120 }} />
       </ScrollView>
+
+      {/* Status Selection Modal */}
+      <Modal
+        visible={showStatusModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowStatusModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
+            <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+              {labels.markPrayer}
+            </Text>
+            {selectedPrayer && (
+              <View style={styles.modalPrayerInfo}>
+                <Ionicons 
+                  name={PRAYER_ICONS[selectedPrayer] as any} 
+                  size={28} 
+                  color={isDark ? '#FFFFFF' : '#0F172A'} 
+                  style={{ marginRight: 8 }}
+                />
+                <Text style={[styles.modalPrayerName, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+                  {getPrayerInfo(selectedPrayer)?.label}
+                </Text>
+              </View>
+            )}
+            <Text style={[styles.modalSubtitle, { color: isDark ? '#8B949E' : '#64748B' }]}>
+              {labels.howCompleted}
+            </Text>
+
+            <TouchableOpacity
+              style={[styles.statusOption, { backgroundColor: 'rgba(16, 185, 129, 0.1)', borderColor: '#10B981' }]}
+              onPress={() => selectedPrayer && handlePrayerUpdate(selectedPrayer, 'prayed')}
+            >
+              <Ionicons name="checkmark-circle" size={28} color="#10B981" style={{ marginRight: 14 }} />
+              <View>
+                <Text style={[styles.statusOptionTitle, { color: '#10B981' }]}>{labels.onTime}</Text>
+                <Text style={[styles.statusOptionDesc, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                  Prayed within the designated time
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.statusOption, { backgroundColor: 'rgba(245, 158, 11, 0.1)', borderColor: '#F59E0B' }]}
+              onPress={() => selectedPrayer && handlePrayerUpdate(selectedPrayer, 'late')}
+            >
+              <Ionicons name="time" size={28} color="#F59E0B" style={{ marginRight: 14 }} />
+              <View>
+                <Text style={[styles.statusOptionTitle, { color: '#F59E0B' }]}>{labels.late}</Text>
+                <Text style={[styles.statusOptionDesc, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                  Made up after the time passed
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.cancelButton, { backgroundColor: isDark ? '#30363D' : '#F1F5F9' }]}
+              onPress={() => setShowStatusModal(false)}
+            >
+              <Text style={[styles.cancelButtonText, { color: isDark ? '#FFFFFF' : '#64748B' }]}>
+                {labels.cancel}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -457,168 +569,160 @@ const styles = StyleSheet.create({
   },
   headerTop: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
-  greeting: {
-    fontSize: 14,
-    marginBottom: 4,
+  backButton: {
+    marginRight: 12,
+    padding: 4,
+  },
+  headerTitles: {
+    flex: 1,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: '800',
-  },
-  streakBadge: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  streakIcon: {
-    fontSize: 20,
-    marginBottom: 2,
-  },
-  streakText: {
     fontSize: 24,
     fontWeight: '800',
   },
-  streakLabel: {
-    fontSize: 10,
+  headerSubtitle: {
+    fontSize: 13,
     marginTop: 2,
   },
-  dateScrollView: {
-    marginTop: 16,
+  // Location Container
+  locationContainer: {
+    marginTop: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
   },
-  dateScrollContent: {
-    paddingHorizontal: 16,
-    gap: 10,
-  },
-  dateChip: {
-    width: 52,
-    paddingVertical: 12,
-    borderRadius: 14,
+  locationRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 3,
   },
-  todayChipBorder: {
-    borderWidth: 2,
-    borderColor: '#10B981',
-  },
-  dateChipDay: {
-    fontSize: 11,
+  locationText: {
+    fontSize: 14,
     fontWeight: '500',
+    marginLeft: 6,
   },
-  dateChipNum: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginTop: 4,
-  },
-  todayDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginTop: 6,
-  },
-  progressCard: {
-    margin: 16,
+  // Combined Card (Next Prayer + Today's Goal)
+  combinedCard: {
+    marginHorizontal: 16,
+    marginTop: 12,
     borderRadius: 20,
     padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 6,
   },
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
+  combinedLeft: {
+    flex: 1,
   },
-  progressDate: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  progressDateFull: {
-    fontSize: 13,
-    marginTop: 2,
-  },
-  goTodayBtn: {
-    backgroundColor: '#10B981',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  goTodayText: {
-    color: '#FFFFFF',
-    fontSize: 13,
+  combinedLabel: {
+    fontSize: 11,
     fontWeight: '600',
-  },
-  circularProgressContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  circularOuter: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    borderWidth: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  circularProgress: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  progressPercentage: {
-    fontSize: 32,
-    fontWeight: '800',
-  },
-  progressLabel: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
     marginBottom: 6,
   },
-  statValue: {
-    fontSize: 20,
-    fontWeight: '700',
+  nextPrayerNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  statLabel: {
-    fontSize: 11,
+  nextPrayerIcon: {
+    fontSize: 22,
+    marginRight: 6,
+  },
+  combinedPrayerName: {
+    fontSize: 20,
+    fontWeight: '800',
+  },
+  combinedCountdown: {
+    fontSize: 24,
+    fontWeight: '800',
+    marginTop: 4,
+  },
+  combinedTime: {
+    fontSize: 12,
     marginTop: 2,
   },
-  prayerSection: {
+  combinedDivider: {
+    width: 1,
+    height: 80,
+    marginHorizontal: 16,
+  },
+  combinedRight: {
+    alignItems: 'center',
+    minWidth: 90,
+  },
+  goalCircle: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    borderWidth: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 6,
+  },
+  goalCount: {
+    fontSize: 22,
+    fontWeight: '800',
+  },
+  goalCompleteText: {
+    fontSize: 12,
+    color: '#10B981',
+    fontWeight: '600',
+    marginTop: 6,
+  },
+  goalMiniStats: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 6,
+  },
+  goalMiniStat: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  // Date Navigator
+  dateNavigator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    marginBottom: 6,
     paddingHorizontal: 16,
   },
-  sectionTitle: {
-    fontSize: 18,
+  dateArrowBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dateArrowDisabled: {
+    opacity: 0.3,
+  },
+  dateArrow: {
+    fontSize: 22,
+    fontWeight: '600',
+  },
+  dateDisplay: {
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  dateText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  todayBadge: {
+    color: '#10B981',
     fontWeight: '700',
-    marginBottom: 12,
+  },
+  // Prayer Section
+  prayerSection: {
+    paddingHorizontal: 16,
+    marginTop: 8,
   },
   prayerCard: {
     flexDirection: 'row',
@@ -626,14 +730,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 16,
     padding: 14,
-    marginBottom: 10,
+    marginBottom: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  prayerInfo: {
+  prayerCardCompleted: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#10B981',
+  },
+  prayerCardLate: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#F59E0B',
+  },
+  prayerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
@@ -646,57 +758,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
-  prayerIcon: {
-    fontSize: 22,
-  },
   prayerName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
+  },
+  prayerTime: {
+    fontSize: 13,
+    fontWeight: '500',
+    marginLeft: 8,
+  },
+  prayerNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   prayerArabic: {
-    fontSize: 13,
+    fontSize: 12,
     marginTop: 2,
   },
-  statusButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  statusBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  statusBtnIcon: {
-    fontSize: 14,
-  },
-  legendCard: {
-    marginHorizontal: 16,
-    marginTop: 4,
-    marginBottom: 8,
-    borderRadius: 12,
-    padding: 12,
-  },
-  legendRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  legendItem: {
+  prayerRight: {},
+  completedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 16,
   },
-  legendDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+  completedBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '600',
   },
-  legendText: {
-    fontSize: 12,
+  markButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1.5,
+  },
+  markButtonText: {
+    fontSize: 11,
     fontWeight: '500',
   },
-  overallStatsCard: {
+  // Stats Card
+  statsCard: {
     margin: 16,
     borderRadius: 20,
     padding: 20,
@@ -706,47 +809,32 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 6,
   },
-  overallTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+  statsTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 16,
   },
-  overallGrid: {
+  statsTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  statsGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     marginBottom: 20,
   },
-  overallItem: {
+  statsItem: {
     alignItems: 'center',
-    flex: 1,
   },
-  overallValue: {
+  statsValue: {
     fontSize: 28,
     fontWeight: '800',
   },
-  overallLabel: {
+  statsLabel: {
     fontSize: 12,
     marginTop: 4,
   },
-  progressBarContainer: {
-    marginBottom: 20,
-  },
-  progressBarBg: {
-    height: 10,
-    borderRadius: 5,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 5,
-  },
-  progressBarText: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  streaksContainer: {
+  streakCardsRow: {
     flexDirection: 'row',
     gap: 12,
   },
@@ -756,46 +844,101 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
   },
-  streakEmoji: {
+  streakCardValue: {
     fontSize: 24,
-    marginBottom: 8,
-  },
-  streakValue: {
-    fontSize: 28,
     fontWeight: '800',
+    marginTop: 6,
   },
   streakCardLabel: {
     fontSize: 11,
     marginTop: 4,
   },
-  motivationCard: {
+  // Quote Card
+  quoteCard: {
     margin: 16,
-    borderRadius: 20,
+    borderRadius: 16,
     padding: 20,
-    flexDirection: 'row',
-    gap: 16,
+    alignItems: 'center',
   },
-  motivationIcon: {
+  quoteIcon: {
     fontSize: 28,
+    marginBottom: 12,
   },
-  motivationContent: {
-    flex: 1,
-  },
-  motivationTitle: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  motivationText: {
-    color: 'rgba(255,255,255,0.9)',
+  quoteText: {
     fontSize: 14,
     lineHeight: 22,
+    textAlign: 'center',
     fontStyle: 'italic',
   },
-  motivationSource: {
-    color: 'rgba(255,255,255,0.7)',
+  quoteSource: {
     fontSize: 12,
     marginTop: 8,
+  },
+  // Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 40,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  modalPrayerInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  modalPrayerIcon: {
+    fontSize: 28,
+    marginRight: 8,
+  },
+  modalPrayerName: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  statusOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 14,
+    borderWidth: 2,
+    marginBottom: 12,
+  },
+  statusOptionIcon: {
+    fontSize: 24,
+    marginRight: 14,
+  },
+  statusOptionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  statusOptionDesc: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  cancelButton: {
+    padding: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
