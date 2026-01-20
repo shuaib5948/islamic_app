@@ -5,10 +5,8 @@ import { HIJRI_MONTHS, ISLAMIC_EVENTS, IslamicEvent } from '@/data/hijri-events'
 import { HIJRI_MONTHS_ML, ISLAMIC_EVENTS_ML, IslamicEventML } from '@/data/hijri-events-ml';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { FlatList, Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
-type FilterType = 'all' | 'religious' | 'wafat' | 'birth' | 'historic';
+import React, { useEffect, useMemo, useState } from 'react';
+import { FlatList, Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function EventsScreen() {
   const colorScheme = useColorScheme();
@@ -16,9 +14,7 @@ export default function EventsScreen() {
   const { language, t } = useLanguage();
   const isMalayalam = language === 'ml';
 
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
   const [selectedEvent, setSelectedEvent] = useState<IslamicEvent | IslamicEventML | null>(null);
 
   // Get the appropriate events and months based on language
@@ -28,34 +24,9 @@ export default function EventsScreen() {
   const filteredEvents = useMemo(() => {
     let eventList = [...events];
 
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      eventList = eventList.filter(
-        event => {
-          if (isMalayalam) {
-            const mlEvent = event as IslamicEventML;
-            return mlEvent.title.toLowerCase().includes(query) ||
-              mlEvent.titleMl.toLowerCase().includes(query) ||
-              mlEvent.titleArabic.includes(query) ||
-              mlEvent.descriptionMl.toLowerCase().includes(query);
-          }
-          const enEvent = event as IslamicEvent;
-          return enEvent.title.toLowerCase().includes(query) ||
-            enEvent.titleArabic.includes(query) ||
-            enEvent.description.toLowerCase().includes(query);
-        }
-      );
-    }
-
     // Filter by month
     if (selectedMonth !== null) {
       eventList = eventList.filter(event => event.month === selectedMonth);
-    }
-
-    // Filter by type
-    if (selectedFilter !== 'all') {
-      eventList = eventList.filter(event => event.type === selectedFilter);
     }
 
     // Sort by month and day
@@ -63,15 +34,43 @@ export default function EventsScreen() {
       if (a.month !== b.month) return a.month - b.month;
       return a.day - b.day;
     });
-  }, [searchQuery, selectedMonth, selectedFilter, events, isMalayalam]);
+  }, [selectedMonth, events]);
 
-  const filterButtons: { type: FilterType; label: string; labelMl: string; icon: string }[] = [
-    { type: 'all', label: 'All', labelMl: 'എല്ലാം', icon: '📅' },
-    { type: 'religious', label: 'Religious', labelMl: 'മതപരം', icon: '🕌' },
-    { type: 'wafat', label: 'Wafat', labelMl: 'വഫാത്ത്', icon: '🕯️' },
-    { type: 'birth', label: 'Birth', labelMl: 'ജനനം', icon: '🌟' },
-    { type: 'historic', label: 'Historic', labelMl: 'ചരിത്രം', icon: '📜' },
-  ];
+  // Accurate Hijri date state (async, like calendar)
+  const [todayHijri, setTodayHijri] = useState<import('@/utils/hijri-date').HijriDate | null>(null);
+  const [isLoadingHijri, setIsLoadingHijri] = useState(true);
+
+  // Fetch accurate Hijri date on mount
+  useEffect(() => {
+    let mounted = true;
+    setIsLoadingHijri(true);
+    import('@/utils/hijri-date').then(mod => mod.getTodayHijriAsync()).then(date => {
+      if (mounted) {
+        setTodayHijri(date);
+        setIsLoadingHijri(false);
+        // Set default selectedMonth to current Hijri month
+        setSelectedMonth(date?.month ?? null);
+      }
+    }).catch(() => setIsLoadingHijri(false));
+    return () => { mounted = false; };
+  }, []);
+
+  const todayHijriMonth = todayHijri?.month;
+  const todayHijriDay = todayHijri?.day;
+
+  // Find the upcoming event (Hijri logic, after date loads)
+  const upcomingEvent = useMemo(() => {
+    if (!todayHijriMonth || !todayHijriDay) return null;
+    const sorted = [...events].sort((a, b) => {
+      if (a.month !== b.month) return a.month - b.month;
+      return a.day - b.day;
+    });
+    return (
+      sorted.find(e =>
+        e.month > todayHijriMonth || (e.month === todayHijriMonth && e.day >= todayHijriDay)
+      ) || sorted[0]
+    );
+  }, [events, todayHijriMonth, todayHijriDay]);
 
   // Get display title based on language
   const getEventTitle = (event: IslamicEvent | IslamicEventML): string => {
@@ -108,92 +107,77 @@ export default function EventsScreen() {
         </View>
       </View>
 
-      {/* Search Bar */}
-      <View style={[styles.searchContainer, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-        <Text style={styles.searchIcon}>🔍</Text>
-        <TextInput
-          style={[styles.searchInput, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
-          placeholder={isMalayalam ? 'പരിപാടികൾ തിരയുക...' : 'Search events...'}
-          placeholderTextColor={isDark ? '#757575' : '#BDBDBD'}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Text style={styles.clearButton}>✕</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      {/* Upcoming Event Box (only after Hijri date loads) */}
+      {!isLoadingHijri && upcomingEvent && (
+        <View style={[styles.upcomingBox, { backgroundColor: isDark ? '#1E3A5F' : '#E3F2FD' }]}> 
+          <Text style={[styles.upcomingLabel, { color: isDark ? '#90CAF9' : '#1565C0' }]}> 
+            {isMalayalam ? 'അടുത്ത പരിപാടി' : 'Upcoming Event'}
+          </Text>
+          <Text style={[styles.upcomingTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}> 
+            {(() => {
+              if (isMalayalam && 'titleMl' in upcomingEvent && upcomingEvent.titleMl) return upcomingEvent.titleMl;
+              if ('title' in upcomingEvent && upcomingEvent.title) return upcomingEvent.title;
+              return '';
+            })()}
+          </Text>
+          <Text style={[styles.upcomingDate, { color: isDark ? '#B0BEC5' : '#757575' }]}> 
+            {upcomingEvent.day} {months[upcomingEvent.month - 1]?.name}
+          </Text>
+        </View>
+      )}
 
       {/* Month Filter */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.monthScrollView}
-        contentContainerStyle={styles.monthScrollContent}
-      >
-        <TouchableOpacity
-          style={[
-            styles.monthChip,
-            selectedMonth === null && styles.monthChipSelected,
-            { backgroundColor: selectedMonth === null ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF' },
-          ]}
-          onPress={() => setSelectedMonth(null)}
+      <View style={{ zIndex: 2, elevation: 2, backgroundColor: isDark ? '#121212' : '#F5F5F5', marginBottom: 8 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.monthScrollView}
+          contentContainerStyle={styles.monthScrollContent}
         >
-          <Text
-            style={[
-              styles.monthChipText,
-              { color: selectedMonth === null ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
-            ]}
-          >
-            {isMalayalam ? 'എല്ലാ മാസങ്ങളും' : 'All Months'}
-          </Text>
-        </TouchableOpacity>
-        {months.map(month => (
           <TouchableOpacity
-            key={month.number}
             style={[
               styles.monthChip,
-              selectedMonth === month.number && styles.monthChipSelected,
-              { backgroundColor: selectedMonth === month.number ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF' },
+              selectedMonth === null && styles.monthChipSelected,
+              { backgroundColor: selectedMonth === null ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF' },
             ]}
-            onPress={() => setSelectedMonth(month.number)}
+            onPress={() => setSelectedMonth(null)}
           >
             <Text
               style={[
                 styles.monthChipText,
-                { color: selectedMonth === month.number ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
+                { color: selectedMonth === null ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
               ]}
             >
-              {isMalayalam && 'nameEn' in month ? month.name : month.name}
+              {isMalayalam ? 'എല്ലാ മാസങ്ങളും' : 'All Months'}
             </Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      {/* Type Filter */}
-      <View style={styles.filterContainer}>
-        {filterButtons.map(filter => (
-          <TouchableOpacity
-            key={filter.type}
-            style={[
-              styles.filterButton,
-              selectedFilter === filter.type && styles.filterButtonSelected,
-              { backgroundColor: selectedFilter === filter.type ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF' },
-            ]}
-            onPress={() => setSelectedFilter(filter.type)}
-          >
-            <Text style={styles.filterIcon}>{filter.icon}</Text>
-            <Text
+          {months.map(month => (
+            <TouchableOpacity
+              key={month.number}
               style={[
-                styles.filterText,
-                { color: selectedFilter === filter.type ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
+                styles.monthChip,
+                selectedMonth === month.number && styles.monthChipSelected,
+                {
+                  backgroundColor: selectedMonth === month.number ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
+                  paddingHorizontal: 28, // more padding for longer names
+                  minWidth: 120, // increased minimum width
+                  alignSelf: 'flex-start',
+                  maxWidth: 260, // prevent overflow on very long names
+                },
               ]}
+              onPress={() => setSelectedMonth(month.number)}
             >
-              {isMalayalam ? filter.labelMl : filter.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                style={[
+                  styles.monthChipText,
+                  { color: selectedMonth === month.number ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
+                ]}
+              >
+                {isMalayalam && 'nameEn' in month ? month.name : month.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
       {/* Events List */}
@@ -279,45 +263,50 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginTop: 4,
   },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  upcomingBox: {
     marginHorizontal: 16,
-    marginVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    height: 48,
+    marginBottom: 8,
+    marginTop: 8,
+    borderRadius: 16,
+    padding: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 8,
+    elevation: 4,
+    alignItems: 'center',
   },
-  searchIcon: {
-    fontSize: 16,
-    marginRight: 10,
+  upcomingLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    marginBottom: 4,
   },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
+  upcomingTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 2,
   },
-  clearButton: {
-    fontSize: 16,
-    color: '#9E9E9E',
-    padding: 4,
+  upcomingDate: {
+    fontSize: 13,
+    textAlign: 'center',
   },
   monthScrollView: {
-    maxHeight: 44,
+    maxHeight: 80, // increased height for full chip visibility
   },
   monthScrollContent: {
     paddingHorizontal: 16,
     gap: 8,
   },
   monthChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    width: 100, // fixed width
+    height: 40, // fixed height
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 20,
     marginRight: 8,
+    marginVertical: 8, // add vertical margin for spacing
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -329,35 +318,8 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
   },
-  filterContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  filterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  filterButtonSelected: {},
-  filterIcon: {
-    fontSize: 12,
-    marginRight: 4,
-  },
-  filterText: {
-    fontSize: 11,
-    fontWeight: '500',
-  },
   listContent: {
-    paddingTop: 8,
+    paddingTop: 8, // increased top padding to give more space below month cards
   },
   emptyContainer: {
     flex: 1,

@@ -113,21 +113,16 @@ const fetchGregorianFromAPI = async (hijriYear: number, hijriMonth: number, hijr
   try {
     const day = hijriDay.toString().padStart(2, '0');
     const month = hijriMonth.toString().padStart(2, '0');
-    
     const url = `https://api.aladhan.com/v1/hToG/${day}-${month}-${hijriYear}?adjustment=1`;
-    
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
-    
     const response = await fetch(url, { signal: controller.signal });
     clearTimeout(timeoutId);
-    
     if (!response.ok) {
+      // If rate limited or other error, fallback
       throw new Error(`API error: ${response.status}`);
     }
-    
     const data = await response.json();
-    
     if (data.code === 200 && data.data?.gregorian) {
       const greg = data.data.gregorian;
       return new Date(
@@ -136,11 +131,19 @@ const fetchGregorianFromAPI = async (hijriYear: number, hijriMonth: number, hijr
         parseInt(greg.day, 10)
       );
     }
-    
+    // Fallback if API returns but no data
     return null;
   } catch (error) {
-    console.error('Error fetching Gregorian date from API:', error);
-    return null;
+    // Fallback to mathematical calculation if API fails or rate limited
+    if (error && error.message && error.message.includes('429')) {
+      console.warn('API rate limit hit, using fallback for Hijri->Gregorian');
+    } else {
+      console.error('Error fetching Gregorian date from API:', error);
+    }
+    // Use mathematical fallback
+    const jd = hijriToJD(hijriYear, hijriMonth, hijriDay);
+    const greg = jdToGregorian(jd);
+    return new Date(greg.year, greg.month - 1, greg.day);
   }
 };
 

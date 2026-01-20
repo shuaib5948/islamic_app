@@ -83,15 +83,12 @@ interface FeatureCardProps {
   icon: string;
   title: string;
   titleMl: string;
-  titleArabic: string;
-  description: string;
-  descriptionMl: string;
   color: string;
   onPress: () => void;
   isMalayalam: boolean;
 }
 
-const FeatureCard = ({ icon, title, titleMl, titleArabic, description, descriptionMl, color, onPress, isMalayalam }: FeatureCardProps) => {
+const FeatureCard = ({ icon, title, titleMl, color, onPress, isMalayalam }: FeatureCardProps) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
@@ -114,12 +111,6 @@ const FeatureCard = ({ icon, title, titleMl, titleArabic, description, descripti
       <Text style={[styles.cardTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
         {isMalayalam ? titleMl : title}
       </Text>
-      <Text style={[styles.cardTitleArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}>
-        {titleArabic}
-      </Text>
-      <Text style={[styles.cardDescription, { color: isDark ? '#9E9E9E' : '#757575' }]} numberOfLines={2}>
-        {isMalayalam ? descriptionMl : description}
-      </Text>
     </TouchableOpacity>
   );
 };
@@ -135,9 +126,6 @@ export default function HomeScreen() {
       icon: '🌙',
       title: 'Hijri Calendar',
       titleMl: 'Hijri Calendar',
-      titleArabic: 'التقويم الهجري',
-      description: 'View Islamic calendar with events',
-      descriptionMl: 'ഇസ്ലാമിക കലണ്ടറും പരിപാടികളും',
       color: '#2E7D32',
       route: '/calendar' as const,
     },
@@ -145,9 +133,6 @@ export default function HomeScreen() {
       icon: '📅',
       title: 'Islamic Events',
       titleMl: 'Islamic Events',
-      titleArabic: 'المناسبات الإسلامية',
-      description: 'Upcoming religious occasions',
-      descriptionMl: 'വരാനിരിക്കുന്ന മത ദിനങ്ങൾ',
       color: '#1565C0',
       route: '/events' as const,
     },
@@ -155,9 +140,6 @@ export default function HomeScreen() {
       icon: '📿',
       title: 'Adhkar',
       titleMl: 'Adhkar',
-      titleArabic: 'الأذكار',
-      description: 'Daily remembrance & dhikr',
-      descriptionMl: 'ദൈനംദിന ദിക്റുകൾ',
       color: '#7B1FA2',
       route: '/dhikr' as const,
     },
@@ -165,9 +147,6 @@ export default function HomeScreen() {
       icon: '📖',
       title: 'Quran Khatam',
       titleMl: 'Quran Khatam',
-      titleArabic: 'ختم القرآن',
-      description: 'Track Quran completion',
-      descriptionMl: 'ഖുർആൻ പാരായണ ട്രാക്കർ',
       color: '#C62828',
       route: '/khatam' as const,
     },
@@ -175,9 +154,6 @@ export default function HomeScreen() {
       icon: '🕌',
       title: 'Prayer Tracker',
       titleMl: 'Prayer Tracker',
-      titleArabic: 'متابعة الصلاة',
-      description: 'Track your daily prayers',
-      descriptionMl: 'ദൈനംദിന നമസ്കാരം ട്രാക്ക് ചെയ്യുക',
       color: '#00695C',
       route: '/prayer' as const,
     },
@@ -185,9 +161,6 @@ export default function HomeScreen() {
       icon: '⚖️',
       title: 'Farā\'iḍ',
       titleMl: 'Farā\'iḍ',
-      titleArabic: 'حاسبة الفرائض',
-      description: 'Islamic inheritance calculator',
-      descriptionMl: 'അനന്തരാവകാശ കാൽക്കുലേറ്റർ',
       color: '#6A1B9A',
       route: '/faraid' as const,
     },
@@ -195,9 +168,6 @@ export default function HomeScreen() {
       icon: '⚙️',
       title: 'Settings',
       titleMl: 'Settings',
-      titleArabic: 'الإعدادات',
-      description: 'App preferences',
-      descriptionMl: 'ആപ്പ് മുൻഗണനകൾ',
       color: '#455A64',
       route: '/settings' as const,
     },
@@ -249,9 +219,6 @@ export default function HomeScreen() {
               icon={feature.icon}
               title={feature.title}
               titleMl={feature.titleMl}
-              titleArabic={feature.titleArabic}
-              description={feature.description}
-              descriptionMl={feature.descriptionMl}
               color={feature.color}
               onPress={() => router.push(feature.route)}
               isMalayalam={isMalayalam}
@@ -365,15 +332,5 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textAlign: 'center',
   },
-  cardTitleArabic: {
-    fontSize: 10,
-    textAlign: 'center',
-    marginTop: 2,
-  },
-  cardDescription: {
-    fontSize: 9,
-    textAlign: 'center',
-    marginTop: 4,
-    lineHeight: 12,
-  },
+  // cardTitleArabic removed
 });

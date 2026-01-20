@@ -4,12 +4,12 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getEventsForDate } from '@/data/hijri-events';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import {
-  generateHijriMonthCalendar,
-  getHijriMonthName,
-  getTodayHijri,
-  getTodayHijriAsync,
-  HijriDate,
-  hijriToGregorian
+    generateHijriMonthCalendarAsync,
+    getHijriMonthName,
+    getTodayHijri,
+    getTodayHijriAsync,
+    HijriDate,
+    hijriToGregorian
 } from '@/utils/hijri-date';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -34,6 +34,8 @@ export default function CalendarScreen() {
   const [currentMonth, setCurrentMonth] = useState(todayHijri.month);
   const [currentYear, setCurrentYear] = useState(todayHijri.year);
   const [selectedDay, setSelectedDay] = useState(todayHijri.day);
+  const [calendarDays, setCalendarDays] = useState<{ day: number; gregorianDate: Date; weekday: number }[]>([]);
+  const [loadingCalendar, setLoadingCalendar] = useState(true);
 
   // Fetch accurate Hijri date from API
   const loadAccurateHijriDate = useCallback(async () => {
@@ -54,14 +56,27 @@ export default function CalendarScreen() {
     }
   }, []);
 
+  // Load calendar days using API for Kerala accuracy
+  const loadCalendarDays = useCallback(async (year: number, month: number) => {
+    setLoadingCalendar(true);
+    try {
+      const days = await generateHijriMonthCalendarAsync(year, month);
+      setCalendarDays(days);
+    } catch (error) {
+      setCalendarDays([]);
+      console.error('Error loading calendar days:', error);
+    } finally {
+      setLoadingCalendar(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadAccurateHijriDate();
   }, [loadAccurateHijriDate]);
 
-  const calendarDays = useMemo(() => 
-    generateHijriMonthCalendar(currentYear, currentMonth),
-    [currentYear, currentMonth]
-  );
+  useEffect(() => {
+    loadCalendarDays(currentYear, currentMonth);
+  }, [currentYear, currentMonth, loadCalendarDays]);
 
   const selectedEvents = useMemo(() => 
     getEventsForDate(currentMonth, selectedDay),
@@ -164,15 +179,21 @@ export default function CalendarScreen() {
 
         {/* Calendar Grid */}
         <View style={[styles.calendarContainer, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-          <CalendarGrid
-            days={calendarDays}
-            month={currentMonth}
-            year={currentYear}
-            todayDay={todayHijri.day}
-            todayMonth={todayHijri.month}
-            selectedDay={selectedDay}
-            onDaySelect={setSelectedDay}
-          />
+          {loadingCalendar ? (
+            <View style={{ alignItems: 'center', marginTop: 32 }}>
+              <Text style={{ color: isDark ? '#B0BEC5' : '#757575' }}>Loading calendar...</Text>
+            </View>
+          ) : (
+            <CalendarGrid
+              days={calendarDays}
+              month={currentMonth}
+              year={currentYear}
+              todayDay={todayHijri.day}
+              todayMonth={todayHijri.month}
+              selectedDay={selectedDay}
+              onDaySelect={setSelectedDay}
+            />
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>

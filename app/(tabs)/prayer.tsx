@@ -53,6 +53,22 @@ const PRAYER_ICONS: Record<PrayerName, string> = {
 
 const { width } = Dimensions.get('window');
 
+// Helper: get current prayer index (last whose time has started)
+const getCurrentPrayerIndex = (prayerTimes: PrayerTimes, now: Date) => {
+  const prayerOrder: PrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+  let lastIdx = -1;
+  for (let i = 0; i < prayerOrder.length; i++) {
+    const prayer = prayerOrder[i];
+    const [h, m] = prayerTimes[prayer].split(':').map(Number);
+    const prayerTime = new Date(now);
+    prayerTime.setHours(h, m, 0, 0);
+    if (now >= prayerTime) {
+      lastIdx = i;
+    }
+  }
+  return lastIdx;
+};
+
 export default function PrayerScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -117,6 +133,8 @@ export default function PrayerScreen() {
   const prayerTimes: PrayerTimes = useMemo(() => {
     return prayerTimesData?.times || getDefaultPrayerTimes();
   }, [prayerTimesData]);
+
+  const currentPrayerIdx = useMemo(() => getCurrentPrayerIndex(prayerTimes, currentTime), [prayerTimes, currentTime]);
 
   const loadData = useCallback(async () => {
     const prayers = await getPrayersForDate(selectedDate);
@@ -338,18 +356,20 @@ export default function PrayerScreen() {
 
         {/* Prayer List - Clean Card Design */}
         <View style={styles.prayerSection}>
-          {PRAYERS.map((prayer) => {
+          {PRAYERS.map((prayer, idx) => {
             const info = getPrayerInfo(prayer.name);
             const status = dailyPrayers.prayers[prayer.name];
             const isCompleted = status === 'prayed' || status === 'late';
             const isLate = status === 'late';
             const time = prayerTimes[prayer.name];
-
+            // Only allow marking up to current prayer
+            const isFuture = idx > currentPrayerIdx;
             return (
               <TouchableOpacity
                 key={prayer.name}
-                onPress={() => handlePrayerTap(prayer.name)}
-                activeOpacity={0.7}
+                onPress={() => !isFuture && handlePrayerTap(prayer.name)}
+                activeOpacity={isFuture ? 1 : 0.7}
+                disabled={isFuture}
                 style={[
                   styles.prayerCard,
                   { 
@@ -358,6 +378,7 @@ export default function PrayerScreen() {
                       : (isDark ? '#1C2128' : '#FFFFFF')
                   },
                   isCompleted && (isLate ? styles.prayerCardLate : styles.prayerCardCompleted),
+                  isFuture && { opacity: 0.5 },
                 ]}
               >
                 <View style={styles.prayerLeft}>
