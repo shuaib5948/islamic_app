@@ -73,8 +73,8 @@ const fetchHijriFromAPI = async (date: Date): Promise<HijriDate | null> => {
     const year = date.getFullYear();
     
     // Use gToH (Gregorian to Hijri) endpoint with adjustment for India
-    // Adjustment: 0 = Umm al-Qura, 1 = +1 day (common in India/Kerala)
-    const url = `https://api.aladhan.com/v1/gToH/${day}-${month}-${year}?adjustment=1`;
+    // Adjustment: 0 = Umm al-Qura (standard)
+    const url = `https://api.aladhan.com/v1/gToH/${day}-${month}-${year}?adjustment=0`;
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
@@ -113,7 +113,7 @@ const fetchGregorianFromAPI = async (hijriYear: number, hijriMonth: number, hijr
   try {
     const day = hijriDay.toString().padStart(2, '0');
     const month = hijriMonth.toString().padStart(2, '0');
-    const url = `https://api.aladhan.com/v1/hToG/${day}-${month}-${hijriYear}?adjustment=1`;
+    const url = `https://api.aladhan.com/v1/hToG/${day}-${month}-${hijriYear}?adjustment=0`;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
     const response = await fetch(url, { signal: controller.signal });
@@ -135,7 +135,7 @@ const fetchGregorianFromAPI = async (hijriYear: number, hijriMonth: number, hijr
     return null;
   } catch (error) {
     // Fallback to mathematical calculation if API fails or rate limited
-    if (error && error.message && error.message.includes('429')) {
+    if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string' && error.message.includes('429')) {
       console.warn('API rate limit hit, using fallback for Hijri->Gregorian');
     } else {
       console.error('Error fetching Gregorian date from API:', error);
@@ -256,9 +256,13 @@ const jdToGregorian = (jd: number): { year: number; month: number; day: number }
 
 /**
  * Fallback: Mathematical Gregorian to Hijri conversion
+ * Adjusted to match API results
  */
 const gregorianToHijriFallback = (date: Date): HijriDate => {
-  const jd = gregorianToJD(date.getFullYear(), date.getMonth() + 1, date.getDate());
+  // Add 1 day to match API results
+  const adjustedDate = new Date(date);
+  adjustedDate.setDate(date.getDate() + 1);
+  const jd = gregorianToJD(adjustedDate.getFullYear(), adjustedDate.getMonth() + 1, adjustedDate.getDate());
   return jdToHijri(jd);
 };
 
@@ -299,7 +303,10 @@ export const gregorianToHijriAsync = async (date: Date): Promise<HijriDate> => {
 export const hijriToGregorian = (year: number, month: number, day: number): Date => {
   const jd = hijriToJD(year, month, day);
   const greg = jdToGregorian(jd);
-  return new Date(greg.year, greg.month - 1, greg.day);
+  // Add 1 day to match API results
+  const date = new Date(greg.year, greg.month - 1, greg.day);
+  date.setDate(date.getDate() + 1);
+  return date;
 };
 
 /**
@@ -314,7 +321,10 @@ export const hijriToGregorianAsync = async (year: number, month: number, day: nu
   // Fallback to mathematical calculation
   const jd = hijriToJD(year, month, day);
   const greg = jdToGregorian(jd);
-  return new Date(greg.year, greg.month - 1, greg.day);
+  // Add 1 day to match API results
+  const date = new Date(greg.year, greg.month - 1, greg.day);
+  date.setDate(date.getDate() + 1);
+  return date;
 };
 
 /**

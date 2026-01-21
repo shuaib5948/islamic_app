@@ -23,17 +23,9 @@ export interface IslamicEventML {
   day: number;
   title: string;
   titleMl: string;
-  titleArabic: string;
   type: 'religious' | 'wafat' | 'birth' | 'historic';
   description: string;
   descriptionMl: string;
-  importance: 'high' | 'medium' | 'low';
-  dhikr?: string[];
-  dua?: string[];
-  aurad?: string[];
-  specialPractices?: string[];
-  specialPracticesMl?: string[];
-  references?: string[];
 }
 
 export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
@@ -44,16 +36,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 1,
     title: 'Islamic New Year',
     titleMl: 'ഇസ്ലാമിക പുതുവർഷം',
-    titleArabic: 'رأس السنة الهجرية',
     type: 'religious',
     description: 'The first day of Muharram marks the beginning of the Islamic New Year.',
     descriptionMl: 'മുഹർറം മാസത്തിന്റെ ആദ്യ ദിവസം ഇസ്ലാമിക പുതുവർഷത്തിന്റെ ആരംഭം അടയാളപ്പെടുത്തുന്നു. ഇത് നബി മുഹമ്മദ് ﷺ മക്കയിൽ നിന്ന് മദീനയിലേക്കുള്ള ഹിജ്‌റയെ (പലായനം) അനുസ്മരിക്കുന്നു.',
-    importance: 'high',
-    dhikr: [
-      'اللَّهُمَّ أَدْخِلْهُ عَلَيْنَا بِالأَمْنِ وَالإِيمَانِ وَالسَّلامَةِ وَالإِسْلامِ',
-    ],
-    specialPractices: ['Fasting', 'Reflection on the Hijra', 'Making good intentions for the new year'],
-    specialPracticesMl: ['നോമ്പ്', 'ഹിജ്റയെക്കുറിച്ചുള്ള ചിന്തനം', 'പുതുവർഷത്തേക്കുള്ള നല്ല നിയ്യത്തുകൾ'],
   },
   {
     id: 'ashura',
@@ -61,19 +46,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 10,
     title: 'Day of Ashura',
     titleMl: 'ആശൂറാ ദിനം',
-    titleArabic: 'يوم عاشوراء',
     type: 'religious',
     description: 'Ashura is a day of historical victories and sacrifice. It commemorates the rescue of Musa (AS) from Pharaoh, the preservation of Nuh\'s (AS) Ark, and the martyrdom of Husayn (RA) at Karbala.',
     descriptionMl: 'ആശൂറാ ഒരു ചരിത്രപരമായ വിജയം, ത്യാഗം എന്നിവയുടെ ദിനമാണ്. ഇത് മൂസാ നബിയുടെ ഫറോവിൽ നിന്നുള്ള രക്ഷ, നൂഹ് നബിയുടെ കപ്പലിന്റെ സുരക്ഷിതത്വം, കർബലയിൽ ഹുസൈന്റെ (റ) രക്തസാക്ഷിത്തം എന്നിവയെ അനുസ്മരിക്കുന്നു.',
-    importance: 'high',
-    dhikr: [
-      'ഹസ്ബുനല്ലാഹു വനിമൽ വൈകീൽ - Hasbunallahu wa ni\'mal wakeel (حسبنا الله ونعم الوكيل)',
-    ],
-    dua: [
-      'سُبْحَانَ اللهِ مِلْءَ الْمِيزَانِ وَمُنْتَهَى الْعِلْمِ وَمَبْلَغَ الرِّضَا وَزِنَةَ الْعَرْشِ، لَا مَلْجَأَ وَلَا مَنْجَا مِنَ اللهِ إِلَّا إِلَيْهِ.',
-      'سُبْحَانَ اللهِ عَدَدَ الشَّفْعِ وَالْوَتْرِ وَعَدَدَ كَلِمَاتِ اللهِ التَّامَّاتِ كُلِّهَا، أَسْأَلُكَ السَّلَامَةَ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ.',
-    ],
-    specialPractices: ['മുഹർറം 9, 10 തീയതികളിൽ നോമ്പ്', 'കുടുംബത്തിന് ഭക്ഷണത്തിൽ വിശാലത നൽകുക', 'പ്രത്യേക ദിക്റുകളും ദുആകളും നിർവഹിക്കുക'],
   },
   {
     id: 'start-safar',
@@ -81,11 +56,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 1,
     title: 'Beginning of Safar',
     titleMl: 'സഫർ മാസത്തിന്റെ തുടക്കം',
-    titleArabic: 'بداية شهر صفر',
     type: 'religious',
     description: "Safar is the second month of the Hijri calendar. Islam rejects superstitions associated with this month and teaches that Safar carries no inherent misfortune.",
     descriptionMl: 'സഫർ ഹൈജ്രി കലണ്ടറിലെ രണ്ടാമത്തെ മാസം ആണ്. സഫർക്കുമായി ബന്ധപ്പെട്ട അന്ധവിശ്വാസങ്ങൾക്കും ദുരഭാഷകൾക്കും ഇസ്ലാം യുക്തിതർക്കമായ മറുപടി നൽകുന്നു; സഫറിന് തന്നെ ശുഭമോ അമംഗലമോ ഇല്ലെന്ന് പഠിപ്പിക്കുന്നു.',
-    importance: 'medium',
   },
   // RABI AL-AWWAL
   {
@@ -94,16 +67,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 12,
     title: 'Mawlid al-Nabi (Prophet\'s Birthday)',
     titleMl: 'മൗലിദ് അന്നബി (നബിദിനം)',
-    titleArabic: 'المولد النبوي الشريف',
     type: 'birth',
     description: 'Mawlid al-Nabi celebrates the birth of Prophet Muhammad ﷺ and is observed through remembrance, abundant salawat, charity, and studying his seerah to emulate his noble character.',
     descriptionMl: 'മൗലിദ് അന്നബി నബി മുഹമ്മദ് ﷺ യുടെ ജന്മദിനം ആഘോഷിക്കുന്നു. ഇത് അദ്ദേഹത്തിന്റെ ജീവിതം ഓർമ്മിക്കുകയും അധിക സ്വലാത്ത് ചൊല്ലുകയും ദാനം ചെയ്യുകയും സീറ പഠിക്കുകയുമാണ്.',
-    importance: 'high',
-    dhikr: [
-      'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَّمَّدٍ',
-    ],
-    specialPractices: ['Reciting Salawat abundantly', 'Reading Sirah', 'Charity', 'Gatherings of remembrance'],
-    specialPracticesMl: ['സ്വലാത്ത് ധാരാളമായി ചൊല്ലുക', 'സീറ പഠിക്കുക', 'ദാനം ചെയ്യുക', 'സ്മരണാ സദസ്സുകൾ സംഘടിപ്പിക്കുക'],
   },
   {
     id: 'wafat-prophet',
@@ -111,16 +77,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 12,
     title: 'Wafat of Prophet Muhammad ﷺ',
     titleMl: 'നബി മുഹമ്മദ് ﷺ യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة النبي محمد ﷺ',
     type: 'wafat',
     description: 'Prophet Muhammad ﷺ passed away on 12 Rabi al-Awwal, 11 AH (632 CE) in Madinah.',
     descriptionMl: 'നബി മുഹമ്മദ് ﷺ 11 AH റബീഉൽ അവ്വൽ 12-ന് (632 CE) മദീനയിൽ വഫാത്തായി. ഖുർആനും സുന്നത്തും മാർഗദർശനമായി അദ്ദേഹം വിട്ടുപോയി.',
-    importance: 'high',
-    dhikr: [
-      'إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ',
-    ],
-    specialPractices: ['Reciting Salawat', 'Reading about his life', 'Following his Sunnah'],
-    specialPracticesMl: ['സ്വലാത്ത് ചൊല്ലുക', 'അദ്ദേഹത്തിന്റെ ജീവിതം വായിക്കുക', 'സുന്നത്ത് പിന്തുടരുക'],
   },
   {
     id: 'start-rabi-al-awwal',
@@ -128,11 +87,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 1,
     title: "Beginning of Rabi' al-Awwal",
     titleMl: 'റബീഉൽ അവ്വൽ മാസത്തിന്റെ തുടക്കം',
-    titleArabic: 'بداية ربيع الأول',
     type: 'religious',
     description: "Rabi' al-Awwal is the third Hijri month and a time to remember the life and example of the Prophet Muhammad ﷺ. It is suitable for studying his seerah, increasing charity and observing the Sunnah.",
     descriptionMl: 'റബീഉൽ അവ്വൽ ഹിജ്റി കലണ്ടറിലെ മൂന്നാമത്തെ മാസം ആണ്; നബി ﷺ യുടെ ജീവിതവും സുന്നത്തും ഓർമപ്പെടുത്തുന്ന സമയമാണ്. സീറ പഠനം, ദാനം, സുന്നത്ത് അനുസരണം എന്നിവയ്ക്ക് ഈ മാസം അനുയോജ്യമാണ്.',
-    importance: 'high',
   },
   // RAJAB
   {
@@ -141,16 +98,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 27,
     title: 'Isra and Mi\'raj (Night Journey)',
     titleMl: 'ഇസ്‌റാ മിഅ്‌റാജ് (രാത്രി യാത്ര)',
-    titleArabic: 'الإسراء والمعراج',
     type: 'religious',
     description: 'Commemorates the miraculous night journey of Prophet Muhammad ﷺ from Makkah to Jerusalem and ascension to heavens.',
     descriptionMl: 'നബി മുഹമ്മദ് ﷺ യുടെ മക്കയിൽ നിന്ന് ജെറുസലേമിലേക്കുള്ള (ഇസ്‌റാ) അത്ഭുത രാത്രി യാത്രയും ആകാശങ്ങളിലേക്കുള്ള കയറ്റവും (മിഅ്‌റാജ്) അനുസ്മരിക്കുന്നു. ഈ യാത്രയിലാണ് അഞ്ച് നേരത്തെ നമസ്കാരം നിർബന്ധമാക്കിയത്.',
-    importance: 'high',
-    dhikr: [
-      'سُبْحَانَ الَّذِي أَسْرَى بِعَبْدِهِ لَيْلًا مِنَ الْمَسْجِدِ الْحَرَامِ إِلَى الْمَسْجِدِ الْأَقْصَى',
-    ],
-    specialPractices: ['Night prayers (Tahajjud)', 'Reciting Surah Al-Isra', 'Reflecting on the gift of Salah', 'Fasting'],
-    specialPracticesMl: ['രാത്രി നമസ്കാരം (തഹജ്ജുദ്)', 'സൂറത്തുൽ ഇസ്‌റാ പാരായണം', 'നമസ്കാരത്തിന്റെ അനുഗ്രഹത്തെക്കുറിച്ചുള്ള ചിന്തനം', 'നോമ്പ്'],
   },
   // SHABAN
   {
@@ -159,16 +109,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 15,
     title: 'Shab-e-Barat (Night of Forgiveness)',
     titleMl: 'ശബ്-ഇ-ബറാഅത്ത് (പൊറുക്കലിന്റെ രാത്രി)',
-    titleArabic: 'ليلة النصف من شعبان',
     type: 'religious',
     description: 'The 15th night of Shaban is observed as a night of forgiveness and blessings. Many engage in extra night prayers and seek Allah\'s forgiveness.',
     descriptionMl: 'ശഅ്ബാൻ 15-ാം രാവ് പൊറുക്കലുടെയും അനുഗ്രഹങ്ങളുടെയും രാത്രിയാണ്. പലരും ഈ രാത്രി അധിക നമസ്കാരങ്ങൾ നിർവഹിക്കുകയും അല്ലാഹുവിന് മാപ്പ് അപേക്ഷിക്കുകയും ചെയ്യുന്നു.',
-    importance: 'high',
-    dhikr: [
-      'اللَّهُمَّ إِنَّكَ عَفُوٌّ كَرِيمٌ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي',
-    ],
-    specialPractices: ['Night prayers', 'Fasting on 15th Shaban', 'Visiting graves', 'Seeking forgiveness', 'Recite Surah Yaseen three times after Maghrib (for longevity, blessing, protection) and fast the next day'],
-    specialPracticesMl: ['രാത്രി നമസ്കാരങ്ങൾ', 'ശഅ്ബാൻ 15-ന് നോമ്പ്', 'ഖബർ സിയാറത്ത്', 'പാപമോചനം തേടൽ', 'മഗ്രിബിന് ശേഷം 3 തവണ യാസീൻ പാരായണം'],
   },
   {
     id: 'start-shaban',
@@ -176,11 +119,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 1,
     title: 'Beginning of Sha\'ban',
     titleMl: 'ശഅ്ബാൻ മാസത്തിന്റെ തുടക്കം',
-    titleArabic: 'بداية شعبان',
     type: 'religious',
     description: "Sha'ban is the month before Ramadan and a time the Prophet ﷺ used to increase voluntary worship. It is a month for spiritual preparation and extra devotion ahead of Ramadan.",
     descriptionMl: 'ഷഅ്ബാൻ റമാളാൻ നോമ്പിനുമുമ്പുള്ള മാസം ആണ്; നബി ﷺ ഈ മാസത്തിൽ അധിക നമസ്കാരങ്ങളും നോമ്പുകളും നിർവഹിച്ചിരുന്നതായി അറിയപ്പെടുന്നു. റമളാനിനു മുമ്പുള്ള ആത്മീയ തയ്യാറെടുപ്പിനുള്ള സമയം ആണ്.',
-    importance: 'high',
   },
   // RAMADAN
   {
@@ -189,16 +130,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 1,
     title: 'Beginning of Ramadan',
     titleMl: 'റമദാൻ ആരംഭം',
-    titleArabic: 'بداية شهر رمضان',
     type: 'religious',
     description: 'The blessed month of Ramadan begins. Muslims worldwide observe fasting from dawn to sunset.',
     descriptionMl: 'അനുഗ്രഹീതമായ റമദാൻ മാസം ആരംഭിക്കുന്നു. ലോകമെമ്പാടുമുള്ള മുസ്ലിംകൾ പ്രഭാതം മുതൽ സൂര്യാസ്തമയം വരെ നോമ്പ് അനുഷ്ഠിക്കുന്നു.',
-    importance: 'high',
-    dhikr: [
-      'اللَّهُمَّ أَهِلَّهُ عَلَيْنَا بِالْيُمْنِ وَالْإِيمَانِ وَالسَّلَامَةِ وَالْإِسْلَامِ',
-    ],
-    specialPractices: ['Fasting', 'Tarawih prayers', 'Quran recitation', 'Charity', 'I\'tikaf'],
-    specialPracticesMl: ['നോമ്പ്', 'തറാവീഹ് നമസ്കാരം', 'ഖുർആൻ പാരായണം', 'ദാനധർമ്മം', 'ഇഅ്തികാഫ്'],
   },
   {
     id: 'laylatul-qadr',
@@ -206,16 +140,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 27,
     title: 'Laylat al-Qadr (Night of Power)',
     titleMl: 'ലൈലത്തുൽ ഖദ്ർ (നിർണ്ണയ രാത്രി)',
-    titleArabic: 'ليلة القدر',
     type: 'religious',
     description: 'Laylat al-Qadr is the most blessed night of the year, better than a thousand months. It marks the night the Quran was first revealed and is a time for intense worship, dua and seeking forgiveness.',
     descriptionMl: 'ലൈലത്തുൽ ഖദ്ർ വർഷത്തിലെ ഏറ്റവും അനുഗ്രഹീതമായ രാത്രിയാണ്; ഖുർആൻ ആദ്യമായി അവതരിച്ച രാത്രിയാണ്. ഈ രാത്രി ദുആയുടെയും ഇബാദത്തിന്റെയും പ്രത്യേക പ്രാധാന്യമുണ്ട്.',
-    importance: 'high',
-    dhikr: [
-      'اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي',
-    ],
-    specialPractices: ['Night prayers', 'Quran recitation', 'Dua', 'I\'tikaf', 'Seeking forgiveness'],
-    specialPracticesMl: ['രാത്രി മുഴുവൻ നമസ്കാരങ്ങൾ', 'ഖുർആൻ പാരായണം', 'ധാരാളം ദുആകൾ', 'ഇഅ്തികാഫ് (സാമർത്ഥ്യം ഉള്ളവർക്ക്)', 'പാപമോചനം തേടൽ'],
   },
   // SHAWWAL
   {
@@ -224,19 +151,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 1,
     title: 'Eid al-Fitr',
     titleMl: 'ഈദ് ലുൽ ഫിത്ർ (ചെറിയ പെരുന്നാൾ)',
-    titleArabic: 'عيد الفطر',
     type: 'religious',
     description: 'Eid al-Fitr marks the end of Ramadan and is a day of celebration, gratitude, and joy.',
     descriptionMl: 'ഈദുൽ ഫിത്ർ റമദാന്റെ അവസാനം അടയാളപ്പെടുത്തുന്നു, ആഘോഷത്തിന്റെയും നന്ദിയുടെയും സന്തോഷത്തിന്റെയും ദിവസമാണ്.',
-    importance: 'high',
-    dhikr: [
-      'اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ لَا إِلَهَ إِلَّا اللَّهُ وَاللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ وَلِلَّهِ الْحَمْدُ',
-    ],
-    dua: [
-      'تَقَبَّلَ اللَّهُ مِنَّا وَمِنْكُمْ',
-    ],
-    specialPractices: ['Eid prayer', 'Zakat al-Fitr', 'Visiting relatives', 'Giving gifts', 'Observe six recommended fasts in Shawwal (any six days) for extra reward'],
-    specialPracticesMl: ['ഈദ് നമസ്കാരം', 'ഫിത്ർ സകാത്ത് നൽകുക', 'ബന്ധുക്കളെ സന്ദർശിക്കുക', 'സമ്മാനങ്ങൾ നൽകുക', 'ശവാലിൽ 6 നിയമിത നോമ്പുകൾ (ഏതെങ്കിലും ആറ് ദിവസം) നിരീക്ഷിക്കുക'],
   },
   // DHUL HIJJAH
   {
@@ -245,11 +162,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 1,
     title: 'Beginning of Dhul-Hijjah',
     titleMl: 'ദുൽഹിജ്ജ് മാസത്തിന്റെ തുടക്കം',
-    titleArabic: 'بداية ذو الحجة',
     type: 'religious',
     description: "Dhul-Hijjah is one of the most sacred months and the month of Hajj. The first ten days are especially virtuous; the Day of Arafah and Eid al-Adha fall within this month.",
     descriptionMl: 'ദുൽഹിജ്ജ് ഇസ്ലാമിലെ സുപ്രധാന മാസങ്ങളിലൊന്നാണ്; ഹജ്ജ് ഇതിലേയ്ക്ക് പ്രസ്താവിക്കുന്നു. ആദ്യ പത്തു ദിവസങ്ങൾ വളരെ മഹത്വമുള്ളവയാണ്; അറഫ ദിനവും ഈദുൽ അദ്ഹയും ഈ മാസം ഉൾപ്പെടുന്നു.',
-    importance: 'high',
   },
   {
     id: 'day-arafah',
@@ -257,16 +172,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 9,
     title: 'Day of Arafah',
     titleMl: 'അറഫാ ദിനം',
-    titleArabic: 'يوم عرفة',
     type: 'religious',
     description: 'The Day of Arafah is the most important day of Hajj and one of the best days of the year. Non-pilgrims are recommended to fast; the fast expiates the sins of the previous and coming year.',
     descriptionMl: 'അറഫാ ദിനം ഹജ്ജിന്റെ ഏറ്റവും പ്രധാനപ്പെട്ട ദിനവും വർഷത്തിലെ ഏറ്റവും മഹത്തായ ദിവസങ്ങളിലൊന്നും ആണ്. ഹജ്ജ് ചെയ്യാനില്ലാത്തവർക്ക് നോമ്പ് നിർവഹിക്കാൻ ശുപാർശ ചെയ്യപ്പെടുന്നു; ഇത് കഴിഞ്ഞവർഷത്തെയും വരാനിരിക്കുന്ന വർഷത്തെയും പാപങ്ങൾ മുക്തമാക്കുന്നതായി വിശ്വസിക്കപ്പെടുന്നു.',
-    importance: 'high',
-    dhikr: [
-      'لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
-    ],
-    specialPractices: ['Fasting (for non-pilgrims)', 'Abundant dua especially between Asr and Maghrib', 'Dhikr', 'Seeking forgiveness'],
-    specialPracticesMl: ['നോമ്പ് (ഹാജിമാർ അല്ലാത്തവർക്ക്)', 'പ്രധാനമായും ആസ്റ് മുതൽ മഗ്രിബ് വരെയുള്ള സമയത്ത് ധാരാളം ദുആ ചെയ്യുക', 'ദികർ', 'പാപമോചനം തേടുക'],
   },
   {
     id: 'eid-adha',
@@ -274,16 +182,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 10,
     title: 'Eid al-Adha',
     titleMl: 'ഈദുൽ അദ്ഹാ (ബലിപെരുന്നാൾ)',
-    titleArabic: 'عيد الأضحى',
     type: 'religious',
     description: 'Eid al-Adha, the Festival of Sacrifice, commemorates Prophet Ibrahim\'s willingness to sacrifice his son.',
     descriptionMl: 'ഈദുൽ അദ്ഹാ, ബലിയുടെ ആഘോഷം, ഇബ്രാഹീം നബി തന്റെ മകൻ ഇസ്മാഈലിനെ ബലിയർപ്പിക്കാനുള്ള സന്നദ്ധതയെ അനുസ്മരിക്കുന്നു.',
-    importance: 'high',
-    dhikr: [
-      'اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ لَا إِلَهَ إِلَّا اللَّهُ وَاللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ وَلِلَّهِ الْحَمْدُ',
-    ],
-    specialPractices: ['Eid prayer', 'Qurbani (sacrifice)', 'Takbeer', 'Visiting family'],
-    specialPracticesMl: ['ഈദ് നമസ്കാരം', 'ഖുർബാനി (ബലി)', 'തക്ബീർ', 'കുടുംബത്തെ സന്ദർശിക്കൽ'],
   },
   // WAFAT OF NOTABLE FIGURES
   {
@@ -292,11 +193,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 22,
     title: 'Wafat of Abu Bakr al-Siddiq (RA)',
     titleMl: 'അബൂബക്കർ സിദ്ദീഖ് (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة أبو بكر الصديق',
     type: 'wafat',
     description: 'Abu Bakr al-Siddiq (RA) was the closest companion of Prophet Muhammad ﷺ and the first Caliph.',
     descriptionMl: 'അബൂബക്കർ സിദ്ദീഖ് (റ) നബി മുഹമ്മദ് ﷺ യുടെ ഏറ്റവും അടുത്ത സഹചാരിയും ഇസ്ലാമിന്റെ ഒന്നാം ഖലീഫയുമായിരുന്നു.',
-    importance: 'high',
   },
   {
     id: 'wafat-umar',
@@ -304,11 +203,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 26,
     title: 'Wafat of Umar ibn al-Khattab (RA)',
     titleMl: 'ഉമർ ഇബ്നുൽ ഖത്താബ് (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة عمر بن الخطاب',
     type: 'wafat',
     description: 'Umar ibn al-Khattab (RA), the second Caliph of Islam, was known for his justice and strength.',
     descriptionMl: 'ഉമർ ഇബ്നുൽ ഖത്താബ് (റ), ഇസ്ലാമിന്റെ രണ്ടാം ഖലീഫ, നീതിക്കും ശക്തിക്കും പ്രസിദ്ധനായിരുന്നു.',
-    importance: 'high',
   },
   {
     id: 'wafat-uthman',
@@ -316,11 +213,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 18,
     title: 'Wafat of Uthman ibn Affan (RA)',
     titleMl: 'ഉസ്മാൻ ഇബ്നു അഫ്ഫാൻ (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة عثمان بن عفان',
     type: 'wafat',
     description: 'Uthman ibn Affan (RA), the third Caliph, was known for compiling the Quran into a single book.',
     descriptionMl: 'ഉസ്മാൻ ഇബ്നു അഫ്ഫാൻ (റ), മൂന്നാം ഖലീഫ, ഖുർആൻ ഒരു ഗ്രന്ഥമായി ക്രോഡീകരിച്ചതിന് പ്രസിദ്ധനാണ്.',
-    importance: 'high',
   },
   {
     id: 'wafat-ali',
@@ -328,11 +223,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 21,
     title: 'Wafat of Ali ibn Abi Talib (RA)',
     titleMl: 'അലി ഇബ്നു അബീ താലിബ് (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة علي بن أبي طالب',
     type: 'wafat',
     description: 'Ali ibn Abi Talib (RA), the fourth Caliph, was known for his knowledge, bravery, and eloquence.',
     descriptionMl: 'അലി ഇബ്നു അബീ താലിബ് (റ), നാലാം ഖലീഫ, അറിവിനും ധൈര്യത്തിനും വാചാലതയ്ക്കും പ്രസിദ്ധനായിരുന്നു.',
-    importance: 'high',
   },
   {
     id: 'wafat-fatima',
@@ -340,11 +233,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 3,
     title: 'Wafat of Fatimah al-Zahra (RA)',
     titleMl: 'ഫാത്തിമ അൽ-സഹ്‌റ (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة فاطمة الزهراء',
     type: 'wafat',
     description: 'Fatimah al-Zahra (RA), the beloved daughter of Prophet Muhammad ﷺ.',
     descriptionMl: 'ഫാത്തിമ അൽ-സഹ്‌റ (റ), നബി മുഹമ്മദ് ﷺ യുടെ പ്രിയപ്പെട്ട മകൾ.',
-    importance: 'high',
   },
   // Malayalam entries added from user input
   {
@@ -353,11 +244,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 8,
     title: "Martyrdom of Ja'far ibn Abi Talib (RA)",
     titleMl: 'ശഹീദ ജാ\'ഫർ ഇബ്ൻ അബീ താലിബ് (റ)',
-    titleArabic: 'شهادة جعفر بن أبي طالب',
     type: 'wafat',
     description: "Ja'far ibn Abi Talib (RA), brother of Ali (RA) and cousin of the Prophet ﷺ, famed for leading the migration to Abyssinia and for his martyrdom at Mu'tah; the Prophet ﷺ praised his sacrifice.",
     descriptionMl: 'അലി (റ) ന്റെ സഹോദരനും പ്രവാചകനെ (സ) യുടെ രാജകുമാരനായ ജാ\'ഫർ ഇബ്ൻ അബീ താലിബ് (റ) അബ്സീനിയ ഹിജ്‌റയിലാണു മുസ്ലിം സംഘത്തെ നയിച്ചത്. മുഅ്ത യുദ്ധത്തിൽ കൊലവേദിയിൽ വെച്ച് ഇരുവശം കൈകളും നഷ്ടപ്പെടുത്തി; പ്രവാചകൻ ﷺ അദ്ദേഹത്തിന് സ്വർഗ്ഗത്തിൽ ചിറകുകൾ നൽകിയതായി വിശേഷിപ്പിച്ചു.',
-    importance: 'high',
   },
   {
     id: 'wafat-said-bin-harith',
@@ -365,11 +254,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 1,
     title: 'Wafat of Sa\'id bin Harith (RA)',
     titleMl: 'സൈദ് ബിൻ ഹാരിസ് (റ)',
-    titleArabic: 'وفاة سعيد بن حارث',
     type: 'wafat',
     description: "Sa'id bin Harith (RA) — beloved companion and commander at Mu'tah who attained martyrdom while leading Muslim forces.",
     descriptionMl: 'സയ്യിദ് ബിൻ ഹാരിസ് (റ) — പ്രവാചകന്റെ (സ) കൂട്ടുകാരനായ പ്രിയപ്പെട്ട സ്വഹാബി; മുഅ്ത യുദ്ധത്തിൽ മുസ്ലിം സൈന്യത്തിന് നായകത്വംനൽകിയതിനു ശേഷം വീരമൃത്യു നേടിയ്ത്താണ്.',
-    importance: 'high',
   },
   {
     id: 'wafat-abdullahi-bin-rawahah',
@@ -377,11 +264,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 5,
     title: 'Wafat of Abdullahi bin Rawahah (RA)',
     titleMl: 'അബ്ദുള്ളഹ് ബിൻ റവാഹ (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة عبد الله بن رواحة',
     type: 'wafat',
     description: "Abdullahi bin Rawahah (RA) — Ansar leader and poet who was martyred at Mu'tah defending Islam.",
     descriptionMl: 'അൻസാരുകളിൽ നേട്ടസ്ഥാപകനായ കവിതാരചനയിലും പ്രസിദ്ധനായ അബ്ദുള്ളാഹ് ബിൻ റവാഹ (റ) മുഅ്ത യുദ്ധത്തിൽ ധൈര്യത്തോടെ വീരമൃത്യു നേടിയതു കൊണ്ടു ഓർമ്മിക്കപ്പെടുന്നു.',
-    importance: 'high',
   },
   {
     id: 'wafat-abdul-mutallib',
@@ -389,11 +274,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 10,
     title: 'Wafat of Abdul Mutallib',
     titleMl: 'അബ്ദുൽ മുത്വലിബ് (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة عبد المطلب',
     type: 'wafat',
     description: 'Abdul Mutallib — grandfather of the Prophet ﷺ, who lovingly raised the young Muhammad ﷺ following the death of his father.',
     descriptionMl: 'പ്രവാചകന്‍റെ (സ) പിതാമഹൻ അബ്ദുൽ മുത്തലിബ് — നബിയുടെ അച്ഛൻമാറിയതിനു ശേഷം കുഞ്ഞനായി വളർത്തിയെടുത്തുവെന്ന് ചരിത്ര രേഖകൾ പറയുന്നു.',
-    importance: 'medium',
   },
   {
     id: 'wafat-sha-abdul-haqq-dehlvi',
@@ -401,11 +284,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 7,
     title: 'Wafat of Shaikh Abdu\'l-Haqq Dehlvi (RA)',
     titleMl: 'ഷാ അബ്ദുൽ ഹഖ് ദഹ്‌ലവി (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة شيخ عبد الحق الدهلاوي',
     type: 'wafat',
     description: 'Shaikh Abdu\'l-Haqq Muhaddith Dehlvi — prominent hadith scholar from India known for his Persian commentary and propagation of hadith sciences.',
     descriptionMl: 'ഇന്ത്യയിലെ പ്രമുഖ ഹദീസ് പണ്ഡിതനായ ഷാ അബ്ദുൽ ഹഖ് മുഹദ്ദിസ് ദഹ്‌ലവി (റ) ഹദീസ്സിന്റെ പഠനവും വ്യാഖ്യാനത്തിലും വലിയ സംഭാവനകൾ നല്‍കിയിരുന്നു.',
-    importance: 'medium',
   },
   {
     id: 'wafat-paravann-kp-muhyudheen',
@@ -413,11 +294,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 19,
     title: 'Wafat of Paravann K.P. Muhyudheen Kutty Musliyar',
     titleMl: 'പറവണ്ണ കെ.പി. മുഹമ്മദ് മുഃയുദ്ധീൻ കുട്ടി മുസ്‌ലിയാർ (റ) യുടെ വഫാത്ത്',
-    titleArabic: '',
     type: 'wafat',
     description: 'Paravann K.P. Muhyudheen Kutty Musliyar — influential scholar, organizer and former General Secretary of Samastha; led educational reforms and served as an important voice in Kerala Islamic scholarship.',
     descriptionMl: 'സമസ്ത കേരള ജംഇയ്യത്തുൽ ഉലമയുടെ പ്രമുഖ പണ്ഡിതനും സംഘടനാശക്തിയുമായിരുന്ന പറവണ്ണ കെ.പി. മുഹ്‌യുദ്ദീൻ കുട്ടി മുസ്‌ലിയാർ 1370 ഹിജ്റ റജിസ്റ്ററിൽ (1951-02-25) വഫാത്തായി.',
-    importance: 'high',
   },
   {
     id: 'wafat-ummul-baneen',
@@ -425,11 +304,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 13,
     title: 'Wafat of Ummul Baneen (RA)',
     titleMl: 'ഉമ്മുൽ പനീൻ (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة أم البنين',
     type: 'wafat',
     description: 'Ummul Baneen — wife of Ali (RA) and mother of Abbas (RA) and others; honoured for her devotion to the Prophet\'s household and teaching her children to sacrifice for Ahl al-Bayt.',
     descriptionMl: 'അലി (റ) യുടെ ഭാര്യ ഫാത്തിമ ബിൻത് ഹുസാം (ഉമ്മുൽ ബനീൻ) — അബ്ബാസ് (റ) ഉൾപ്പെടെയുള്ള നാലു പുത്രന്മാർക്ക് മാതാവായ ധീരയായ സ്ത്രീ; ഹൃദയത്തിൽ പ്രഭവമൂല്യമുള്ളത്.',
-    importance: 'medium',
   },
   {
     id: 'wafat-abu-hurairah',
@@ -437,11 +314,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 5,
     title: 'Wafat of Abu Hurairah (RA)',
     titleMl: 'അബു ഹുറൈറ (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة أبي هريرة',
     type: 'wafat',
     description: 'Abu Hurairah (RA) — companion famed for transmitting a large number of hadiths; dedicated his life to preserving the Prophet\'s traditions and passed away in Dhul-Qadah.',
     descriptionMl: 'പ്രവാചകനെ (സ) നിന്നെ നിന്നുള്ള ഏറ്റവും കൂടുതലുള്ള ഹദീസുകൾ റിപ്പോർട്ട് ചെയ്ത സ്വഹാബിയായ അബു ഹുറൈറ (റ) ദുൽഖഅദയിൽ വഫാത്തായി.',
-    importance: 'high',
   },
   {
     id: 'wafat-ibn-qayyim',
@@ -449,11 +324,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 13,
     title: 'Wafat of Ibn al-Qayyim al-Jawziyya (RA)',
     titleMl: 'ഇബ്നുൽ ഖയ്യം അൽ-ജൗസിയ്യ (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة ابن القيم الجوزية',
     type: 'wafat',
     description: 'Ibn al-Qayyim al-Jawziyya — renowned scholar and author, student of Ibn Taymiyyah, known for works on creed, jurisprudence and spirituality; passed away in Dhul-Qadah.',
     descriptionMl: 'ഇബ്നുൽ ഖയ്യം അൽ-ജൗസിയ്യ — ഇസ്ലാമിക പണ്ഡിതനും വിമർശകനുമായിരുന്നു, ഇബ്ൻ തൈമിയയുടെ ശിഷ്യൻ; ദുൽ ഖഅദയിൽ വഫാത്തായി.',
-    importance: 'high',
   },
   {
     id: 'wafat-imam-abu-hanifa',
@@ -461,11 +334,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 15,
     title: 'Wafat of Imam Abu Hanifa (RA)',
     titleMl: 'ഇമാം അബൂ ഹനീഫ (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة الإمام أبو حنيفة',
     type: 'wafat',
     description: 'Imam Abu Hanifa — founder of the Hanafi madhhab; historically recorded to have passed on Sha\'ban 15.',
     descriptionMl: 'ഹനഫി മധ്ഹബത്തിന്റെ സ്ഥാപകനായ ഇമാം അബൂ ഹനീഫ (റ) ഹിജ്റ്റ് 150, ശഅ്ബാൻ 15-ന് വഫാത്തായി.',
-    importance: 'high',
   },
   {
     id: 'wafat-imam-nawawi',
@@ -473,11 +344,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 24,
     title: 'Wafat of Imam Nawawi (RA)',
     titleMl: 'ഇമാം നവവി (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة الإمام النووي',
     type: 'wafat',
     description: 'Imam Nawawi — author of "Riyad as-Salihin" and key hadith works; passed away on Rajab 24.',
     descriptionMl: 'ഇമാം നവവി (റ) — പ്രശസ്ത ഗ്രന്ഥങ്ങൾക്ക് കവിമായ പണ്ഡിതൻ; ഹിജ്റ 676-ൽ റജബ് 24-ന് വഫാത്തായി.',
-    importance: 'high',
   },
   {
     id: 'wafat-khadija',
@@ -485,11 +354,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 10,
     title: 'Wafat of Khadijah bint Khuwaylid (RA)',
     titleMl: 'ഖദീജ ബിൻത് ഖുവൈലിദ് (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة خديجة بنت خويلد',
     type: 'wafat',
     description: 'Khadijah (RA), the first wife of Prophet Muhammad ﷺ and the first person to embrace Islam.',
     descriptionMl: 'ഖദീജ (റ), നബി മുഹമ്മദ് ﷺ യുടെ ആദ്യ ഭാര്യയും ഇസ്ലാം സ്വീകരിച്ച ആദ്യ വ്യക്തിയും.',
-    importance: 'high',
   },
   {
     id: 'wafat-hussain',
@@ -497,11 +364,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 10,
     title: 'Martyrdom of Imam Hussain (RA)',
     titleMl: 'ഇമാം ഹുസൈൻ (റ) യുടെ ശഹാദത്ത്',
-    titleArabic: 'شهادة الإمام الحسين',
     type: 'wafat',
     description: 'Imam Hussain (RA), the grandson of Prophet Muhammad ﷺ, was martyred at Karbala.',
     descriptionMl: 'ഇമാം ഹുസൈൻ (റ), നബി മുഹമ്മദ് ﷺ യുടെ പേരമകൻ, കർബലയിൽ ശഹീദായി.',
-    importance: 'high',
   },
   {
     id: 'wafat-sainul-ulama-cherushseri',
@@ -509,14 +374,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 13,
     title: "Wafat of Sainul Ulama Cherushseri Sainuddheen Musliyar",
     titleMl: 'സൈനുൽ  ഉലമ ചെറുശ്ശേരി സൈനുദ്ദീൻ മുസ്‌ലിയാർ',
-    titleArabic: 'وفاة سَينُول العلماء تشيروشيري سَينُدّين مُسلّيَار',
     type: 'wafat',
     description: 'Sainul Ulama Cherushseri Sainuddheen Musliyar — prominent scholar and long-serving General Secretary of Samastha Kerala Jamiyyathul Ulama. Born Rajab 20, 1356 AH (Oct 1937) in Morayur, Malappuram; served as a teacher, Samastha mushawara member (from 1980), and became General Secretary in 1996. Pro-Chancellor of Darul Huda Islamic University and chair of the federation\'s fatwa committee. Passed away Shawwal 13, 1437 AH (18 Feb 2016) and buried at Chemmad Darul Huda campus.',
-    descriptionMl: 'സൈനുൽ  ഉലമ ചെറുശ്ശേരി സൈനുദ്ദീൻ മുസ്‌ലിയാർ — സമസ്ത കേരള ജംഇയ്യത്തുൽ ഉലമയുടെ ജനറൽ സെക്രട്ടറിയായി 20 വർഷത്തോളം സേവനമനുഷ്ഠിച്ച പ്രമുഖ പണ്ഡിതൻ. ഹിജ്റ 1356 റജബ് 20 (1937 ഒക്ടോബർ) മലപ്പുറം മൊറയൂരിൽ പണ്ഡിത കുടുംബത്തിൽ ജനിച്ചു. അദ്ദേഹംCONDOTTI Juma Masjid-ൽ മുദ്രിസ് ആയി സേവനമാരംഭിക്കുകയും 1980-ൽ സമസ്തയുടെ കേന്ദ്ര മുശാവറയിൽ അംഗമായി, 1996-ൽ ജനറൽ സെക്രട്ടറി ആയി നിയമിതനായി. ദാറുൽ ഹുദാ ഇസ്ലാമിക് യൂണിവേഴ്‌സിറ്റിയുടെ പ്രോ-ചാൻസലർയും ഫത്‌വാ കമ്മിറ്റീ ചെയർമാനുമായിരുന്നു. ഹിജ്റ 1437 ശവ്വാൽ 13 (2016 ഫെബ്രുവരി 18) ന് വഫാത്തായി; ചെമ്മാട് ദാറുൽ ഹുദാ ക്യാമ്പസിൽ മറവുചെയ്തു.',
-    importance: 'high',
-    dhikr: ['إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ'],
-    specialPractices: ['Prayers and remembrance sessions', 'Visiting the grave and making dua'],
-    references: ['Chemmad Darul Huda', 'Samasta Kerala Jamiyyathul Ulama']
+    descriptionMl: 'സൈനുൽ  ഉലമ ചെറുശ്ശേരി സൈനുദ്ദീൻ മുസ്‌ലിയാർ — സമസ്ത കേരള ജംഇയ്യത്തുൽ ഉലമയുടെ ജനറൽ സെക്രട്ടറിയായി 20 വർഷത്തോളം സേവനമനുഷ്ഠിച്ച പ്രമുഖ പണ്ഡിതൻ. ഹിജ്റ 1356 റജബ് 20 (1937 ഒക്ടോബർ) മലപ്പുറം മൊറയൂരിൽ പണ്ഡിത കുടുംബത്തിൽ ജനിച്ചു. അദ്ദേഹംCONDOTTI Juma Masjid-ൽ മുദ്രിസ് ആയി സേവനമാരംഭിക്കുകയും 1980-ൽ സമസ്തയുടെ കേന്ദ്ര മുശാവറയിൽ അംഗമായി, 1996-ൽ ജനറൽ സെക്രട്ടറി ആയി നിയമിതനായി. ദാറുൽ ഹുദാ ഇസ്ലാമിക് യൂണിവേഴ്‌സിറ്റിയുടെ പ്രോ-ചാൻസലർയും ഫത്‌വാ കമ്മിറ്റീ ചെയർമാനുമായിരുന്നു. ഹിജ്റ 1437 ശവ്വാൽ 13 (2016 ഫെബ്രുവരി 18) ന് വഫാത്തായി; ചെമ്മാട് ദാറുൽ ഹുദാ ക്യാമ്പസിൽ മറവുചെയ്തു.'
   },
   {
     id: 'wafat-km-bafaqi-thangal',
@@ -524,11 +384,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 14,
     title: 'Wafat of K. M. Bafaqi Thangal',
     titleMl: 'കെ. എം. ബാഫഖി തങ്ങൾ',
-    titleArabic: 'وفاة ك. م. بَافَقِي',
     type: 'wafat',
     description: 'K. M. Bafaqi Thangal was a prominent leader from Koyilandy who contributed to education and community uplift; he passed away on Dhul Hijjah 14, 1392 AH (19 Jan 1973).',
     descriptionMl: `ഹിജ്റ 1324 ദുൽഖഅദ് 25 (1906 ഫെബ്രുവരി) കൊയിലാണ്ടിയിലെ ബാഫഖി തറവാട്ടിൽ ജനിച്ച കെ. എം. ബാഫഖി തങ്ങൾ സമുദായത്തിന്റെ മതപരവും 정치പരവുമായ ഉന്നമനത്തിന്‍റെ വേഹിച്ച പ്രവർത്തകർ ആയിരുന്നു.  ഹിജ്റ 1392 ദുൽഹിജ്ജ 14 (1973 ജനുവരി 19) ഹജ്ജ് കാലത്ത് മക്കയിൽ വഫാത്തായിരുന്നു.`,
-    importance: 'high',
   },
   {
     id: 'wafat-abdul-bari',
@@ -536,11 +394,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 20,
     title: 'Wafat of Abdul Bari Musliyar',
     titleMl: 'അബ്ദുൽ ബാരി മുസ്‌ലിയാർ',
-    titleArabic: 'وفاة عبد الباري',
     type: 'wafat',
     description: 'Abdul Bari Musliyar served Samastha and led as General Secretary 1951–1963; he passed away on Rabi al-Awwal 20, 1385 AH (19 Jul 1965).',
     descriptionMl: `ഹിജ്റ 1298 റബീഉൽ ആഖിർ 10 (1881 ഫെബ്രുവരി) പാനായിക്കുളത്ത് ജനിച്ച അബ്ദുൽ ബാരി മുസ്‌ലിയാർ സമസ്തയുടെ പ്രധാന പ്രതിഭകളിലൊന്നായിരുന്നു. ഹിജ്റ 1385 റബീഉൽ അവ്വൽ 20 (1965 ജൂലൈ 19) നാണ് അദ്ദേഹം വഫാത്തായത്.`,
-    importance: 'high',
   },
   {
     id: 'wafat-ek-abubacker',
@@ -548,11 +404,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 4,
     title: 'Wafat of E.K. Abubacker Musliyar',
     titleMl: 'ഇ.കെ. അബൂബക്കർ മുസ്‌ലിയാർ',
-    titleArabic: 'وفاة إي. كِي. أبو بكر',
     type: 'wafat',
     description: 'E.K. Abubacker Musliyar served as Samastha General Secretary for about 40 years and was widely honored as a leading scholar; he passed away on Rabi al-Thani 4, 1417 AH (19 Aug 1996).',
     descriptionMl: `ഹിജ്റ 1333 റബീഉൽ അവ്വൽ (1914) കോഴിക്കോട് പരപ്പനങ്ങാടിക്ക് സമീപമുള്ള കുഞ്ഞന പ്രദേശത്ത് ജനിച്ച് വളർന്ന ഇ.കെ. അബൂബക്കർ മുസ്ലിയാർ ദീർഘകാലം സമസ്തയുടെ ജനറൽ സെക്രട്ടറിയായി സേവനം അനുഷ്ഠിച്ചു. ഹിജ്റ 1417 റബീഉൽ ആഖിർ 4 (1996 ഓഗസ്റ്റ് 19) നാണ് അദ്ദേഹത്തിന്റെ വഫാത്ത്.`,
-    importance: 'high',
   },
   {
     id: 'wafat-ok-sainuddheen',
@@ -560,11 +414,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 27,
     title: 'Wafat of O.K. Sainuddheen Kutti Musliyar',
     titleMl: 'ഒ.കെ. സൈനുദ്ദീൻ കുട്ടി മുസ്‌ലിയാർ',
-    titleArabic: 'وفاة أو. كي. ساينُدّين',
     type: 'wafat',
     description: 'O.K. Sainuddheen Kutti Musliyar was a respected teacher and scholar who passed away on Shawwal 27, 1412 AH (May 1992).',
     descriptionMl: `ഹിജ്റ 1331 (ജനനം) വാഴക്കാട് ദാറുൽ ഉലൂമിലും പള്ളിദർസിലും ദീർഘകാലം സേവനമനുഷ്ഠിച്ച ഒ.കെ. സൈനുദ്ദീൻ കുട്ടി മുസ്ലിയാർ ഹിജ്റ 1412 ശവ്വാൽ 27 (1992 മെയ്) വഫാത്തായി.`,
-    importance: 'high',
   },
   {
     id: 'wafat-kc-jamaluddin',
@@ -572,11 +424,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 27,
     title: 'Wafat of K.C. Jamaluddin Musliyar',
     titleMl: 'കെ.സി. ജമാലുദ്ധീൻ മുസ്‌ലിയാർ',
-    titleArabic: 'وفاة ك. سي. جمال الدين',
     type: 'wafat',
     description: 'K.C. Jamaluddin Musliyar, vice-president of Samastha and jurist, passed on Shawwal 27, 1432 AH (26 Sep 2011).',
     descriptionMl: `കെ.സി. ജമാലുദ്ധീൻ മുസ്ലിയാർ സമസ്തയുടെ വൈസ് പ്രസിഡന്റും ദീർഘകാല ഫത്‍വ കമ്മിറ്റി അംഗവുമായിരുന്നു; ഹിജ്റ 1432 ശവ്വാൽ 27 (2011 സെപ്റ്റംബർ 26) നാണ് അദ്ദേഹത്തിന്റെ വിയോഗം.`,
-    importance: 'medium',
   },
   {
     id: 'wafat-kalambadi-muhammad',
@@ -584,11 +434,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 16,
     title: 'Wafat of Kalambadi Muhammad Musliyar',
     titleMl: 'കാളമ്പാടി മുഹമ്മദ് മുസ്‌ലിയാർ',
-    titleArabic: 'وفاة ك. م. محمد',
     type: 'wafat',
     description: "Kalambadi Muhammad Musliyar, Samastha's eighth president, passed away on Dhul Qadah 16, 1433 AH (2 Oct 2012).",
     descriptionMl: `ഹിജ്റ 1935-ൽ ജനിച്ച് സമസ്തയുടെ അദ്ധ്യക്ഷ സ്ഥാനത്ത് സേവിച്ചു; ഹിജ്റ 1433 ദുൽഖഅദ് 16 (2012 ഒക്ടോബർ 2) നാണ് വിയോഗം.`,
-    importance: 'medium',
   },
   {
     id: 'wafat-nellikuth-ismail',
@@ -596,11 +444,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 24,
     title: 'Wafat of Nellikuth Ismail Musliyar',
     titleMl: 'നെല്ലിക്കுத்த് ഇസ്മാഈൽ മുസ്‌ലിയാർ',
-    titleArabic: 'وفاة نيلّيكوث إسماعيل',
     type: 'wafat',
     description: "Nellikuth Ismail Musliyar, scholar and author of the Arabic–Malayalam dictionary 'Al-Manhal', passed away on Muharram 24, 1431 AH (10 Jan 2010).",
     descriptionMl: `നെല്ലിക്കുത്ത് ഇസ്മാഈൽ മുസ്ലിയാർ 1940-ൽ ജനിച്ചു, അറബി-മലയാള നിഘണ്ടു 'അൽ-മൻഹൽ' രചിച്ചു; ഹിജ്റ 1431 മുഹറം 24 (2010 ജനുവരി 10) ന് വിയോഗം.`,
-    importance: 'medium',
   },
   {
     id: 'wafat-anakkara-c-koyakkutti',
@@ -608,11 +454,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 25,
     title: 'Wafat of Anakkara C. Koyakkutti Musliyar',
     titleMl: 'ആനക്കര സി.കോയക്കുട്ടി മുസ്‌ലിയാർ',
-    titleArabic: 'وفاة آنّاكارا',
     type: 'wafat',
     description: "Anakkara C. Koyakkutti Musliyar, Samastha's ninth president and a student of Kanniyath Ahmad, passed on Rajab 25, 1437 AH (3 May 2016).",
     descriptionMl: `ആനക്കര സി.കോയക്കുട്ടി മുസ്ലിയാർ ഹിജ്റ 1934-ൽ ജനിച്ചു; ഹിജ്റ 1437 റജബ് 25 (2016 മെയ് 3) നാണ് അദ്ദേഹം വയോധികമായി അന്തരിച്ചത്.`,
-    importance: 'medium',
   },
   {
     id: 'wafat-tkm-bava',
@@ -620,11 +464,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 7,
     title: 'Wafat of T.K.M. Bava Musliyar',
     titleMl: 'ടി.കെ.എം. ബാവ മുസ്‌ലിയാർ',
-    titleArabic: 'وفاة ت. ك. م. باڤا',
     type: 'wafat',
     description: 'T.K.M. Bava Musliyar, a former Samastha president and education board inspector, passed on Shaban 7, 1434 AH (16 June 2013).',
     descriptionMl: `ഹിജ്റ 1930-ൽ ജനിച്ച ടി.കെ.എം. ബാവ മുസ്ലിയാർ സമസ്തയുടെ വിദ്യാഭ്യാസ ബോർഡിൽ നീണ്ടകാലം സേവനം നടത്തി; ഹിജ്റ 1434 ശഅ്ബാൻ 7 (2013 ജൂൺ 16) നാണ് വിയോഗം.`,
-    importance: 'medium',
   },
   {
     id: 'wafat-ap-kunjamu',
@@ -632,11 +474,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 10,
     title: 'Wafat of A.P. Kunjamu Musliyar',
     titleMl: 'എ.പി. കുഞ്ഞാമു മുസ്‌ലിയാർ',
-    titleArabic: 'وفاة أ. ب. كونجامو',
     type: 'wafat',
     description: 'A.P. Kunjamu Musliyar, an esteemed spiritual guide, passed away on Rabi al-Thani 10, 1440 AH (18 Dec 2018).',
     descriptionMl: `ആദിപ്പറ്റ ഉസ്താദ് എ.പി. കുഞ്ഞാമു മുസ്ലിയാർ ഹിജ്റ 1361 (1942) ജനിച്ചവൻ; ഹിജ്റ 1440 റബീഉൽ ആഖിർ 10 (2018 ഡിസംബർ 18) നാണ് മരണം.`,
-    importance: 'medium',
   },
   {
     id: 'wafat-sayyid-ahmad-bukhari',
@@ -644,11 +484,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 18,
     title: 'Wafat of Sayyid Ahmad Jalaluddin al-Bukhari',
     titleMl: 'സയ്യിദ് അഹ്മദ് ജലാലുദ്ദീൻ അൽ-ബുഖാരി',
-    titleArabic: 'وفاة السيد أحمد البخاري',
     type: 'wafat',
     description: 'Sayyid Ahmad Jalaluddin al-Bukhari is a historic Sufi figure associated with Kadalundi Bandar; traditional records mark his passing on Rabi al-Thani 18.',
     descriptionMl: `കദലുണ്ടി ബന്ദറിൽ മഖാമുള്ള സയ്യിദ് അഹ്മദ് ജലാലുദ്ദീൻ അൽ-ബുഖാരി ശൈഖ് പരമ്പരയിലെ ഒരു പ്രമുഖ വക്താവാണ്; ഹിജ്റ റബീഉൽ ആഖിർ 18 ന് അദ്ദേഹത്തിന്റെ വിയോഗമുണ്ടായത് ചരിത്ര രേഖകളിൽ കാണപ്പെടുന്നു.`,
-    importance: 'medium',
   },
   {
     id: 'wafat-varakkal-mullakkoya',
@@ -656,11 +494,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 17,
     title: 'Wafat of Varakkal Mullakkoya Thangal',
     titleMl: 'വരക്കൽ മുല്ലക്കോയ തങ്ങൾ',
-    titleArabic: 'وفاة فرّقال ملّكوي',
     type: 'wafat',
     description: 'Varakkal Mullakkoya Thangal (1840–1932) was a founding president of Samastha and a major religious leader; he passed away on Shaban 17.',
     descriptionMl: `വരക്കൽ മുല്ലക്കോയ തങ്ങൾ സമസ്തയുടെ സ്ഥാപക പ്രസിഡന്റായിരുന്നു; ഹിജ്റ 1432 അല്ലെങ്കിൽ പൂർവ്വകാല രേഖകൾ പ്രകാരം ശഅ്ബാൻ 17-നാണ് അദ്ദേഹത്തിന്റെ അന്ത്യം.`,
-    importance: 'high',
   },
   {
     id: 'wafat-pangil-ahmad-kutty',
@@ -668,11 +504,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 25,
     title: 'Wafat of Pangil Ahmad Kutty Musliyar',
     titleMl: 'പാങ്ങിൽ അഹ്മദ് കുട്ടി മുസ്‌ലിയാർ',
-    titleArabic: 'وفاة بانغيل أحمد',
     type: 'wafat',
     description: 'Pangil Ahmad Kutty Musliyar (born 1888) helped institutionalize Samastha and passed away on Dhul Hijjah 25.',
     descriptionMl: `പാങ്ങിൽ അഹ്മദ് കുട്ടി മുസ്ലിയാർ 1888-ൽ ജനിച്ചു; ഡുൽഹിജ്ജ് 25-ന് അന്തരിച്ചു.`,
-    importance: 'medium',
   },
   {
     id: 'wafat-kanniyath-ahmad',
@@ -680,11 +514,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 2,
     title: 'Wafat of Kanniyath Ahmad Musliyar',
     titleMl: 'കണ്ണിയത്ത് അഹമ്മദ് മുസ്ലിയാർ',
-    titleArabic: 'وفاة كانّيَّث أحمد',
     type: 'wafat',
     description: 'Kanniyath Ahmad Musliyar (1900–1993) was a scholar, teacher and former Samastha president; he passed away on Rabi al-Thani 2.',
     descriptionMl: `കണ്ണിയത്ത് അഹമ്മദ് മുസ്ലിയാർ സമസ്തയുടെ മുൻ പ്രസിഡന്റും കേന്ദ്ര മുശാവറ അംഗവുമായിരുന്നു; ഹിജ്റ റബീഉൽ ആഖിർ 2-ൻ (1993) അന്തരിച്ചു.`,
-    importance: 'high',
   },
   {
     id: 'wafat-chappanangadi-bappu',
@@ -692,11 +524,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 26,
     title: 'Wafat of Shaikhuna Chappanangadi Bappu Musliyar',
     titleMl: 'ശൈഖുനാ ചാപ്പനങ്ങാടി ബാപ്പു മുസ്‌ലിയാർ',
-    titleArabic: 'وفاة شَيْخونا شَبّنغانادي',
     type: 'wafat',
     description: 'Shaikhuna Chappanangadi Bappu Musliyar (1933–2002) was a Sufi scholar and mushawara member; he passed away on Dhul Hijjah 26.',
     descriptionMl: `ശൈഖുനാ ചാപ്പനങ്ങാടി ബാപ്പു മുസ്ലിയാർ ഹിജ്റ 1933-2002 കാലഘട്ടത്തിലെ പ്രധാന പണ്ഡിതനും ശോകരൂപനായിരുന്ന ശൈഖുമായിരുന്നു; ഡുൽഹിജ്ജ് 26-ന് അദ്ദേഹം അന്തരിച്ചു.`,
-    importance: 'medium',
   },
   {
     id: 'wafat-kk-abubacker-hasrath',
@@ -704,11 +534,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 16,
     title: 'Wafat of K.K. Abubacker Hasrath',
     titleMl: 'ശൈഖുനാ കെ.കെ. അബൂബക്കർ ഹസ്റത്ത്',
-    titleArabic: 'وفاة ك. ك. أبو بكر',
     type: 'wafat',
     description: 'K.K. Abubacker Hasrath was an influential figure in northern Malabar; traditional notes record his passing on Rajab 16.',
     descriptionMl: `കെ.കെ. അബൂബക്കർ ഹസ്രത്ത് വടക്കൻ മലബാറിലെ മുസ്ലീം നവോത്ഥാന ചരിത്രത്തിൽ പ്രസിദ്ധനായ നേതാവായിരുന്നു; റജബ് 16-ന് വിയോഗമുണ്ടായത് രേഖകളിൽ പറയുന്നു.`,
-    importance: 'medium',
   },
   {
     id: 'wafat-ek-hassan',
@@ -716,11 +544,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 25,
     title: 'Wafat of E.K. Hassan Musliyar',
     titleMl: 'ഇ.കെ. ഹസ്സൻ മുസ്‌ലിയാർ',
-    titleArabic: 'وفاة إي. كِي. حسن',
     type: 'wafat',
     description: 'E.K. Hassan Musliyar (1920–1982) was a leading organizer in Samastha and passed away on Shawwal 25.',
     descriptionMl: `ഇ.കെ. ഹസ്സൻ മുസ്ലിയാർ സമസ്തയ്ക്ക് രാജ്യവ്യാപകമായി ഏകോപന പ്രവർത്തനങ്ങളിൽ നേതൃത്വം നൽകിയതിൽ ശ്രദ്ധേയനായിരുന്നു; ശവ്വാൽ 25-ന് അന്തരിച്ചു.`,
-    importance: 'medium',
   },
   {
     id: 'wafat-panakkad-shihab',
@@ -728,11 +554,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 10,
     title: 'Wafat of Panakkad Sayyid Muhammadali Shihab Thangal',
     titleMl: 'പാണക്കാട് സയ്യിദ് മുഹമ്മദലി ശിഹാബ് തങ്ങൾ',
-    titleArabic: 'وفاة بانكّاد',
     type: 'wafat',
     description: 'Panakkad Sayyid Muhammadali Shihab Thangal (1945–2009) was a major spiritual and community leader; he passed away on Shaban 10.',
     descriptionMl: `പാണക്കാട് സയ്യിദ് മുഹമ്മദലി ശിഹാബ് തങ്ങൾ 1945–2009 കാലഘട്ടത്തിൽ കേരളത്തിന്റെ പ്രധാന ആത്മീയ നേതാക്കളിലൊരാളായിരുന്നു; ഹിജ്റ ശഅ്ബാൻ 10-ന് (2009) അദ്ദേഹം അന്തരിച്ചു.`,
-    importance: 'high',
   },
   {
     id: 'wafat-imam-shafi',
@@ -740,11 +564,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 30,
     title: 'Wafat of Imam al-Shafi\'i (RA)',
     titleMl: 'ഇമാം അൽ-ഷാഫി (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة الإمام الشافعي',
     type: 'wafat',
     description: "Imam Muhammad ibn Idris al-Shafi'i (RA) — founder of the Shafi'i school of jurisprudence; remembered on Rajab 30.",
     descriptionMl: 'ഇമാം മുഹമ്മദ് ഇബ്നു ഇദ്‌രീസ് അൽ-ഷാഫി (റ) — ഷാഫി മദ്‌ഹബത്തിന്റെ സ്ഥാപകൻ; റജബ് 30-ന് വഫാത്തായി.',
-    importance: 'high',
   },
   {
     id: 'wafat-khwaja-moinuddin-chishti',
@@ -752,11 +574,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 6,
     title: 'Wafat of Khwaja Moinuddin Chishti (RA)',
     titleMl: 'ഖ്വാജാ മുഈനുദ്ദീൻ ചിഷ്തി (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة خواجة معين الدين چشتی',
     type: 'wafat',
     description: 'Khwaja Mu\'in al-Din Chishti (RA) — the great Sufi saint of Ajmer who spread Islam in the subcontinent; traditionally commemorated in Rajab.',
     descriptionMl: 'അജ്മീർ ഖ്വാജാ മുഈനുദ്ദീൻ ചിഷ്തി (റ) — ഇന്ത്യയിലെ സുപ്രസിദ്ധ സൂഫി ശിഖരം; റജബ് 6-ന് അനുസ്മരിക്കപ്പെടുന്നു.',
-    importance: 'high',
   },
   {
     id: 'wafat-umar-bin-abdul-aziz',
@@ -764,11 +584,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 25,
     title: 'Wafat of Umar ibn Abd al-Aziz (RA)',
     titleMl: 'ഉമർ ബിൻ അബ്ദുൽ അസീസ് (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة عمر بن عبد العزيز',
     type: 'wafat',
     description: 'Umar ibn Abd al-Aziz (RA) — the pious Umayyad ruler famed for justice and reform; commemorated in Rajab.',
     descriptionMl: 'ഉമർ ബിൻ അബ്ദുൽ അസീസ് (റ) — നീതിപരമായ ഭരണ സംവിധാനത്താൽ പ്രശസ്തനായ നേതാവ്; റജബ് 25-ന് വഫാത്തായി.',
-    importance: 'high',
   },
   {
     id: 'wafat-aisha',
@@ -776,11 +594,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 17,
     title: 'Wafat of Aisha bint Abu Bakr (RA)',
     titleMl: 'ഐശ (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة عائشة بنت أبي بكر',
     type: 'wafat',
     description: 'Aisha bint Abi Bakr (RA) — wife of the Prophet ﷺ and an important hadith authority; many sources record her death in Sha\'ban.',
     descriptionMl: 'നബി (സ) യുടെ ഭാര്യയും ഹദീസ് പണ്ഡിതയുമായ ഐശ (റ) ശഅ്ബാൻ മാസത്തിൽ വഫാത്തായി.',
-    importance: 'high',
   },
   {
     id: 'wafat-imam-bukhari',
@@ -788,11 +604,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 1,
     title: 'Wafat of Imam al-Bukhari (RA)',
     titleMl: 'ഇമാം അൽ-ബുഖാരി (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة الإمام البخاري',
     type: 'wafat',
     description: "Imam al-Bukhari (RA) — compiler of Sahih al-Bukhari; traditionally commemorated on Shawwal 1.",
     descriptionMl: 'ഇമാം അൽ-ബുഖാരി (റ) — സ്വഹീഹ് അൽ-ബുഖാരിയുടെ കർത്താവ്; ശവ്വാൽ 1-ന് അനുസ്മരിക്കപ്പെടുന്നു.',
-    importance: 'high',
   },
   {
     id: 'wafat-hams-bin-abdul-mutallib',
@@ -800,11 +614,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 15,
     title: 'Wafat of Hams bin Abd al-Muttalib (RA)',
     titleMl: 'ഹംസ്ബിൻ അബ്ദുൽ മുഥ്തലിബ് (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة حمص بن عبد المطلب',
     type: 'wafat',
     description: 'Hamza (RA) — the Prophet\'s paternal uncle and famed warrior; remembered for his martyrdom at Uhud and commemorated by some traditions in Shawwal.',
     descriptionMl: 'പ്രവാചകന്റെ (സ) പിതാവിന്റെ സഹോദരനായ ഹംസ (റ) — ഉഹ്ദ് യുദ്ധത്തിൽ വീരമൃത്യു വരുത്തിയത്; ചില സംപ്രദായങ്ങളിൽ ഷവ്വാൽ മാസത്തിൽ അനുസ്മരിക്കപ്പെടുന്നു.',
-    importance: 'high',
   },
   {
     id: 'wafat-imam-muslim',
@@ -812,11 +624,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 25,
     title: 'Wafat of Imam Muslim (RA)',
     titleMl: 'ഇമാം മുസ്ലിം (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة الإمام مسلم',
     type: 'wafat',
     description: 'Imam Muslim ibn al-Hajjaj (RA) — compiler of Sahih Muslim; many records mark his passing in Shawwal.',
     descriptionMl: 'ഇമാം മുസ്ലിം (റ) — സ്വഹീഹ് മുസ്ലിം ഗ്രന്ഥത്തിന്റെ കർത്താവായ ഇമാം മുസ്ലിം (റ) ശവ്വാൽ 25-ന് വഫാത്തായി എന്നാണ് ചില രേഖകൾ പറയുന്നത്.',
-    importance: 'high',
   },
   {
     id: 'wafat-ibn-hajar-al-asqalani',
@@ -824,11 +634,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 28,
     title: 'Wafat of Ibn Hajar al-Asqalani (RA)',
     titleMl: 'ഇബ്ന് ഹജ്റ് അൽ-അസ്‌കലാനി (റ) യുടെ വഫാത്ത്',
-    titleArabic: 'وفاة ابن حجر العسقلاني',
     type: 'wafat',
     description: 'Ibn Hajar al-Asqalani — renowned hadith scholar and author of Fath al-Bari; commemorated on Jumada al-Awwal 28 in many sources.',
     descriptionMl: 'ഫത്ഹുൽ ബാരി എന്ന പ്രശസ്ത ഗ്രന്ഥത്തിന്റെ രചയിതാവ് ഇബ്നു ഹജ്റ് അൽ-അസ്‌കലാനി (റ) — ജുമാദുൽ ഊല 28-ന് അനുസ്മരിക്കപ്പെടുന്നു.',
-    importance: 'high',
   },
   // User-supplied historic battles (Malayalam translations)
   {
@@ -837,11 +645,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 17,
     title: 'Battle of Badr',
     titleMl: 'ബദ്ർ യുദ്ധം (അതിജീവനത്തിന്റെ യുദ്ധം)',
-    titleArabic: 'غزوة بدر',
     type: 'historic',
     description: 'The first major battle in Islamic history in which a small Muslim force defeated the Quraysh; known as Yawm al-Furqan.',
     descriptionMl: 'ഇസ്‌ലാമിക ചരിത്രത്തിലെ ആദ്യത്തെ പ്രധാന യുദ്ധം. മക്കയിൽ നിന്ന് മദീനയിലേക്ക് പലായനം ചെയ്ത മുസ്ലിംകരെ ഇല്ലാതാക്കാൻ ശ്രമിച്ച ഖുരൈശികൾക്കെതിരെയായിരുന്നു ഈ പോരാട്ടം. വെറും 313 പേർ ആയ പരമാവധി സൈന്യത്തെ പരാജയപ്പെടുത്തി; സത്യവും അസത്യവും തമ്മിലുള്ള വേർതിരിവ് കാണിച്ചതുകൊണ്ട് ഇതിനെ യൗമുൽ ഫുർഖാൻ എന്ന് വിളിക്കുന്നു.',
-    importance: 'high',
   },
   {
     id: 'battle-uhud',
@@ -849,11 +655,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 7,
     title: 'Battle of Uhud',
     titleMl: 'ഉഹ്ദ് യുദ്ധം (അച്ചടക്കത്തിന്റെ പാഠം)',
-    titleArabic: 'غزوة أحد',
     type: 'historic',
     description: 'A battle following Badr in which initial Muslim success was reversed due to a breach of discipline; underlines the importance of obedience to the Prophet ﷺ.',
     descriptionMl: 'ബദ്റിലെ തോൽവിയുടെ പ്രതികാരം കൂടിയാണ് ഉഹ്ദ് യുദ്ധം നടന്നത്. തുടക്കത്തിൽ മുസ്ലിംകൾ വിജയിച്ചെങ്കിലും കാവൽ നിൽക്കുന്ന സ്ഥാനങ്ങളിൽ നിന്ന് അച്ചടക്കം ലംഘിച്ചതുകൊണ്ടാണ് തിരിച്ചടി ഉണ്ടായത്. ഹംസ (റ) അടക്കം около 70 സ്വഹാബികൾ ഇവിടെ രക്തസാക്ഷികളായി. പ്രവാചകന്റെ വാക്കുകൾ അനുഗമിക്കേണ്ടതിന്റെ പ്രാധാന്യം ഈ യുദ്ധം പഠിപ്പിക്കുന്നു.',
-    importance: 'high',
   },
   {
     id: 'conquest-makkah',
@@ -861,11 +665,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 20,
     title: 'Conquest of Makkah',
     titleMl: 'മക്ക വിജയം (കാരുണ്യത്തിന്റെ വിജയം)',
-    titleArabic: 'فتح مكة',
     type: 'historic',
     description: 'The Prophet ﷺ entered Makkah peacefully with many followers and granted general amnesty to former opponents.',
     descriptionMl: 'ഇത് വലിയൊരു യുദ്ധമായിരുന്നില്ല. പതിനായിരക്കണക്കിന് അനുയായികളുമായി പ്രവാചകൻ ﷺ മക്കയിലേക്ക് പ്രവേശിച്ചു. മുമ്പ് തങ്ങളെ years വരെ ഉപദ്രവിച്ച ശത്രുക്കൾക്കോട് അദ്ദേഹം പൊതുമാപ്പ് പ്രഖ്യാപിച്ചു. ലോകചരിത്രത്തിലെ ഏറ്റവും സമാധാനപരമായ വിപ്ലവമായി ഇത് കണക്കാക്കപ്പെടുന്നു.',
-    importance: 'high',
   },
   {
     id: 'battle-hattin',
@@ -873,11 +675,9 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     day: 24,
     title: 'Battle of Hattin',
     titleMl: 'ഹൈത്തീൻ യുദ്ധം (Battle of Hattin)',
-    titleArabic: 'معركة حطين',
     type: 'historic',
     description: 'AD 1187 — Saladin (Salahuddin Ayyubi) led forces to a decisive victory over the Crusaders, leading to the recapture of Jerusalem.',
     descriptionMl: 'കുരിശുയുദ്ധങ്ങളുടെ കാലഘട്ടത്തിലെ ഏറ്റവും നിർണായകമായ യുദ്ധങ്ങളിൽ ഒന്ന്. സുൽത്താൻ സലാഹുദ്ദീൻ അയ്യൂബി നയിച്ചായ്‌തു; കുരിശുസൈന്യം പരാജയപ്പെടുത്തി ഫലസ്തീനും ഖുദ്സും മุസ്ലിം അധികാരത്തിലായി വീണ്ടെടുത്തു. യുദ്ധത്തിന് ശേഷം സലാഹുദ്ദീൻ കാണിച്ച കാരുണ്യം പലരും പ്രശംസിച്ചു.',
-    importance: 'high',
   },
 ];
 

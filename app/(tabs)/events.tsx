@@ -4,9 +4,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { HIJRI_MONTHS, ISLAMIC_EVENTS, IslamicEvent } from '@/data/hijri-events';
 import { HIJRI_MONTHS_ML, ISLAMIC_EVENTS_ML, IslamicEventML } from '@/data/hijri-events-ml';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { getCustomEvents, getCustomEventsML, saveCustomEvent } from '@/utils/event-storage';
 import { router } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
-import { FlatList, Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, InteractionManager, Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function EventsScreen() {
   const colorScheme = useColorScheme();
@@ -14,12 +15,78 @@ export default function EventsScreen() {
   const { language, t } = useLanguage();
   const isMalayalam = language === 'ml';
 
-  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  // Use fast fallback Hijri date (sync)
+  const todayHijri = require('@/utils/hijri-date').getTodayHijri();
+  const todayHijriMonth = todayHijri.month;
+  const todayHijriDay = todayHijri.day;
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(todayHijriMonth);
   const [selectedEvent, setSelectedEvent] = useState<IslamicEvent | IslamicEventML | null>(null);
+  const [showAddEventModal, setShowAddEventModal] = useState(false);
+  const [newEvent, setNewEvent] = useState({
+    title: '',
+    description: '',
+    month: todayHijriMonth,
+    day: todayHijriDay,
+    type: 'religious' as 'religious' | 'wafat' | 'birth' | 'historic'
+  });
+  const [customEvents, setCustomEvents] = useState<IslamicEvent[]>([]);
+  const [customEventsML, setCustomEventsML] = useState<IslamicEventML[]>([]);
+  const monthScrollRef = useRef<ScrollView>(null);
+
+  // Ensure current month is selected by default
+  useEffect(() => {
+    setSelectedMonth(todayHijriMonth);
+  }, [todayHijriMonth]);
+
+  // Scroll to current month when component mounts
+  useEffect(() => {
+    if (todayHijriMonth) {
+      // Use InteractionManager to ensure scroll happens after layout is complete
+      InteractionManager.runAfterInteractions(() => {
+        if (monthScrollRef.current) {
+          // Since current month is now first, just scroll past the "All Months" chip
+          const allMonthsChipWidth = 76; // 70px width + 6px margin
+          monthScrollRef.current.scrollTo({ x: allMonthsChipWidth, animated: false });
+        }
+      });
+    }
+  }, [todayHijriMonth]);
+
+  // Load custom events on component mount
+  useEffect(() => {
+    const loadCustomEvents = async () => {
+      try {
+        const [englishEvents, malayalamEvents] = await Promise.all([
+          getCustomEvents(),
+          getCustomEventsML()
+        ]);
+        setCustomEvents(englishEvents);
+        setCustomEventsML(malayalamEvents);
+      } catch (error) {
+        console.error('Error loading custom events:', error);
+      }
+    };
+
+    loadCustomEvents();
+  }, []);
 
   // Get the appropriate events and months based on language
-  const events = isMalayalam ? ISLAMIC_EVENTS_ML : ISLAMIC_EVENTS;
-  const months = isMalayalam ? HIJRI_MONTHS_ML : HIJRI_MONTHS;
+  const events = useMemo(() => {
+    const baseEvents = isMalayalam ? ISLAMIC_EVENTS_ML : ISLAMIC_EVENTS;
+    const customEventsList = isMalayalam ? customEventsML : customEvents;
+    return [...baseEvents, ...customEventsList];
+  }, [isMalayalam, customEvents, customEventsML]);
+  const baseMonths = isMalayalam ? HIJRI_MONTHS_ML : HIJRI_MONTHS;
+
+  // Reorder months to start with current month
+  const months = useMemo(() => {
+    if (!todayHijriMonth) return baseMonths;
+    const currentMonthIndex = todayHijriMonth - 1; // 0-based index
+    return [
+      ...baseMonths.slice(currentMonthIndex), // Current month to end
+      ...baseMonths.slice(0, currentMonthIndex) // Beginning to current month
+    ];
+  }, [baseMonths, todayHijriMonth]);
 
   const filteredEvents = useMemo(() => {
     let eventList = [...events];
@@ -36,27 +103,7 @@ export default function EventsScreen() {
     });
   }, [selectedMonth, events]);
 
-  // Accurate Hijri date state (async, like calendar)
-  const [todayHijri, setTodayHijri] = useState<import('@/utils/hijri-date').HijriDate | null>(null);
-  const [isLoadingHijri, setIsLoadingHijri] = useState(true);
-
-  // Fetch accurate Hijri date on mount
-  useEffect(() => {
-    let mounted = true;
-    setIsLoadingHijri(true);
-    import('@/utils/hijri-date').then(mod => mod.getTodayHijriAsync()).then(date => {
-      if (mounted) {
-        setTodayHijri(date);
-        setIsLoadingHijri(false);
-        // Set default selectedMonth to current Hijri month
-        setSelectedMonth(date?.month ?? null);
-      }
-    }).catch(() => setIsLoadingHijri(false));
-    return () => { mounted = false; };
-  }, []);
-
-  const todayHijriMonth = todayHijri?.month;
-  const todayHijriDay = todayHijri?.day;
+  const isLoadingHijri = false;
 
   // Find the upcoming event (Hijri logic, after date loads)
   const upcomingEvent = useMemo(() => {
@@ -88,6 +135,47 @@ export default function EventsScreen() {
     return event.description;
   };
 
+  // Handle saving new event
+  const handleSaveEvent = async () => {
+    if (!newEvent.title.trim()) {
+      // Could add validation feedback here
+      return;
+    }
+
+    try {
+      await saveCustomEvent({
+        title: newEvent.title.trim(),
+        description: newEvent.description.trim(),
+        month: newEvent.month,
+        day: newEvent.day,
+        type: newEvent.type
+      });
+
+      // Reload custom events
+      const [englishEvents, malayalamEvents] = await Promise.all([
+        getCustomEvents(),
+        getCustomEventsML()
+      ]);
+      setCustomEvents(englishEvents);
+      setCustomEventsML(malayalamEvents);
+
+      // Reset form and close modal
+      setNewEvent({
+        title: '',
+        description: '',
+        month: todayHijriMonth,
+        day: todayHijriDay,
+        type: 'religious'
+      });
+      setShowAddEventModal(false);
+
+      // Could add success feedback here
+    } catch (error) {
+      console.error('Error saving event:', error);
+      // Could add error feedback here
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
@@ -101,34 +189,33 @@ export default function EventsScreen() {
           <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
             {isMalayalam ? 'ഇസ്ലാമിക മുഹൂർത്തങ്ങൾ' : 'Islamic Events'}
           </Text>
-          <Text style={[styles.subtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
-            المناسبات الإسلامية
-          </Text>
         </View>
+        <TouchableOpacity onPress={() => setShowAddEventModal(true)} style={styles.addButton}>
+          <Text style={[styles.addIcon, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>+</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Upcoming Event Box (only after Hijri date loads) */}
       {!isLoadingHijri && upcomingEvent && (
-        <View style={[styles.upcomingBox, { backgroundColor: isDark ? '#1E3A5F' : '#E3F2FD' }]}> 
+        <TouchableOpacity 
+          style={[styles.upcomingBox, { backgroundColor: isDark ? '#1E3A5F' : '#E3F2FD' }]}
+          onPress={() => setSelectedEvent(upcomingEvent)}
+          activeOpacity={0.7}
+        >
           <Text style={[styles.upcomingLabel, { color: isDark ? '#90CAF9' : '#1565C0' }]}> 
             {isMalayalam ? 'അടുത്ത പരിപാടി' : 'Upcoming Event'}
           </Text>
           <Text style={[styles.upcomingTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}> 
-            {(() => {
-              if (isMalayalam && 'titleMl' in upcomingEvent && upcomingEvent.titleMl) return upcomingEvent.titleMl;
-              if ('title' in upcomingEvent && upcomingEvent.title) return upcomingEvent.title;
-              return '';
-            })()}
+            {String(isMalayalam && upcomingEvent && 'titleMl' in upcomingEvent ? upcomingEvent.titleMl : upcomingEvent?.title || '')}
           </Text>
           <Text style={[styles.upcomingDate, { color: isDark ? '#B0BEC5' : '#757575' }]}> 
-            {upcomingEvent.day} {months[upcomingEvent.month - 1]?.name}
+            {upcomingEvent.day} {baseMonths[upcomingEvent.month - 1]?.name}
           </Text>
-        </View>
+        </TouchableOpacity>
       )}
-
-      {/* Month Filter */}
       <View style={{ zIndex: 2, elevation: 2, backgroundColor: isDark ? '#121212' : '#F5F5F5', marginBottom: 8 }}>
         <ScrollView
+          ref={monthScrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.monthScrollView}
@@ -138,7 +225,13 @@ export default function EventsScreen() {
             style={[
               styles.monthChip,
               selectedMonth === null && styles.monthChipSelected,
-              { backgroundColor: selectedMonth === null ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF' },
+              {
+                backgroundColor: selectedMonth === null ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
+                paddingHorizontal: 16, // increased padding for better text spacing
+                minWidth: 60, // reduced minimum width for shorter month names
+                alignSelf: 'flex-start',
+                maxWidth: 200, // increased maximum width to allow longer month names
+              },
             ]}
             onPress={() => setSelectedMonth(null)}
           >
@@ -147,6 +240,7 @@ export default function EventsScreen() {
                 styles.monthChipText,
                 { color: selectedMonth === null ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
               ]}
+              numberOfLines={1}
             >
               {isMalayalam ? 'എല്ലാ മാസങ്ങളും' : 'All Months'}
             </Text>
@@ -159,10 +253,10 @@ export default function EventsScreen() {
                 selectedMonth === month.number && styles.monthChipSelected,
                 {
                   backgroundColor: selectedMonth === month.number ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
-                  paddingHorizontal: 28, // more padding for longer names
-                  minWidth: 120, // increased minimum width
+                  paddingHorizontal: 16, // increased padding for better text spacing
+                  minWidth: 60, // reduced minimum width for shorter month names
                   alignSelf: 'flex-start',
-                  maxWidth: 260, // prevent overflow on very long names
+                  maxWidth: 200, // increased maximum width to allow longer month names
                 },
               ]}
               onPress={() => setSelectedMonth(month.number)}
@@ -172,6 +266,7 @@ export default function EventsScreen() {
                   styles.monthChipText,
                   { color: selectedMonth === month.number ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
                 ]}
+                numberOfLines={1}
               >
                 {isMalayalam && 'nameEn' in month ? month.name : month.name}
               </Text>
@@ -208,29 +303,271 @@ export default function EventsScreen() {
       <Modal
         visible={selectedEvent !== null}
         animationType="slide"
-        presentationStyle="pageSheet"
+        transparent={true}
         onRequestClose={() => setSelectedEvent(null)}
       >
-        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
-          <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setSelectedEvent(null)} style={styles.closeButton}>
-              <Text style={[styles.closeButtonText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>
-                {isMalayalam ? '✕ അടയ്ക്കുക' : '✕ Close'}
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+            {/* Modal Header */}
+            <View style={[styles.modalHeader, { borderBottomColor: isDark ? '#333' : '#E0E0E0' }]}>
+              <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                Event Details
               </Text>
-            </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={() => setSelectedEvent(null)}
+                style={styles.closeButton}
+              >
+                <Text style={[styles.closeButtonText, { color: isDark ? '#B0BEC5' : '#757575' }]}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Modal Body */}
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+              {/* Date Info */}
+              {selectedEvent && (
+                <View style={[styles.dateInfoSection, { backgroundColor: isDark ? '#1B5E20' : '#2E7D32' }]}>
+                  <Text style={styles.modalDateText}>
+                    {baseMonths[selectedEvent.month - 1]?.name} {selectedEvent.day}
+                  </Text>
+                  <Text style={styles.modalDateArabic}>
+                    {baseMonths[selectedEvent.month - 1]?.arabic}
+                  </Text>
+                </View>
+              )}
+
+              {/* Event Card */}
+              {selectedEvent && (
+                <EventCard 
+                  event={selectedEvent} 
+                  displayTitle={getEventTitle(selectedEvent)}
+                  displayDescription={getEventDescription(selectedEvent)}
+                  isMalayalam={isMalayalam}
+                />
+              )}
+              <View style={{ height: 20 }} />
+            </ScrollView>
           </View>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {selectedEvent && (
-              <EventCard 
-                event={selectedEvent} 
-                displayTitle={getEventTitle(selectedEvent)}
-                displayDescription={getEventDescription(selectedEvent)}
-                isMalayalam={isMalayalam}
-              />
-            )}
-            <View style={{ height: 40 }} />
-          </ScrollView>
-        </SafeAreaView>
+        </View>
+      </Modal>
+
+      {/* Add Event Modal */}
+      <Modal
+        visible={showAddEventModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowAddEventModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+            {/* Modal Header */}
+            <View style={[styles.modalHeader, { borderBottomColor: isDark ? '#333' : '#E0E0E0' }]}>
+              <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                {isMalayalam ? 'പുതിയ ഇവന്റ് ചേർക്കുക' : 'Add New Event'}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowAddEventModal(false)}
+                style={styles.closeButton}
+              >
+                <Text style={[styles.closeButtonText, { color: isDark ? '#B0BEC5' : '#757575' }]}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Modal Body */}
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+              <View style={styles.formContainer}>
+                {/* Title Input */}
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                    {isMalayalam ? 'തലക്കെട്ട്' : 'Title'}
+                  </Text>
+                  <TextInput
+                    style={[styles.textInput, {
+                      backgroundColor: isDark ? '#263238' : '#F5F5F5',
+                      color: isDark ? '#FFFFFF' : '#1A1A1A',
+                      borderColor: isDark ? '#333' : '#E0E0E0'
+                    }]}
+                    placeholder={isMalayalam ? 'ഇവന്റ് തലക്കെട്ട്' : 'Event title'}
+                    placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+                    value={newEvent.title}
+                    onChangeText={(text) => setNewEvent({ ...newEvent, title: text })}
+                  />
+                </View>
+
+                {/* Description Input */}
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                    {isMalayalam ? 'വിവരണം' : 'Description'}
+                  </Text>
+                  <TextInput
+                    style={[styles.textArea, {
+                      backgroundColor: isDark ? '#263238' : '#F5F5F5',
+                      color: isDark ? '#FFFFFF' : '#1A1A1A',
+                      borderColor: isDark ? '#333' : '#E0E0E0'
+                    }]}
+                    placeholder={isMalayalam ? 'ഇവന്റ് വിവരണം' : 'Event description'}
+                    placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+                    multiline
+                    numberOfLines={4}
+                    value={newEvent.description}
+                    onChangeText={(text) => setNewEvent({ ...newEvent, description: text })}
+                  />
+                </View>
+
+                {/* Month Selection */}
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                    {isMalayalam ? 'മാസം' : 'Month'}
+                  </Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.monthScrollView}
+                    contentContainerStyle={styles.monthScrollContent}
+                  >
+                    {baseMonths.map((month) => (
+                      <TouchableOpacity
+                        key={month.number}
+                        style={[
+                          styles.monthChip,
+                          newEvent.month === month.number && styles.monthChipSelected,
+                          {
+                            backgroundColor: newEvent.month === month.number ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
+                            paddingHorizontal: 16,
+                            minWidth: 60,
+                            alignSelf: 'flex-start',
+                            maxWidth: 200,
+                          },
+                        ]}
+                        onPress={() => setNewEvent({ ...newEvent, month: month.number })}
+                      >
+                        <Text
+                          style={[
+                            styles.monthChipText,
+                            { color: newEvent.month === month.number ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {isMalayalam && 'nameEn' in month ? month.name : month.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+
+                {/* Day Selection */}
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                    {isMalayalam ? 'ദിവസം' : 'Day'}
+                  </Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.monthScrollView}
+                    contentContainerStyle={styles.monthScrollContent}
+                  >
+                    {Array.from({ length: 30 }, (_, i) => i + 1).map((day) => (
+                      <TouchableOpacity
+                        key={day}
+                        style={[
+                          styles.monthChip,
+                          newEvent.day === day && styles.monthChipSelected,
+                          {
+                            backgroundColor: newEvent.day === day ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
+                            paddingHorizontal: 12,
+                            minWidth: 50,
+                            alignSelf: 'flex-start',
+                            maxWidth: 60,
+                          },
+                        ]}
+                        onPress={() => setNewEvent({ ...newEvent, day })}
+                      >
+                        <Text
+                          style={[
+                            styles.monthChipText,
+                            { color: newEvent.day === day ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {day}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+
+                {/* Type Selection */}
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                    {isMalayalam ? 'തരം' : 'Type'}
+                  </Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.monthScrollView}
+                    contentContainerStyle={styles.monthScrollContent}
+                  >
+                    {[
+                      { key: 'religious', label: isMalayalam ? 'മതപരം' : 'Religious' },
+                      { key: 'historic', label: isMalayalam ? 'ചരിത്രപരം' : 'Historic' },
+                      { key: 'birth', label: isMalayalam ? 'ജനനം' : 'Birth' },
+                      { key: 'wafat', label: isMalayalam ? 'വഫാത്ത്' : 'Wafat' }
+                    ].map((type) => (
+                      <TouchableOpacity
+                        key={type.key}
+                        style={[
+                          styles.monthChip,
+                          newEvent.type === type.key && styles.monthChipSelected,
+                          {
+                            backgroundColor: newEvent.type === type.key ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
+                            paddingHorizontal: 16,
+                            minWidth: 80,
+                            alignSelf: 'flex-start',
+                            maxWidth: 150,
+                          },
+                        ]}
+                        onPress={() => setNewEvent({ ...newEvent, type: type.key as 'religious' | 'historic' | 'birth' | 'wafat' })}
+                      >
+                        <Text
+                          style={[
+                            styles.monthChipText,
+                            { color: newEvent.type === type.key ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {type.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+
+                {/* Action Buttons */}
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity
+                    style={[styles.cancelButton, { backgroundColor: isDark ? '#333' : '#E0E0E0' }]}
+                    onPress={() => {
+                      setShowAddEventModal(false);
+                      setNewEvent({ title: '', description: '', month: todayHijriMonth, day: todayHijriDay, type: 'religious' });
+                    }}
+                  >
+                    <Text style={[styles.cancelButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                      {isMalayalam ? 'റദ്ദാക്കുക' : 'Cancel'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.saveButton, { backgroundColor: '#2E7D32' }]}
+                    onPress={handleSaveEvent}
+                  >
+                    <Text style={styles.saveButtonText}>
+                      {isMalayalam ? 'സംരക്ഷിക്കുക' : 'Save'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View style={{ height: 20 }} />
+            </ScrollView>
+          </View>
+        </View>
       </Modal>
     </SafeAreaView>
   );
@@ -246,6 +583,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   backButton: {
     marginRight: 12,
@@ -259,9 +597,12 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
   },
-  subtitle: {
-    fontSize: 18,
-    marginTop: 4,
+  addButton: {
+    padding: 8,
+  },
+  addIcon: {
+    fontSize: 24,
+    fontWeight: '600',
   },
   upcomingBox: {
     marginHorizontal: 16,
@@ -300,13 +641,13 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   monthChip: {
-    width: 100, // fixed width
-    height: 40, // fixed height
+    // width: 70, // removed fixed width to allow dynamic sizing
+    height: 36, // slightly reduced height
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 20,
-    marginRight: 8,
-    marginVertical: 8, // add vertical margin for spacing
+    borderRadius: 18,
+    marginRight: 6, // reduced margin
+    marginVertical: 6, // reduced vertical margin
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -315,7 +656,7 @@ const styles = StyleSheet.create({
   },
   monthChipSelected: {},
   monthChipText: {
-    fontSize: 13,
+    fontSize: 12, // reduced font size
     fontWeight: '500',
   },
   listContent: {
@@ -330,20 +671,131 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
   },
-  modalContainer: {
+  modalOverlay: {
     flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '90%',
+    minHeight: '50%',
   },
   modalHeader: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   closeButton: {
     padding: 8,
   },
   closeButtonText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  modalBody: {
+    padding: 16,
+  },
+  dateInfoSection: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  modalDateText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  modalDateArabic: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginTop: 4,
+  },
+  formContainer: {
+    padding: 16,
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  inputLabel: {
     fontSize: 16,
     fontWeight: '600',
+    marginBottom: 8,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+  },
+  textArea: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: '#E0E0E0',
+    backgroundColor: '#F5F5F5',
+  },
+  picker: {
+    height: 50,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  cancelButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    marginRight: 10,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  saveButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    marginLeft: 10,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  typeButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  typeButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignItems: 'center',
+    marginHorizontal: 4,
+  },
+  typeButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
 });

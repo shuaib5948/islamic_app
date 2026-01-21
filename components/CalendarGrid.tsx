@@ -11,6 +11,7 @@ interface CalendarDayProps {
   isSelected: boolean;
   gregorianDate: Date;
   onPress: () => void;
+  customEvents?: any[];
 }
 
 export const CalendarDay: React.FC<CalendarDayProps> = ({
@@ -21,12 +22,17 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
   isSelected,
   gregorianDate,
   onPress,
+  customEvents = [],
 }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const events = getEventsForDate(month, day);
-  const hasEvents = events.length > 0;
-  const hasHighImportance = events.some(e => e.importance === 'high');
+  const builtInEvents = getEventsForDate(month, day);
+  const customEventsForDay = customEvents.filter(event => 
+    event.month === month && event.day === day
+  );
+  const allEvents = [...builtInEvents, ...customEventsForDay];
+  const hasEvents = allEvents.length > 0;
+  const hasHighImportance = false; // Removed importance field
 
   const getEventIndicatorColor = () => {
     if (hasHighImportance) return '#FFD700';
@@ -82,6 +88,7 @@ interface CalendarGridProps {
   todayMonth: number;
   selectedDay: number;
   onDaySelect: (day: number) => void;
+  customEvents?: any[];
 }
 
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
@@ -92,6 +99,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   todayMonth,
   selectedDay,
   onDaySelect,
+  customEvents = [],
 }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -144,6 +152,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 isSelected={cell.day === selectedDay}
                 gregorianDate={cell.gregorianDate}
                 onPress={() => onDaySelect(cell.day)}
+                customEvents={customEvents}
               />
             ) : (
               <View style={styles.emptyCell} />

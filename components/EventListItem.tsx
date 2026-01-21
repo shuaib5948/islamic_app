@@ -61,12 +61,6 @@ export const EventListItem: React.FC<EventListItemProps> = ({ event, onPress, di
           </Text>
         </View>
         <Text 
-          style={[styles.titleArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}
-          numberOfLines={1}
-        >
-          {event.titleArabic}
-        </Text>
-        <Text 
           style={[styles.description, { color: isDark ? '#9E9E9E' : '#616161' }]}
           numberOfLines={2}
         >

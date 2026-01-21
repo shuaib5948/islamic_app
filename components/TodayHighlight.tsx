@@ -26,7 +26,7 @@ export const TodayHighlight: React.FC<TodayHighlightProps> = ({
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   const isFriday = gregorianDate.getDay() === 5;
-  const primaryEvent = events.find(e => e.importance === 'high') || events[0];
+  const primaryEvent = events[0]; // Removed importance-based selection
 
   return (
     <>
@@ -70,12 +70,6 @@ export const TodayHighlight: React.FC<TodayHighlightProps> = ({
             activeOpacity={0.7}
           >
             <View style={styles.significanceHeader}>
-              <Text style={styles.significanceIcon}>
-                {primaryEvent?.type === 'religious' ? '🕌' : 
-                 primaryEvent?.type === 'wafat' ? '🕯️' : 
-                 primaryEvent?.type === 'birth' ? '🌟' : 
-                 primaryEvent?.type === 'historic' ? '📜' : '✨'}
-              </Text>
               <Text style={styles.eventTitleText} numberOfLines={1}>
                 {primaryEvent.title}
               </Text>
@@ -134,17 +128,9 @@ export const TodayHighlight: React.FC<TodayHighlightProps> = ({
                 <View key={event.id || index} style={[styles.eventCard, { backgroundColor: isDark ? '#263238' : '#F5F5F5' }]}>
                   {/* Event Header */}
                   <View style={styles.eventCardHeader}>
-                    <Text style={styles.eventCardIcon}>
-                      {event.type === 'religious' ? '🕌' : 
-                       event.type === 'wafat' ? '🕯️' : 
-                       event.type === 'birth' ? '🌟' : '📜'}
-                    </Text>
                     <View style={styles.eventCardTitles}>
                       <Text style={[styles.eventCardTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
                         {event.title}
-                      </Text>
-                      <Text style={[styles.eventCardTitleArabic, { color: isDark ? '#B0BEC5' : '#546E7A' }]}>
-                        {event.titleArabic}
                       </Text>
                     </View>
                   </View>
@@ -153,86 +139,6 @@ export const TodayHighlight: React.FC<TodayHighlightProps> = ({
                   <Text style={[styles.eventCardDescription, { color: isDark ? '#E0E0E0' : '#424242' }]}>
                     {event.description}
                   </Text>
-
-                  {/* Dhikr */}
-                  {event.dhikr && event.dhikr.length > 0 && (
-                    <View style={[styles.section, { backgroundColor: isDark ? '#1B5E20' : '#E8F5E9' }]}>
-                      <Text style={[styles.sectionTitle, { color: isDark ? '#81C784' : '#2E7D32' }]}>
-                        📿 Dhikr
-                      </Text>
-                      {event.dhikr.map((d, i) => (
-                        <Text 
-                          key={i} 
-                          style={[
-                            styles.arabicText, 
-                            { 
-                              color: isDark ? '#E0E0E0' : '#1B5E20',
-                              textAlign: d.match(/[\u0600-\u06FF]/) ? 'right' : 'left'
-                            }
-                          ]}
-                        >
-                          {d}
-                        </Text>
-                      ))}
-                    </View>
-                  )}
-
-                  {/* Dua */}
-                  {event.dua && event.dua.length > 0 && (
-                    <View style={[styles.section, { backgroundColor: isDark ? '#1A237E' : '#E3F2FD' }]}>
-                      <Text style={[styles.sectionTitle, { color: isDark ? '#90CAF9' : '#1565C0' }]}>
-                        🤲 Dua
-                      </Text>
-                      {event.dua.map((d, i) => (
-                        <Text 
-                          key={i} 
-                          style={[
-                            styles.arabicText, 
-                            { 
-                              color: isDark ? '#E0E0E0' : '#0D47A1',
-                              textAlign: d.match(/[\u0600-\u06FF]/) ? 'right' : 'left'
-                            }
-                          ]}
-                        >
-                          {d}
-                        </Text>
-                      ))}
-                    </View>
-                  )}
-
-                  {/* Aurad */}
-                  {event.aurad && event.aurad.length > 0 && (
-                    <View style={[styles.section, { backgroundColor: isDark ? '#4A148C' : '#F3E5F5' }]}>
-                      <Text style={[styles.sectionTitle, { color: isDark ? '#CE93D8' : '#7B1FA2' }]}>
-                        📖 Aurad (Recitations)
-                      </Text>
-                      {event.aurad.map((a, i) => (
-                        <Text 
-                          key={i} 
-                          style={[styles.practiceText, { color: isDark ? '#E0E0E0' : '#4A148C' }]}
-                        >
-                          • {a}
-                        </Text>
-                      ))}
-                    </View>
-                  )}
-
-                  {/* Special Practices */}
-                  {event.specialPractices && event.specialPractices.length > 0 && (
-                    <View style={[styles.section, { backgroundColor: isDark ? '#37474F' : '#ECEFF1' }]}>
-                      <Text style={[styles.sectionTitle, { color: isDark ? '#B0BEC5' : '#455A64' }]}>
-                        ✨ Recommended Practices
-                      </Text>
-                      {event.specialPractices.map((practice, i) => (
-                        <Text 
-                          key={i} 
-                          style={[styles.practiceText, { color: isDark ? '#E0E0E0' : '#37474F' }]}
-                        >
-                          • {practice}
-                        </Text>
-                      ))}
-                    </View>
-                  )}
                 </View>
               ))}
 
@@ -240,7 +146,7 @@ export const TodayHighlight: React.FC<TodayHighlightProps> = ({
               {events.length === 0 && isFriday && (
                 <View style={[styles.eventCard, { backgroundColor: isDark ? '#263238' : '#F5F5F5' }]}>
                   <Text style={[styles.noEventText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-                    🕌 Blessed Friday!
+                    Blessed Friday!
                   </Text>
                   <Text style={[styles.eventCardDescription, { color: isDark ? '#E0E0E0' : '#424242' }]}>
                     Send abundant Salawat upon the Prophet ﷺ. Friday is the best day of the week.
@@ -349,10 +255,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  significanceIcon: {
-    fontSize: 20,
-    marginRight: 10,
-  },
   significanceLabel: {
     fontSize: 14,
     fontWeight: '700',
@@ -457,10 +359,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 12,
   },
-  eventCardIcon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
   eventCardTitles: {
     flex: 1,
   },
@@ -468,34 +366,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  eventCardTitleArabic: {
-    fontSize: 16,
-    textAlign: 'right',
-    marginTop: 4,
-  },
   eventCardDescription: {
     fontSize: 14,
     lineHeight: 22,
     marginBottom: 12,
-  },
-  section: {
-    borderRadius: 12,
-    padding: 14,
-    marginTop: 12,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 10,
-  },
-  arabicText: {
-    fontSize: 16,
-    lineHeight: 28,
-    marginBottom: 6,
-  },
-  practiceText: {
-    fontSize: 13,
-    lineHeight: 22,
-    marginBottom: 4,
   },
 });
