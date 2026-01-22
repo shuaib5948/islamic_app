@@ -1,10 +1,10 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { loadThasbihData, saveThasbihData, ThasbihData } from '@/utils/thasbih-storage';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
 import { Alert, Animated, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { loadThasbihData, saveThasbihData, ThasbihData } from '@/utils/thasbih-storage';
 
 export default function ThasbihScreen() {
   const colorScheme = useColorScheme();
