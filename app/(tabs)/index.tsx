@@ -144,6 +144,13 @@ export default function HomeScreen() {
       route: '/dhikr' as const,
     },
     {
+      icon: '🧮',
+      title: 'Thasbih Counter',
+      titleMl: 'Thasbih Counter',
+      color: '#FF9800',
+      route: '/thasbih' as const,
+    },
+    {
       icon: '📖',
       title: 'Quran Khatam',
       titleMl: 'Quran Khatam',

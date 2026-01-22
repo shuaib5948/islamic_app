@@ -5,8 +5,9 @@ import { HIJRI_MONTHS, ISLAMIC_EVENTS, IslamicEvent } from '@/data/hijri-events'
 import { HIJRI_MONTHS_ML, ISLAMIC_EVENTS_ML, IslamicEventML } from '@/data/hijri-events-ml';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { getCustomEvents, getCustomEventsML, saveCustomEvent } from '@/utils/event-storage';
+import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, InteractionManager, Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function EventsScreen() {
@@ -52,7 +53,7 @@ export default function EventsScreen() {
     }
   }, [todayHijriMonth]);
 
-  // Load custom events on component mount
+  // Load custom events on component mount and when screen comes into focus
   useEffect(() => {
     const loadCustomEvents = async () => {
       try {
@@ -69,6 +70,26 @@ export default function EventsScreen() {
 
     loadCustomEvents();
   }, []);
+
+  // Reload custom events when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      const loadCustomEvents = async () => {
+        try {
+          const [englishEvents, malayalamEvents] = await Promise.all([
+            getCustomEvents(),
+            getCustomEventsML()
+          ]);
+          setCustomEvents(englishEvents);
+          setCustomEventsML(malayalamEvents);
+        } catch (error) {
+          console.error('Error loading custom events:', error);
+        }
+      };
+
+      loadCustomEvents();
+    }, [])
+  );
 
   // Get the appropriate events and months based on language
   const events = useMemo(() => {
@@ -105,19 +126,35 @@ export default function EventsScreen() {
 
   const isLoadingHijri = false;
 
-  // Find the upcoming event (Hijri logic, after date loads)
+  // Find today's events or upcoming event
+  const todayEvents = useMemo(() => {
+    if (!todayHijriMonth || !todayHijriDay) return [];
+    return events.filter(event =>
+      event.month === todayHijriMonth && event.day === todayHijriDay
+    );
+  }, [events, todayHijriMonth, todayHijriDay]);
+
   const upcomingEvent = useMemo(() => {
     if (!todayHijriMonth || !todayHijriDay) return null;
+
+    // If there are events today, return the first one
+    if (todayEvents.length > 0) {
+      return todayEvents[0];
+    }
+
+    // Otherwise, find the next upcoming event
     const sorted = [...events].sort((a, b) => {
       if (a.month !== b.month) return a.month - b.month;
       return a.day - b.day;
     });
     return (
       sorted.find(e =>
-        e.month > todayHijriMonth || (e.month === todayHijriMonth && e.day >= todayHijriDay)
+        e.month > todayHijriMonth || (e.month === todayHijriMonth && e.day > todayHijriDay)
       ) || sorted[0]
     );
-  }, [events, todayHijriMonth, todayHijriDay]);
+  }, [events, todayHijriMonth, todayHijriDay, todayEvents]);
+
+  const isTodayEvent = todayEvents.length > 0;
 
   // Get display title based on language
   const getEventTitle = (event: IslamicEvent | IslamicEventML): string => {
@@ -203,13 +240,19 @@ export default function EventsScreen() {
           activeOpacity={0.7}
         >
           <Text style={[styles.upcomingLabel, { color: isDark ? '#90CAF9' : '#1565C0' }]}> 
-            {isMalayalam ? 'അടുത്ത പരിപാടി' : 'Upcoming Event'}
+            {isMalayalam
+              ? (isTodayEvent ? 'ഇന്നത്തെ പരിപാടി' : 'അടുത്ത പരിപാടി')
+              : (isTodayEvent ? 'Today Event' : 'Upcoming Event')
+            }
           </Text>
           <Text style={[styles.upcomingTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}> 
             {String(isMalayalam && upcomingEvent && 'titleMl' in upcomingEvent ? upcomingEvent.titleMl : upcomingEvent?.title || '')}
           </Text>
           <Text style={[styles.upcomingDate, { color: isDark ? '#B0BEC5' : '#757575' }]}> 
-            {upcomingEvent.day} {baseMonths[upcomingEvent.month - 1]?.name}
+            {isTodayEvent
+              ? (isMalayalam ? 'ഇന്ന്' : 'Today')
+              : `${upcomingEvent.day} ${baseMonths[upcomingEvent.month - 1]?.name}`
+            }
           </Text>
         </TouchableOpacity>
       )}

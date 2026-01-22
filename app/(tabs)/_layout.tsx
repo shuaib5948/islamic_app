@@ -39,6 +39,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="thasbih"
+        options={{
+          title: 'Thasbih',
+        }}
+      />
+      <Tabs.Screen
         name="khatam"
         options={{
           title: 'Khatam',

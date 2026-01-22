@@ -45,8 +45,8 @@ export default function CalendarScreen() {
   const [newEvent, setNewEvent] = useState({
     title: '',
     description: '',
-    month: todayHijri.month,
-    day: todayHijri.day,
+    month: currentMonth,
+    day: selectedDay,
     type: 'religious' as 'religious' | 'historic' | 'birth' | 'wafat'
   });
 
@@ -107,6 +107,15 @@ export default function CalendarScreen() {
     })();
     return () => { cancelled = true; };
   }, [currentYear, currentMonth, selectedDay]);
+
+  // Update newEvent state when selected date changes
+  useEffect(() => {
+    setNewEvent(prev => ({
+      ...prev,
+      month: currentMonth,
+      day: selectedDay
+    }));
+  }, [currentMonth, selectedDay]);
 
   const selectedEvents = useMemo(() => {
     const builtInEvents = getEventsForDate(currentMonth, selectedDay);
@@ -179,8 +188,8 @@ export default function CalendarScreen() {
       setNewEvent({
         title: '',
         description: '',
-        month: todayHijri.month,
-        day: todayHijri.day,
+        month: currentMonth,
+        day: selectedDay,
         type: 'religious'
       });
       setShowAddEventModal(false);
@@ -351,88 +360,6 @@ export default function CalendarScreen() {
                     value={newEvent.description}
                     onChangeText={(text) => setNewEvent({ ...newEvent, description: text })}
                   />
-                </View>
-
-                {/* Month Selection */}
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-                    Month
-                  </Text>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={styles.monthScrollView}
-                    contentContainerStyle={styles.monthScrollContent}
-                  >
-                    {baseMonths.map((month: any) => (
-                      <TouchableOpacity
-                        key={month.number}
-                        style={[
-                          styles.monthChip,
-                          newEvent.month === month.number && styles.monthChipSelected,
-                          {
-                            backgroundColor: newEvent.month === month.number ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
-                            paddingHorizontal: 16,
-                            minWidth: 60,
-                            alignSelf: 'flex-start',
-                            maxWidth: 200,
-                          },
-                        ]}
-                        onPress={() => setNewEvent({ ...newEvent, month: month.number })}
-                      >
-                        <Text
-                          style={[
-                            styles.monthChipText,
-                            { color: newEvent.month === month.number ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
-                          ]}
-                          numberOfLines={1}
-                        >
-                          {month.name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                </View>
-
-                {/* Day Selection */}
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-                    Day
-                  </Text>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={styles.monthScrollView}
-                    contentContainerStyle={styles.monthScrollContent}
-                  >
-                    {Array.from({ length: 30 }, (_, i) => i + 1).map((day) => (
-                      <TouchableOpacity
-                        key={day}
-                        style={[
-                          styles.monthChip,
-                          newEvent.day === day && styles.monthChipSelected,
-                          {
-                            backgroundColor: newEvent.day === day ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
-                            paddingHorizontal: 12,
-                            minWidth: 50,
-                            alignSelf: 'flex-start',
-                            maxWidth: 60,
-                          },
-                        ]}
-                        onPress={() => setNewEvent({ ...newEvent, day })}
-                      >
-                        <Text
-                          style={[
-                            styles.monthChipText,
-                            { color: newEvent.day === day ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
-                          ]}
-                          numberOfLines={1}
-                        >
-                          {day}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
                 </View>
 
                 {/* Type Selection */}
