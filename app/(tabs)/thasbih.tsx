@@ -1,165 +1,907 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { loadThasbihData, saveThasbihData, ThasbihData } from '@/utils/thasbih-storage';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { useEffect, useState } from 'react';
-import { Alert, Animated, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { router } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Alert,
+  Animated,
+  Dimensions,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View
+} from 'react-native';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+interface GroupSession {
+  id: string;
+  name: string;
+  target: number;
+  currentCount: number;
+  members: string[];
+  dhikrType: string;
+  joinCode: string;
+}
 
 export default function ThasbihScreen() {
+  // Milestone modal state
+  const [showMilestone, setShowMilestone] = useState(false);
+  const [milestoneMsg, setMilestoneMsg] = useState('');
+  const [milestoneInspire, setMilestoneInspire] = useState('');
+  const milestoneAnim = useRef(new Animated.Value(0)).current;
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const { language } = useLanguage();
   const isMalayalam = language === 'ml';
 
+  // State management
+  const [mode, setMode] = useState<'individual' | 'group'>('individual');
   const [count, setCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showMilestone, setShowMilestone] = useState(false);
-  const [milestoneCount, setMilestoneCount] = useState(0);
-  const [slideAnim] = useState(new Animated.Value(300)); // Start below screen
+  const [isCountdown, setIsCountdown] = useState(false);
+  // Individual mode target state
+  const [individualTarget, setIndividualTarget] = useState(33);
+  const [groupName, setGroupName] = useState('');
+  const [groupTarget, setGroupTarget] = useState('100');
+  const [groupDhikrType, setGroupDhikrType] = useState('Subhanallah');
+  const [groupJoinCode, setGroupJoinCode] = useState('');
+  const [groupSessions, setGroupSessions] = useState<GroupSession[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<GroupSession | null>(null);
+  const [showTargetModal, setShowTargetModal] = useState(false);
+  const [showGroupModal, setShowGroupModal] = useState(false);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [joinCodeInput, setJoinCodeInput] = useState('');
+  const [joinNameInput, setJoinNameInput] = useState('');
 
+  // Animation refs
+  const progressAnim = useRef(new Animated.Value(0)).current;
+  const circleScaleAnim = useRef(new Animated.Value(0)).current;
+  const circleOpacityAnim = useRef(new Animated.Value(0)).current;
+
+  // Touch circle state
+  const [touchPos, setTouchPos] = useState<{x: number, y: number} | null>(null);
+  const [contentPosition, setContentPosition] = useState({x: 0, y: 0});
+  const contentRef = useRef<View>(null);
+
+  const labels = {
+    title: isMalayalam ? 'തസ്ബീഹ്' : 'Tasbih',
+    subtitle: 'تسبيح',
+    individualMode: isMalayalam ? 'വ്യക്തിഗതം' : 'Individual',
+    groupMode: isMalayalam ? 'ഗ്രൂപ്പ്' : 'Group',
+    currentCount: isMalayalam ? 'നിലവിലെ എണ്ണം' : 'Current Count',
+    target: isMalayalam ? 'ലക്ഷ്യം' : 'Target',
+    setTarget: isMalayalam ? 'ലക്ഷ്യം സജ്ജമാക്കുക' : 'Set Target',
+    reset: isMalayalam ? 'പുനഃസജ്ജമാക്കുക' : 'Reset',
+    createGroup: isMalayalam ? 'ഗ്രൂപ്പ് സൃഷ്ടിക്കുക' : 'Create Group',
+    joinGroup: isMalayalam ? 'ഗ്രൂപ്പിൽ ചേരുക' : 'Join Group',
+    groupName: isMalayalam ? 'ഗ്രൂപ്പ് നാമം' : 'Group Name',
+    groupTarget: isMalayalam ? 'ഗ്രൂപ്പ് ലക്ഷ്യം' : 'Group Target',
+    create: isMalayalam ? 'സൃഷ്ടിക്കുക' : 'Create',
+    join: isMalayalam ? 'ചേരുക' : 'Join',
+    cancel: isMalayalam ? 'റദ്ദാക്കുക' : 'Cancel',
+    congratulations: isMalayalam ? 'അഭിനന്ദനങ്ങൾ!' : 'Congratulations!',
+    targetReached: isMalayalam ? 'ലക്ഷ്യം നേടി!' : 'Target Reached!',
+    tapToContinue: isMalayalam ? 'തുടരാൻ ടാപ്പ് ചെയ്യുക' : 'Tap to continue',
+    noGroups: isMalayalam ? 'ഗ്രൂപ്പുകൾ ലഭ്യമല്ല' : 'No groups available',
+    selectMode: isMalayalam ? 'മോഡ് തിരഞ്ഞെടുക്കുക' : 'Select Mode',
+  };
+
+  // Update progress animation
   useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    try {
-      const loadedData = await loadThasbihData();
-      setCount(loadedData.count);
-    } catch (error) {
-      console.error('Error loading thasbih data:', error);
-    } finally {
-      setIsLoading(false);
+    if (mode === 'individual' && count > 0 && individualTarget > 0 && count % individualTarget === 0) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
-  };
-
-  const saveCount = async (newCount: number) => {
-    try {
-      const data: ThasbihData = {
-        count: newCount,
-        lastUpdated: new Date().toISOString(),
-        selectedDhikr: 'سبحان الله',
-      };
-      await saveThasbihData(data);
-    } catch (error) {
-      console.error('Error saving thasbih data:', error);
-    }
-  };
-
-  const incrementCount = async () => {
-    const newCount = count + 1;
-    setCount(newCount);
-    await saveCount(newCount);
-    
-    // Check for milestones
-    const milestones = [33, 66, 99, 100, 200, 300, 500, 1000];
-    if (milestones.includes(newCount)) {
-      setMilestoneCount(newCount);
-      setShowMilestone(true);
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
+    // Group mode progress (if needed)
+    if (mode === 'group') {
+      const progress = selectedGroup?.target > 0 ? 
+        Math.min((selectedGroup.target - (selectedGroup?.currentCount || 0)) / selectedGroup.target, 1) :
+        Math.min((selectedGroup?.currentCount || 0) / (selectedGroup?.target || 1), 1);
+      Animated.timing(progressAnim, {
+        toValue: progress,
+        duration: 300,
+        useNativeDriver: false,
       }).start();
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
-    
+  }, [count, selectedGroup, mode, progressAnim, individualTarget]);
+
+  // When countdown mode is enabled, set count to target
+  useEffect(() => {
+    if (mode === 'individual' && isCountdown && individualTarget > 0) {
+      setCount(individualTarget);
+    }
+  }, [isCountdown, individualTarget, mode]);
+
+  const handleIncrement = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Expanding circle animation
+    Animated.parallel([
+      Animated.timing(circleScaleAnim, {
+        toValue: 20,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(circleOpacityAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    if (mode === 'individual') {
+      if (isCountdown) {
+        const newCount = count - 1;
+        setCount(newCount);
+        if (newCount === 0) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          setShowMilestone(true);
+          milestoneAnim.setValue(0);
+          Animated.timing(milestoneAnim, {
+            toValue: 1,
+            duration: 350,
+            useNativeDriver: true,
+          }).start(() => {
+            setTimeout(() => {
+              Animated.timing(milestoneAnim, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+              }).start(() => setShowMilestone(false));
+            }, 2200);
+          });
+          // After reaching 0, revert to count up mode and clear target
+          setIsCountdown(false);
+          setIndividualTarget(0);
+        }
+      } else {
+        const nextCount = count + 1;
+        setCount(nextCount);
+        // Milestone values
+        const milestones = [33, 66, 100, 150, 200, 250, 300, 350, 400, 450, 500];
+        if (milestones.includes(nextCount)) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          setShowMilestone(true);
+          milestoneAnim.setValue(0);
+          Animated.timing(milestoneAnim, {
+            toValue: 1,
+            duration: 350,
+            useNativeDriver: true,
+          }).start(() => {
+            setTimeout(() => {
+              Animated.timing(milestoneAnim, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+              }).start(() => setShowMilestone(false));
+            }, 2200);
+          });
+        }
+      }
+    } else if (selectedGroup) {
+      // Group mode logic unchanged
+      const isReverse = selectedGroup.target > 0;
+      const newCount = isReverse ? selectedGroup.currentCount - 1 : selectedGroup.currentCount + 1;
+      const updatedGroup = { ...selectedGroup, currentCount: newCount };
+      setSelectedGroup(updatedGroup);
+      setGroupSessions(prev => prev.map(g => g.id === selectedGroup.id ? updatedGroup : g));
+
+      if (isReverse && newCount === 0) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        Alert.alert(labels.congratulations, labels.targetReached);
+      } else if (!isReverse && newCount === selectedGroup.target) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        Alert.alert(labels.congratulations, labels.targetReached);
+      }
+    }
   };
 
-  const resetCount = () => {
-    Alert.alert(
-      isMalayalam ? 'റീസെറ്റ് ചെയ്യുക' : 'Reset Counter',
-      isMalayalam ? 'കൗണ്ടർ റീസെറ്റ് ചെയ്യണമെന്ന് ഉറപ്പാണോ?' : 'Are you sure you want to reset the counter?',
-      [
-        { text: isMalayalam ? 'ക്യാൻസൽ' : 'Cancel', style: 'cancel' },
-        {
-          text: isMalayalam ? 'റീസെറ്റ്' : 'Reset',
-          style: 'destructive',
-          onPress: async () => {
-            setCount(0);
-            await saveCount(0);
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          },
-        },
-      ]
-    );
+  const handleReset = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (mode === 'individual') {
+      const isReverse = individualTarget > 0;
+      setCount(isReverse ? individualTarget : 0);
+    } else if (selectedGroup) {
+      const isReverse = selectedGroup.target > 0;
+      const updatedGroup = { ...selectedGroup, currentCount: isReverse ? selectedGroup.target : 0 };
+      setSelectedGroup(updatedGroup);
+      setGroupSessions(prev => prev.map(g => g.id === selectedGroup.id ? updatedGroup : g));
+    }
   };
 
-  const hideMilestone = () => {
-    Animated.timing(slideAnim, {
-      toValue: 300,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => setShowMilestone(false));
+  const handleCreateGroup = () => {
+    if (!groupName.trim()) return;
+
+    // Generate a random 4-digit code
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
+    setGroupJoinCode(code);
+
+    // Parse groupTarget as number, fallback to 0 if invalid
+    const parsedTarget = parseInt(groupTarget) || 0;
+
+    const newGroup: GroupSession = {
+      id: Date.now().toString(),
+      name: groupName.trim(),
+      target: parsedTarget,
+      currentCount: parsedTarget > 0 ? parsedTarget : 0,
+      members: ['You'],
+      dhikrType: groupDhikrType,
+      joinCode: code,
+    };
+
+    setGroupSessions(prev => [...prev, newGroup]);
+    setSelectedGroup(newGroup);
+    setGroupName('');
+    setGroupTarget('100');
+    setGroupDhikrType('Subhanallah');
+    setShowGroupModal(false);
+    setMode('group');
   };
 
-  if (isLoading) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
-        <View style={styles.loadingContainer}>
-          <Text style={[styles.loadingText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-            {isMalayalam ? 'ലോഡിംഗ്...' : 'Loading...'}
-          </Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  const handleJoinByCode = () => {
+    if (!joinNameInput.trim()) {
+      Alert.alert('Name Required', 'Please enter your name.');
+      return;
+    }
+    const group = groupSessions.find(g => g.joinCode === joinCodeInput.trim());
+    if (group) {
+      const updatedGroup = { ...group, members: [...group.members, joinNameInput.trim()] };
+      setGroupSessions(prev => prev.map(g => g.id === group.id ? updatedGroup : g));
+      setSelectedGroup(updatedGroup);
+      setShowJoinModal(false);
+      setMode('group');
+      setJoinCodeInput('');
+      setJoinNameInput('');
+    } else {
+      Alert.alert('Invalid Code', 'No group found with that join code.');
+    }
+  };
 
-  // Progress calculation (towards 100)
-  const progress = Math.min((count % 100) / 100, 1);
+  const progressWidth = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+  });
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}> 
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
-      {/* Simple Counter */}
-      <View style={styles.centerContainer}>
-        <View style={styles.progressRingContainer}>
-          {/* Glowing progress ring */}
-          <View style={[styles.progressRing, { shadowOpacity: progress * 0.8 }]} />
-          <TouchableOpacity
-            style={[styles.counterCircle, { backgroundColor: '#004D40' }]}
-            onPress={incrementCount}
-            onLongPress={resetCount}
-            activeOpacity={0.8}
+      {/* Milestone Modal Popup from Bottom - Large Full Width Box with Inspire Content */}
+      <Modal visible={showMilestone} transparent animationType="fade">
+        <TouchableOpacity
+          activeOpacity={1}
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' }}
+          onPress={() => setShowMilestone(false)}
+        >
+          <Animated.View
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100%',
+              alignItems: 'center',
+              opacity: milestoneAnim,
+              transform: [{ translateY: milestoneAnim.interpolate({ inputRange: [0, 1], outputRange: [180, 0] }) }],
+            }}
           >
-            <View style={styles.counterContent}>
-              <Text style={[styles.countNumber, { color: '#FFD700' }]}>
-                {count.toLocaleString()}
+            <View style={{
+              backgroundColor: isDark ? '#1a2636' : '#e3f2fd',
+              width: SCREEN_WIDTH,
+              paddingHorizontal: 32,
+              paddingVertical: 44,
+              borderTopLeftRadius: 36,
+              borderTopRightRadius: 36,
+              marginBottom: 0,
+              minWidth: 320,
+              shadowColor: '#2196F3',
+              shadowOffset: { width: 0, height: -8 },
+              shadowOpacity: 0.22,
+              shadowRadius: 18,
+              elevation: 18,
+              alignItems: 'center',
+            }}>
+              <Ionicons name="sparkles" size={48} color={isDark ? '#B2FF59' : '#1976D2'} style={{ marginBottom: 12 }} />
+              <Text style={{ color: isDark ? '#B2FF59' : '#1976D2', fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginBottom: 10, letterSpacing: 1 }}>
+                Achievement Unlocked!
               </Text>
-              <Text style={[styles.countLabel, { color: '#FAFAFA' }]}>
-                {isMalayalam ? 'എണ്ണം' : 'Count'}
+              <Text style={{ color: isDark ? '#fff' : '#333', fontSize: 20, textAlign: 'center', fontWeight: '600', marginBottom: 8 }}>
+                You reached your goal!
               </Text>
+              <Text style={{ color: isDark ? '#B2FF59' : '#388E3C', fontSize: 18, textAlign: 'center', fontStyle: 'italic', marginTop: 2, marginBottom: 12 }}>
+                "Every dhikr brings light to your heart. Keep going!"
+              </Text>
+              <View style={{ marginTop: 18, alignItems: 'center' }}>
+                <Text style={{ color: isDark ? '#fff' : '#1976D2', fontSize: 16, fontWeight: '500', textAlign: 'center' }}>
+                  Tap anywhere to continue
+                </Text>
+              </View>
             </View>
-          </TouchableOpacity>
+          </Animated.View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* App Header (like Hijri Calendar) */}
+      <View style={[styles.header, { justifyContent: 'space-between', alignItems: 'center' }]}> 
+        <TouchableOpacity onPress={() => router.push('/')} style={styles.backButton} accessibilityLabel="Back to Home">
+          <Text style={[styles.backIcon, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>←</Text>
+        </TouchableOpacity>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <Text style={[styles.title, styles.appTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Tasbih</Text>
         </View>
+        <TouchableOpacity
+          onPress={() => mode === 'individual' ? setShowTargetModal(true) : groupSessions.length > 0 ? setShowHistoryModal(true) : null}
+          style={{ padding: 4, marginLeft: 8 }}
+          accessibilityLabel={mode === 'individual' ? "Set Tasbih Target" : "Group History"}
+        >
+          {mode === 'individual' ? (
+            <Ionicons name="locate" size={24} color={isDark ? '#FFFFFF' : '#1A1A1A'} />
+          ) : groupSessions.length > 0 ? (
+            <Ionicons name="time" size={24} color={isDark ? '#FFFFFF' : '#1A1A1A'} />
+          ) : null}
+        </TouchableOpacity>
       </View>
 
-      {/* Milestone Card */}
-      {showMilestone && (
-        <Animated.View style={[styles.milestoneCard, { transform: [{ translateY: slideAnim }] }]}>
-          <View style={styles.milestoneContent}>
-            <View style={styles.milestoneHeader}>
-              <Ionicons name="trophy" size={24} color="#FFD700" />
-              <Text style={styles.milestoneTitle}>
-                {isMalayalam ? 'മൈൽസ്റ്റോൺ!' : 'Milestone!'}
-              </Text>
-            </View>
-            <Text style={styles.milestoneCount}>
-              {milestoneCount.toLocaleString()}
-            </Text>
-            <Text style={styles.milestoneText}>
-              {isMalayalam ? 'എണ്ണങ്ങൾ പൂർത്തിയായി!' : 'Counts Completed!'}
-            </Text>
-            <TouchableOpacity style={styles.milestoneButton} onPress={hideMilestone}>
-              <Text style={styles.milestoneButtonText}>
-                {isMalayalam ? 'തുടരുക' : 'Continue'}
-              </Text>
+      {/* Mode Selection */}
+      <View style={styles.tabRow}>
+        <TouchableOpacity
+          style={[
+            styles.tab,
+            mode === 'individual' && styles.tabActive,
+            { backgroundColor: mode === 'individual' ? (isDark ? '#263238' : '#E8F5E9') : (isDark ? '#1E1E1E' : '#FFFFFF') },
+          ]}
+          onPress={() => setMode('individual')}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="person" size={18} color={mode === 'individual' ? '#388E3C' : (isDark ? '#B0BEC5' : '#757575')} style={{ marginRight: 6 }} />
+          <Text style={[
+            styles.tabText,
+            { color: mode === 'individual' ? '#388E3C' : (isDark ? '#B0BEC5' : '#757575') },
+          ]}>
+            {labels.individualMode}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.tab,
+            mode === 'group' && styles.tabActive,
+            { backgroundColor: mode === 'group' ? (isDark ? '#263238' : '#E3F2FD') : (isDark ? '#1E1E1E' : '#FFFFFF') },
+          ]}
+          onPress={() => setMode('group')}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="people" size={18} color={mode === 'group' ? '#1976D2' : (isDark ? '#B0BEC5' : '#757575')} style={{ marginRight: 6 }} />
+          <Text style={[
+            styles.tabText,
+            { color: mode === 'group' ? '#1976D2' : (isDark ? '#B0BEC5' : '#757575') },
+          ]}>
+            {labels.groupMode}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+
+      {/* Main Content - No ScrollView, fixed layout for both modes */}
+      {mode === 'individual' ? (
+        <Animated.View 
+          style={{ flex: 1, alignItems: 'center', justifyContent: 'center', width: '100%' }}
+          ref={contentRef}
+          onLayout={() => {
+            if (contentRef.current) {
+              contentRef.current.measureInWindow((x, y) => {
+                setContentPosition({ x, y });
+              });
+            }
+          }}
+        >
+          <TouchableWithoutFeedback
+            onPress={(event) => {
+              const { pageX, pageY } = event.nativeEvent;
+              setTouchPos({ x: pageX, y: pageY });
+              circleScaleAnim.setValue(0);
+              circleOpacityAnim.setValue(0.8);
+              Animated.parallel([
+                Animated.timing(circleScaleAnim, {
+                  toValue: 25, // larger scale for better coverage
+                  duration: 300, // faster animation for quick counting
+                  useNativeDriver: true,
+                }),
+                Animated.timing(circleOpacityAnim, {
+                  toValue: 0,
+                  duration: 300, // faster fade
+                  useNativeDriver: true,
+                }),
+              ]).start();
+              handleIncrement();
+            }}
+          >
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
+          </TouchableWithoutFeedback>
+          <View style={[styles.largeCircleWrapper]}> 
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={(event) => {
+                const { pageX, pageY } = event.nativeEvent;
+                setTouchPos({ x: pageX, y: pageY });
+                circleScaleAnim.setValue(0);
+                circleOpacityAnim.setValue(0.8);
+                Animated.parallel([
+                  Animated.timing(circleScaleAnim, {
+                    toValue: 25,
+                    duration: 300,
+                    useNativeDriver: true,
+                  }),
+                  Animated.timing(circleOpacityAnim, {
+                    toValue: 0,
+                    duration: 300,
+                    useNativeDriver: true,
+                  }),
+                ]).start();
+                handleIncrement();
+              }}
+              style={{ borderRadius: 180 }}
+            >
+              <View
+                style={[styles.gradientCircle, { backgroundColor: 'transparent', borderWidth: 8, borderColor: '#43cea2' }]}
+              >
+                <View style={[styles.circleGlow, isDark && { borderColor: '#43cea2' }]}/>
+                <Text style={[styles.largeCircleCount, { color: '#43cea2', textShadowColor: '#0008', textShadowOffset: {width: 0, height: 2}, textShadowRadius: 8 }]}> 
+                  {count}
+                </Text>
+              </View>
             </TouchableOpacity>
           </View>
         </Animated.View>
+      ) : (
+        selectedGroup ? (
+          <Animated.View 
+            style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start', width: '100%', paddingTop: 20, paddingBottom: 20 }}
+            onLayout={(event) => {
+              const { x, y } = event.nativeEvent.layout;
+              setContentPosition({ x, y });
+            }}
+          >
+            <TouchableWithoutFeedback
+              onPress={(event) => {
+                const { pageX, pageY } = event.nativeEvent;
+                setTouchPos({ x: pageX, y: pageY });
+                circleScaleAnim.setValue(0);
+                circleOpacityAnim.setValue(0.8);
+                Animated.parallel([
+                  Animated.timing(circleScaleAnim, {
+                    toValue: 25,
+                    duration: 300,
+                    useNativeDriver: true,
+                  }),
+                  Animated.timing(circleOpacityAnim, {
+                    toValue: 0,
+                    duration: 300,
+                    useNativeDriver: true,
+                  }),
+                ]).start();
+                handleIncrement();
+              }}
+            >
+              <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
+            </TouchableWithoutFeedback>
+            {/* Group Name above box */}
+            <Text style={{ color: isDark ? '#FFFFFF' : '#1A1A1A', fontSize: 20, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' }}>{selectedGroup.name}</Text>
+            {/* Group detail box: only main box, no inner boxes */}
+            <View style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'stretch',
+              alignSelf: 'center',
+              width: 320,
+              backgroundColor: isDark ? '#23272e' : '#fff',
+              borderRadius: 18,
+              paddingVertical: 0,
+              paddingHorizontal: 0,
+              borderWidth: 1,
+              borderColor: isDark ? '#333' : '#d0d0d0',
+              marginBottom: 20,
+              overflow: 'hidden',
+            }}>
+              {/* Left: Person count, centered */}
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 64 }}>
+                <Ionicons name="person" size={22} color={isDark ? '#B0BEC5' : '#1976D2'} style={{ marginRight: 8 }} />
+                <Text style={{ color: isDark ? '#B0BEC5' : '#1976D2', fontSize: 19, fontWeight: '700' }}>{selectedGroup.members.length}</Text>
+              </View>
+              {/* Separator line */}
+              <View style={{ width: 2, height: '100%', backgroundColor: isDark ? '#444' : '#d0d0d0' }} />
+              {/* Right: Code, centered */}
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 64 }}>
+                <Ionicons name="key" size={20} color={isDark ? '#B2FF59' : '#388E3C'} style={{ marginRight: 8 }} />
+                <Text style={{ color: isDark ? '#B2FF59' : '#388E3C', fontSize: 19, fontWeight: '700', letterSpacing: 1 }}>{selectedGroup.joinCode}</Text>
+              </View>
+            </View>
+            {/* Large Animated Circle Counter */}
+            <View style={[styles.largeCircleWrapper, { marginTop: 20, marginBottom: 20 }]}> 
+              <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={(event) => {
+                  const { locationX, locationY } = event.nativeEvent;
+                  const globalX = contentPosition.x + locationX;
+                  const globalY = contentPosition.y + locationY;
+                  setTouchPos({ x: globalX, y: globalY });
+                  circleScaleAnim.setValue(0);
+                  circleOpacityAnim.setValue(0.8);
+                  Animated.parallel([
+                    Animated.timing(circleScaleAnim, {
+                      toValue: 25,
+                      duration: 300,
+                      useNativeDriver: true,
+                    }),
+                    Animated.timing(circleOpacityAnim, {
+                      toValue: 0,
+                      duration: 300,
+                      useNativeDriver: true,
+                    }),
+                  ]).start();
+                  handleIncrement();
+                }}
+                style={{ borderRadius: 180 }}
+              >
+                <View
+                  style={[styles.gradientCircle, { backgroundColor: 'transparent', borderWidth: 8, borderColor: '#43cea2' }]}
+                >
+                  <View style={[styles.circleGlow, isDark && { borderColor: '#43cea2' }]}/>
+                  <Text style={[styles.largeCircleCount, { color: '#43cea2', textShadowColor: '#0008', textShadowOffset: {width: 0, height: 2}, textShadowRadius: 8 }]}> 
+                    {selectedGroup.currentCount}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            {/* Target and Progress */}
+            <View style={{ alignItems: 'center', marginTop: 10, marginBottom: 20 }}>
+              <Text style={[styles.largeCircleTarget, { color: isDark ? '#B0BEC5' : '#757575', fontSize: 18 }]}>/ {selectedGroup.target}</Text>
+              <View style={[styles.progressContainer, { backgroundColor: isDark ? '#333333' : '#E0E0E0', marginTop: 4, width: 180, marginBottom: 0 }]}> 
+                <Animated.View
+                  style={[styles.progressBar, { backgroundColor: '#2196F3', width: progressWidth }]}
+                />
+              </View>
+            </View>
+            {/* Dhikr type at the bottom in group mode */}
+            <TouchableOpacity
+              style={{
+                width: '100%',
+                backgroundColor: isDark ? '#23272e' : '#1976D2',
+                borderTopLeftRadius: 32,
+                borderTopRightRadius: 32,
+                paddingVertical: 44,
+                paddingHorizontal: 18,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: -8 },
+                shadowOpacity: 0.18,
+                shadowRadius: 18,
+                elevation: 18,
+                borderWidth: 0,
+                alignItems: 'center',
+                marginTop: 20,
+              }}
+              onLongPress={() => {
+                Alert.alert(
+                  'Exit Group',
+                  'Are you sure you want to exit this group?',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Exit', onPress: () => setSelectedGroup(null) },
+                  ]
+                );
+              }}
+              activeOpacity={0.9}
+            >
+              <Text style={{ color: isDark ? '#B2FF59' : '#fff', fontSize: 22, fontWeight: 'bold', textAlign: 'center', letterSpacing: 0.5 }}>{selectedGroup.dhikrType}</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        ) : (
+          /* Group Selection */
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 32 }}>
+              <TouchableOpacity
+                style={[
+                  styles.groupActionButton,
+                  {
+                    backgroundColor: '#4CAF50',
+                    width: 140,
+                    height: 140,
+                    borderRadius: 32,
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 12,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.13,
+                    shadowRadius: 10,
+                    elevation: 6,
+                  },
+                ]}
+                onPress={() => setShowGroupModal(true)}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="add" size={48} color="#FFFFFF" />
+                <Text style={{ color: '#fff', fontWeight: '600', fontSize: 18, textAlign: 'center', marginTop: 6 }}>{labels.createGroup}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.groupActionButton,
+                  {
+                    backgroundColor: '#2196F3',
+                    width: 140,
+                    height: 140,
+                    borderRadius: 32,
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 12,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.13,
+                    shadowRadius: 10,
+                    elevation: 6,
+                  },
+                ]}
+                onPress={() => setShowJoinModal(true)}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="people" size={48} color="#FFFFFF" />
+                <Text style={{ color: '#fff', fontWeight: '600', fontSize: 18, textAlign: 'center', marginTop: 6 }}>{labels.joinGroup}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )
       )}
+
+      {/* Target Modal */}
+      <Modal visible={showTargetModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}> 
+            <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+              {labels.setTarget}
+            </Text>
+            <TextInput
+              style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              placeholder={labels.target}
+              placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+              keyboardType="numeric"
+              value={individualTarget.toString()}
+              onChangeText={text => setIndividualTarget(parseInt(text) || 0)}
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+                onPress={() => setShowTargetModal(false)}
+              >
+                <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                  {labels.cancel}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: '#4CAF50' }]}
+                onPress={() => {
+                  setShowTargetModal(false);
+                  if (individualTarget > 0) {
+                    setIsCountdown(true);
+                  }
+                }}
+              >
+                <Text style={styles.modalButtonText}>{labels.setTarget}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Create Group Modal */}
+      <Modal visible={showGroupModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}> 
+            <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+              {labels.createGroup}
+            </Text>
+            <TextInput
+              style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              placeholder={labels.groupName}
+              placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+              value={groupName}
+              onChangeText={setGroupName}
+            />
+            <TextInput
+              style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              placeholder={labels.groupTarget + ' (Total Count)'}
+              placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+              keyboardType="numeric"
+              value={groupTarget}
+              onChangeText={setGroupTarget}
+            />
+            <TextInput
+              style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              placeholder="Type of Dhikr (e.g. Subhanallah)"
+              placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+              value={groupDhikrType}
+              onChangeText={setGroupDhikrType}
+            />
+            {/* Show the generated join code if already generated */}
+            {groupJoinCode ? (
+              <View style={{ alignItems: 'center', marginBottom: 8 }}>
+                <Text style={{ color: isDark ? '#B2FF59' : '#388E3C', fontWeight: 'bold', fontSize: 18 }}>
+                  Join Code: {groupJoinCode}
+                </Text>
+              </View>
+            ) : null}
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+                onPress={() => setShowGroupModal(false)}
+              >
+                <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                  {labels.cancel}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: '#4CAF50' }]}
+                onPress={handleCreateGroup}
+              >
+                <Text style={styles.modalButtonText}>{labels.create}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Join Group Modal */}
+      <Modal visible={showJoinModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+            <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+              {labels.joinGroup}
+            </Text>
+            <TextInput
+              style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              placeholder="Your Name"
+              placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+              value={joinNameInput}
+              onChangeText={setJoinNameInput}
+            />
+            <TextInput
+              style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              placeholder="Enter Join Code"
+              placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+              value={joinCodeInput}
+              onChangeText={setJoinCodeInput}
+              autoCapitalize="characters"
+              maxLength={4}
+            />
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: '#2196F3', marginBottom: 20 }]}
+              onPress={handleJoinByCode}
+            >
+              <Text style={styles.modalButtonText}>{labels.join}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+              onPress={() => {
+                setShowJoinModal(false);
+                setJoinCodeInput('');
+                setJoinNameInput('');
+              }}
+            >
+              <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                {labels.cancel}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Group History Modal */}
+      <Modal visible={showHistoryModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+            <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+              Group History
+            </Text>
+            <ScrollView style={styles.groupList}>
+              {groupSessions.length > 0 ? (
+                <>
+                  {/* Created Groups */}
+                  {groupSessions.filter(g => g.members[0] === 'You').length > 0 && (
+                    <>
+                      <Text style={{ color: isDark ? '#B0BEC5' : '#757575', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Created Groups</Text>
+                      {groupSessions.filter(g => g.members[0] === 'You').map((group) => (
+                        <TouchableOpacity
+                          key={group.id}
+                          style={[styles.groupListItem, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+                          onPress={() => {
+                            setSelectedGroup(group);
+                            setShowHistoryModal(false);
+                          }}
+                        >
+                          <View>
+                            <Text style={[styles.groupListName, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                              {group.name}
+                            </Text>
+                            <Text style={[styles.groupListInfo, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+                              {group.members.length} members • Target: {group.target} • {group.dhikrType}
+                            </Text>
+                          </View>
+                          <Ionicons name="chevron-forward" size={20} color={isDark ? '#B0BEC5' : '#757575'} />
+                        </TouchableOpacity>
+                      ))}
+                    </>
+                  )}
+                  {/* Joined Groups */}
+                  {groupSessions.filter(g => g.members[0] !== 'You').length > 0 && (
+                    <>
+                      <Text style={{ color: isDark ? '#B0BEC5' : '#757575', fontSize: 16, fontWeight: 'bold', marginTop: 20, marginBottom: 10 }}>Joined Groups</Text>
+                      {groupSessions.filter(g => g.members[0] !== 'You').map((group) => (
+                        <TouchableOpacity
+                          key={group.id}
+                          style={[styles.groupListItem, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+                          onPress={() => {
+                            setSelectedGroup(group);
+                            setShowHistoryModal(false);
+                          }}
+                        >
+                          <View>
+                            <Text style={[styles.groupListName, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                              {group.name}
+                            </Text>
+                            <Text style={[styles.groupListInfo, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+                              {group.members.length} members • Target: {group.target} • {group.dhikrType}
+                            </Text>
+                          </View>
+                          <Ionicons name="chevron-forward" size={20} color={isDark ? '#B0BEC5' : '#757575'} />
+                        </TouchableOpacity>
+                      ))}
+                    </>
+                  )}
+                </>
+              ) : (
+                <Text style={[styles.noGroupsText, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+                  No group history
+                </Text>
+              )}
+            </ScrollView>
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+              onPress={() => setShowHistoryModal(false)}
+            >
+              <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                Close
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Expanding Circle Effect */}
+      {touchPos && (
+        <Animated.View
+          style={{
+            position: 'absolute',
+            left: touchPos.x - 50,
+            top: touchPos.y - 50,
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            backgroundColor: isDark ? 'white' : 'rgba(0,0,0,0.1)',
+            opacity: circleOpacityAnim,
+            transform: [{ scale: circleScaleAnim }],
+            zIndex: -1, // behind the content
+          }}
+        />
+      )}
+
     </SafeAreaView>
   );
 }
@@ -168,111 +910,336 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
-  loadingText: {
+  backButton: {
+    marginRight: 12,
+    padding: 4,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  appTitle: {
+    fontSize: 23,
+    fontWeight: 'bold',
+  },
+  backIcon: {
+    fontSize: 24,
+    fontWeight: '600',
+  },
+  subtitle: {
     fontSize: 16,
+    marginTop: 2,
   },
-  centerContainer: {
+  tabRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 16,
+    gap: 8,
+  },
+  tab: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginHorizontal: 2,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    backgroundColor: '#FFFFFF',
+    minWidth: 80,
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  tabActive: {
+    borderColor: '#2E7D32',
+    elevation: 3,
+    shadowOpacity: 0.12,
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  scrollContent: {
+    padding: 16,
+    paddingTop: 0,
+  },
+  content: {
+    alignItems: 'center',
+  },
+  circleContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  progressRingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 400,
+    width: '100%',
   },
-  progressRing: {
+  largeCircleWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 24,
+    marginTop: 100,
+  },
+  gradientCircle: {
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#43cea2',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.25,
+    shadowRadius: 32,
+    elevation: 18,
+    borderWidth: 0,
+    position: 'relative',
+  },
+  circleGlow: {
     position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    borderWidth: 3,
-    borderColor: '#FFD700',
-    shadowColor: '#FFD700',
-    shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 15,
-    elevation: 10,
+    top: -10,
+    left: -10,
+    right: -10,
+    bottom: -10,
+    borderRadius: 170,
+    borderWidth: 8,
+    borderColor: '#fff6',
+    opacity: 0.5,
+    zIndex: 0,
   },
-  counterCircle: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
+  largeCircleCount: {
+    fontSize: 72,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 2,
+  },
+  largeCircleTarget: {
+    fontSize: 20,
+    fontWeight: '500',
+    textAlign: 'center',
+    opacity: 0.7,
+  },
+  circleActionsRow: {
+    flexDirection: 'row',
+    gap: 16,
+    marginTop: 24,
+    marginBottom: 8,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  counterCard: {
+    alignItems: 'center',
+    padding: 32,
+    borderRadius: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    width: '100%',
+  },
+  countLabel: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  countNumber: {
+    fontSize: 64,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  targetText: {
+    fontSize: 18,
+  },
+  progressContainer: {
+    height: 8,
+    borderRadius: 4,
+    marginBottom: 32,
+    width: '100%',
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  counterButton: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 32,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
-  counterContent: {
-    alignItems: 'center',
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 16,
   },
-  countNumber: {
-    fontSize: 48,
-    fontWeight: 'bold',
-  },
-  countLabel: {
-    fontSize: 14,
-    marginTop: 4,
-    opacity: 0.8,
-  },
-  milestoneCard: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#004D40',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    paddingBottom: 40,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 10,
-  },
-  milestoneContent: {
-    alignItems: 'center',
-  },
-  milestoneHeader: {
+  actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-  },
-  milestoneTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    marginLeft: 8,
-  },
-  milestoneCount: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
-  milestoneText: {
-    fontSize: 16,
-    color: '#E0E0E0',
-    marginBottom: 20,
-  },
-  milestoneButton: {
-    backgroundColor: '#FFD700',
-    paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 25,
-    minWidth: 120,
-    alignItems: 'center',
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  milestoneButtonText: {
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  groupCard: {
+    alignItems: 'center',
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    width: '100%',
+  },
+  groupName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  groupMembers: {
+    fontSize: 14,
+  },
+  resetButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginTop: 16,
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  resetButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#004D40',
+  },
+  groupSelection: {
+    width: '100%',
+    gap: 16,
+  },
+  groupActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  groupActionText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    borderRadius: 20,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  input: {
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  groupList: {
+    maxHeight: 300,
+    marginBottom: 20,
+  },
+  groupListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  groupListName: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  groupListInfo: {
+    fontSize: 14,
+  },
+  noGroupsText: {
+    textAlign: 'center',
+    fontSize: 16,
+    padding: 20,
   },
 });
