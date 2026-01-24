@@ -53,9 +53,10 @@ export default function KhatamScreen() {
     infoText: isMalayalam 
       ? '30 ജുസ് പങ്കെടുക്കുന്നവർക്കിടയിൽ വിതരണം ചെയ്ത് ഗ്രൂപ്പ് ഖുർആൻ ഖത്തം സംഘടിപ്പിക്കുക. പുരോഗതി ട്രാക്ക് ചെയ്യുക, സമയപരിധി നിശ്ചയിക്കുക, ഒരുമിച്ച് ഖുർആൻ പൂർത്തിയാക്കുക!'
       : 'Organize a group Quran Khatam by distributing 30 Juz among participants. Track progress, set deadlines, and complete the Quran together!',
-    createNew: isMalayalam ? '+ പുതിയ ഖത്തം ഗ്രൂപ്പ് സൃഷ്ടിക്കുക' : '+ Create New Khatam Group',
+    createNew: isMalayalam ? 'ഗ്രൂപ്പ് സൃഷ്ടിക്കുക' : 'Create Group',
     noGroups: isMalayalam ? 'ഖത്തം ഗ്രൂപ്പുകളൊന്നുമില്ല' : 'No Khatam Groups',
     createFirst: isMalayalam ? 'നിങ്ങളുടെ ആദ്യ ഗ്രൂപ്പ് ഖത്തം സൃഷ്ടിച്ച് ആരംഭിക്കുക' : 'Create your first group Khatam to get started',
+    joinGroup: isMalayalam ? 'ഗ്രൂപ്പിൽ ചേരുക' : 'Join Group',
     createKhatam: isMalayalam ? 'പുതിയ ഖത്തം സൃഷ്ടിക്കുക' : 'Create New Khatam',
     groupName: isMalayalam ? 'ഗ്രൂപ്പ് പേര്' : 'Group Name',
     description: isMalayalam ? 'വിവരണം' : 'Description',
@@ -80,6 +81,7 @@ export default function KhatamScreen() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showDuaModal, setShowDuaModal] = useState(false);
+  const [showJoinModal, setShowJoinModal] = useState(false);
   const [selectedJuz, setSelectedJuz] = useState<number | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [reminders, setReminders] = useState<{ group: KhatamGroup; daysLeft: number; incompleteCount: number }[]>([]);
@@ -90,6 +92,13 @@ export default function KhatamScreen() {
   const [newGroupDedication, setNewGroupDedication] = useState('');
   const [newGroupTargetDate, setNewGroupTargetDate] = useState('');
   const [participantName, setParticipantName] = useState('');
+  const [joinCode, setJoinCode] = useState('');
+
+  const getTargetDate = (days: number) => {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+    return date.toISOString().split('T')[0];
+  };
 
   const loadData = useCallback(async () => {
     const loadedGroups = await loadKhatamGroups();
@@ -119,7 +128,7 @@ export default function KhatamScreen() {
     }
 
     try {
-      await createKhatamGroup(
+      const newGroup = await createKhatamGroup(
         newGroupName.trim(),
         newGroupDescription.trim(),
         newGroupTargetDate.trim(),
@@ -132,6 +141,12 @@ export default function KhatamScreen() {
       setNewGroupTargetDate('');
       setShowCreateModal(false);
       await loadData();
+      
+      // Show join code
+      Alert.alert(
+        'Group Created!',
+        `Your group "${newGroup.name}" has been created.\n\nJoin Code: ${newGroup.joinCode}\n\nShare this code with others to join the group.`
+      );
     } catch (error) {
       Alert.alert('Error', 'Failed to create group');
     }
@@ -211,6 +226,25 @@ export default function KhatamScreen() {
     }
   };
 
+  const handleJoinGroup = async () => {
+    if (!joinCode.trim()) {
+      Alert.alert('Error', 'Please enter a join code');
+      return;
+    }
+
+    const groups = await loadKhatamGroups();
+    const group = groups.find(g => g.joinCode === joinCode.trim());
+
+    if (!group) {
+      Alert.alert('Error', 'Invalid join code');
+      return;
+    }
+
+    setJoinCode('');
+    setShowJoinModal(false);
+    setSelectedGroup(group);
+  };
+
   const handleAssignJuz = async () => {
     if (!selectedGroup || selectedJuz === null) return;
     if (!participantName.trim()) {
@@ -241,10 +275,7 @@ export default function KhatamScreen() {
         </TouchableOpacity>
         <View>
           <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-            📖 {labels.title}
-          </Text>
-          <Text style={[styles.subtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
-            {labels.subtitle}
+            {labels.title}
           </Text>
         </View>
       </View>
@@ -266,13 +297,21 @@ export default function KhatamScreen() {
         </View>
       )}
 
-      {/* Create New Button */}
-      <TouchableOpacity 
-        style={[styles.createButton, { backgroundColor: '#2E7D32' }]}
-        onPress={() => setShowCreateModal(true)}
-      >
-        <Text style={styles.createButtonText}>{labels.createNew}</Text>
-      </TouchableOpacity>
+      {/* Action Boxes */}
+      <View style={styles.actionBoxes}>
+        <TouchableOpacity 
+          style={[styles.actionBox, { backgroundColor: '#2E7D32' }]}
+          onPress={() => setShowCreateModal(true)}
+        >
+          <Text style={styles.actionBoxText}>{labels.createNew}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.actionBox, { backgroundColor: '#2196F3' }]}
+          onPress={() => setShowJoinModal(true)}
+        >
+          <Text style={styles.actionBoxText}>{labels.joinGroup}</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Groups List */}
       {groups.length > 0 ? (
@@ -312,14 +351,18 @@ export default function KhatamScreen() {
     return (
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Back Button */}
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => setSelectedGroup(null)}
-        >
-          <Text style={[styles.backButtonText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>
-            ← Back to Groups
+        <View style={styles.backButton}>
+          <TouchableOpacity 
+            onPress={() => setSelectedGroup(null)}
+          >
+            <Text style={[styles.backButtonText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>
+              ← Back to Groups
+            </Text>
+          </TouchableOpacity>
+          <Text style={[styles.joinCodeText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+            🔗 {selectedGroup.joinCode}
           </Text>
-        </TouchableOpacity>
+        </View>
 
         {/* Group Header */}
         <View style={[styles.groupHeader, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
@@ -479,16 +522,82 @@ export default function KhatamScreen() {
               placeholderTextColor={isDark ? '#757575' : '#BDBDBD'}
             />
 
-            <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Target Date * (YYYY-MM-DD)</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
-              value={newGroupTargetDate}
-              onChangeText={setNewGroupTargetDate}
-              placeholder="2026-02-28"
-              placeholderTextColor={isDark ? '#757575' : '#BDBDBD'}
-            />
+            <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Select Target Days *</Text>
+            <View style={styles.daysSelector}>
+              {[3, 7, 14, 30, 40].map(days => (
+                <TouchableOpacity
+                  key={days}
+                  style={[
+                    styles.dayButton,
+                    { backgroundColor: newGroupTargetDate === getTargetDate(days) ? '#4CAF50' : (isDark ? '#1E1E1E' : '#F5F5F5') }
+                  ]}
+                  onPress={() => setNewGroupTargetDate(getTargetDate(days))}
+                >
+                  <Text style={[
+                    styles.dayNumberText,
+                    { color: newGroupTargetDate === getTargetDate(days) ? '#FFFFFF' : (isDark ? '#FFFFFF' : '#1A1A1A') }
+                  ]}>
+                    {days}
+                  </Text>
+                  <Text style={[
+                    styles.dayLabelText,
+                    { color: newGroupTargetDate === getTargetDate(days) ? '#FFFFFF' : (isDark ? '#B0BEC5' : '#757575') }
+                  ]}>
+                    days
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </ScrollView>
         </SafeAreaView>
+      </Modal>
+
+      {/* Join Group Modal */}
+      <Modal
+        visible={showJoinModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowJoinModal(false)}
+      >
+        <View style={styles.assignModalOverlay}>
+          <View style={[styles.assignModalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+            <Text style={[styles.assignModalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+              Join Group
+            </Text>
+            <Text style={[styles.assignModalSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+              Enter the 4-digit join code
+            </Text>
+            
+            <TextInput
+              style={[styles.input, { backgroundColor: isDark ? '#263238' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              value={joinCode}
+              onChangeText={setJoinCode}
+              placeholder="Enter join code"
+              placeholderTextColor={isDark ? '#757575' : '#BDBDBD'}
+              keyboardType="numeric"
+              maxLength={4}
+              autoFocus
+            />
+
+            <View style={styles.assignModalButtons}>
+              <TouchableOpacity 
+                style={[styles.assignModalButton, styles.cancelButton]}
+                onPress={() => {
+                  setShowJoinModal(false);
+                  setJoinCode('');
+                }}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.assignModalButton, styles.confirmButton]}
+                onPress={handleJoinGroup}
+              >
+                <Text style={styles.confirmButtonText}>Join</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
       </Modal>
 
       {/* Assign Juz Modal */}
@@ -587,11 +696,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 8,
+    marginBottom: 20,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   headerBackButton: {
-    marginRight: 12,
+    position: 'absolute',
+    left: 20,
+    top: 16,
     padding: 4,
   },
   headerBackIcon: {
@@ -645,6 +758,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  actionBoxes: {
+    flexDirection: 'row',
+    marginHorizontal: 16,
+    gap: 12,
+    justifyContent: 'center',
+  },
+  actionBox: {
+    width: 120,
+    height: 120,
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  actionBoxText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
   groupsSection: {
     marginTop: 20,
   },
@@ -696,10 +834,17 @@ const styles = StyleSheet.create({
   backButton: {
     paddingHorizontal: 20,
     paddingVertical: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   backButtonText: {
     fontSize: 16,
     fontWeight: '500',
+  },
+  joinCodeText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   groupHeader: {
     margin: 16,
@@ -828,6 +973,29 @@ const styles = StyleSheet.create({
   textArea: {
     height: 100,
     textAlignVertical: 'top',
+  },
+  daysSelector: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  dayButton: {
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#4CAF50',
+    alignItems: 'center',
+    minWidth: 60,
+  },
+  dayNumberText: {
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  dayLabelText: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 2,
   },
   // Assign Modal
   assignModalOverlay: {

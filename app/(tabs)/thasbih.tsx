@@ -30,9 +30,12 @@ interface GroupSession {
   members: string[];
   dhikrType: string;
   joinCode: string;
+  contributions: { [member: string]: number };
 }
 
 export default function ThasbihScreen() {
+  // Modal for group contributions
+  const [showContribModal, setShowContribModal] = useState(false);
   // Milestone modal state
   const [showMilestone, setShowMilestone] = useState(false);
   const [milestoneMsg, setMilestoneMsg] = useState('');
@@ -120,6 +123,17 @@ export default function ThasbihScreen() {
     }
   }, [isCountdown, individualTarget, mode]);
 
+  // Helper: get current user name for group mode
+  const getCurrentUser = () => {
+    if (selectedGroup) {
+      // If joined, use joinNameInput if present in members, else 'You'
+      if (selectedGroup.members.includes('You')) return 'You';
+      // Fallback: use first member
+      return selectedGroup.members[0];
+    }
+    return 'You';
+  };
+
   const handleIncrement = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
@@ -187,10 +201,16 @@ export default function ThasbihScreen() {
         }
       }
     } else if (selectedGroup) {
-      // Group mode logic unchanged
+      // Prevent counting if completed
       const isReverse = selectedGroup.target > 0;
+      const completed = (isReverse && selectedGroup.currentCount === 0) || (!isReverse && selectedGroup.currentCount === selectedGroup.target);
+      if (completed) return;
       const newCount = isReverse ? selectedGroup.currentCount - 1 : selectedGroup.currentCount + 1;
-      const updatedGroup = { ...selectedGroup, currentCount: newCount };
+      // Track contributions
+      const user = getCurrentUser();
+      const newContribs = { ...selectedGroup.contributions };
+      newContribs[user] = (newContribs[user] || 0) + 1;
+      const updatedGroup = { ...selectedGroup, currentCount: newCount, contributions: newContribs };
       setSelectedGroup(updatedGroup);
       setGroupSessions(prev => prev.map(g => g.id === selectedGroup.id ? updatedGroup : g));
 
@@ -207,8 +227,8 @@ export default function ThasbihScreen() {
   const handleReset = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (mode === 'individual') {
-      const isReverse = individualTarget > 0;
-      setCount(isReverse ? individualTarget : 0);
+      setCount(0);
+      setIsCountdown(false);
     } else if (selectedGroup) {
       const isReverse = selectedGroup.target > 0;
       const updatedGroup = { ...selectedGroup, currentCount: isReverse ? selectedGroup.target : 0 };
@@ -235,6 +255,7 @@ export default function ThasbihScreen() {
       members: ['You'],
       dhikrType: groupDhikrType,
       joinCode: code,
+      contributions: { 'You': 0 },
     };
 
     setGroupSessions(prev => [...prev, newGroup]);
@@ -253,7 +274,12 @@ export default function ThasbihScreen() {
     }
     const group = groupSessions.find(g => g.joinCode === joinCodeInput.trim());
     if (group) {
-      const updatedGroup = { ...group, members: [...group.members, joinNameInput.trim()] };
+      // Add member and initialize their contribution if not present
+      const updatedContribs = { ...group.contributions };
+      if (!(joinNameInput.trim() in updatedContribs)) {
+        updatedContribs[joinNameInput.trim()] = 0;
+      }
+      const updatedGroup = { ...group, members: [...group.members, joinNameInput.trim()], contributions: updatedContribs };
       setGroupSessions(prev => prev.map(g => g.id === group.id ? updatedGroup : g));
       setSelectedGroup(updatedGroup);
       setShowJoinModal(false);
@@ -338,16 +364,59 @@ export default function ThasbihScreen() {
           <Text style={[styles.title, styles.appTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Tasbih</Text>
         </View>
         <TouchableOpacity
-          onPress={() => mode === 'individual' ? setShowTargetModal(true) : groupSessions.length > 0 ? setShowHistoryModal(true) : null}
+          onPress={() => {
+            if (mode === 'individual') {
+              setShowTargetModal(true);
+            } else if (mode === 'group') {
+              if (selectedGroup) {
+                setShowContribModal(true);
+              } else if (groupSessions.length > 0) {
+                setShowHistoryModal(true);
+              }
+            }
+          }}
           style={{ padding: 4, marginLeft: 8 }}
-          accessibilityLabel={mode === 'individual' ? "Set Tasbih Target" : "Group History"}
+          accessibilityLabel={
+            mode === 'individual'
+              ? 'Set Tasbih Target'
+              : selectedGroup
+                ? 'Group Progress'
+                : 'Group History'
+          }
         >
           {mode === 'individual' ? (
             <Ionicons name="locate" size={24} color={isDark ? '#FFFFFF' : '#1A1A1A'} />
+          ) : selectedGroup ? (
+            <Ionicons name="stats-chart" size={24} color={isDark ? '#FFFFFF' : '#1A1A1A'} />
           ) : groupSessions.length > 0 ? (
             <Ionicons name="time" size={24} color={isDark ? '#FFFFFF' : '#1A1A1A'} />
           ) : null}
         </TouchableOpacity>
+            {/* Group Contributions Modal */}
+            <Modal visible={showContribModal} transparent animationType="fade">
+              <View style={styles.modalOverlay}>
+                <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}> 
+                  <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Group Contributions</Text>
+                  {selectedGroup && Array.isArray(selectedGroup.members) && selectedGroup.members.length > 0 && (
+                    <>
+                      {(selectedGroup.members || []).map((member, idx) => (
+                        <View key={member + idx} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                          <Ionicons name="person" size={20} color={isDark ? '#B0BEC5' : '#1976D2'} style={{ marginRight: 8 }} />
+                          <Text style={{ color: isDark ? '#FFFFFF' : '#1A1A1A', fontSize: 16, flex: 1 }}>{member}</Text>
+                          <Text style={{ color: isDark ? '#B2FF59' : '#388E3C', fontWeight: 'bold', fontSize: 16 }}>{(selectedGroup.contributions && selectedGroup.contributions[member]) ?? 0}</Text>
+                        </View>
+                      ))}
+                    </>
+                  )}
+                  <TouchableOpacity
+                    style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5', marginTop: 16 }]}
+                    onPress={() => setShowContribModal(false)}
+                  >
+                    <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
       </View>
 
       {/* Mode Selection */}
@@ -425,7 +494,7 @@ export default function ThasbihScreen() {
           >
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
           </TouchableWithoutFeedback>
-          <View style={[styles.largeCircleWrapper]}> 
+          <View style={[styles.largeCircleWrapper, { marginTop: -20 }]}>
             <TouchableOpacity
               activeOpacity={0.85}
               onPress={(event) => {
@@ -447,6 +516,7 @@ export default function ThasbihScreen() {
                 ]).start();
                 handleIncrement();
               }}
+              onLongPress={handleReset}
               style={{ borderRadius: 180 }}
             >
               <View
@@ -456,6 +526,7 @@ export default function ThasbihScreen() {
                 <Text style={[styles.largeCircleCount, { color: '#43cea2', textShadowColor: '#0008', textShadowOffset: {width: 0, height: 2}, textShadowRadius: 8 }]}> 
                   {count}
                 </Text>
+                <Text style={{ fontSize: 13, color: '#888', marginTop: 2, textAlign: 'center' }}>hold for reset</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -528,10 +599,8 @@ export default function ThasbihScreen() {
               <TouchableOpacity
                 activeOpacity={0.85}
                 onPress={(event) => {
-                  const { locationX, locationY } = event.nativeEvent;
-                  const globalX = contentPosition.x + locationX;
-                  const globalY = contentPosition.y + locationY;
-                  setTouchPos({ x: globalX, y: globalY });
+                  const { pageX, pageY } = event.nativeEvent;
+                  setTouchPos({ x: pageX, y: pageY });
                   circleScaleAnim.setValue(0);
                   circleOpacityAnim.setValue(0.8);
                   Animated.parallel([
@@ -554,9 +623,11 @@ export default function ThasbihScreen() {
                   style={[styles.gradientCircle, { backgroundColor: 'transparent', borderWidth: 8, borderColor: '#43cea2' }]}
                 >
                   <View style={[styles.circleGlow, isDark && { borderColor: '#43cea2' }]}/>
-                  <Text style={[styles.largeCircleCount, { color: '#43cea2', textShadowColor: '#0008', textShadowOffset: {width: 0, height: 2}, textShadowRadius: 8 }]}> 
-                    {selectedGroup.currentCount}
-                  </Text>
+                  {selectedGroup.target > 0 && selectedGroup.currentCount === 0 ? (
+                    <Text style={[styles.largeCircleCount, { fontSize: 36, color: '#43cea2', textShadowColor: '#0008', textShadowOffset: {width: 0, height: 2}, textShadowRadius: 8 }]}>Completed!</Text>
+                  ) : (
+                    <Text style={[styles.largeCircleCount, { color: '#43cea2', textShadowColor: '#0008', textShadowOffset: {width: 0, height: 2}, textShadowRadius: 8 }]}>{selectedGroup.currentCount}</Text>
+                  )}
                 </View>
               </TouchableOpacity>
             </View>
@@ -600,6 +671,7 @@ export default function ThasbihScreen() {
               activeOpacity={0.9}
             >
               <Text style={{ color: isDark ? '#B2FF59' : '#fff', fontSize: 22, fontWeight: 'bold', textAlign: 'center', letterSpacing: 0.5 }}>{selectedGroup.dhikrType}</Text>
+              <Text style={{ fontSize: 13, color: '#888', textAlign: 'center', marginTop: 6 }}>hold for exit</Text>
             </TouchableOpacity>
           </Animated.View>
         ) : (
@@ -730,14 +802,7 @@ export default function ThasbihScreen() {
               value={groupDhikrType}
               onChangeText={setGroupDhikrType}
             />
-            {/* Show the generated join code if already generated */}
-            {groupJoinCode ? (
-              <View style={{ alignItems: 'center', marginBottom: 8 }}>
-                <Text style={{ color: isDark ? '#B2FF59' : '#388E3C', fontWeight: 'bold', fontSize: 18 }}>
-                  Join Code: {groupJoinCode}
-                </Text>
-              </View>
-            ) : null}
+            {/* Join code is not shown during group creation */}
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
@@ -818,24 +883,53 @@ export default function ThasbihScreen() {
                     <>
                       <Text style={{ color: isDark ? '#B0BEC5' : '#757575', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Created Groups</Text>
                       {groupSessions.filter(g => g.members[0] === 'You').map((group) => (
-                        <TouchableOpacity
-                          key={group.id}
-                          style={[styles.groupListItem, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
-                          onPress={() => {
-                            setSelectedGroup(group);
-                            setShowHistoryModal(false);
-                          }}
-                        >
-                          <View>
-                            <Text style={[styles.groupListName, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-                              {group.name}
-                            </Text>
-                            <Text style={[styles.groupListInfo, { color: isDark ? '#B0BEC5' : '#757575' }]}>
-                              {group.members.length} members • Target: {group.target} • {group.dhikrType}
-                            </Text>
+                        <View key={group.id} style={{ position: 'relative' }}>
+                          <TouchableOpacity
+                            style={[styles.groupListItem, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+                            onPress={() => {
+                              setSelectedGroup(group);
+                              setShowHistoryModal(false);
+                            }}
+                          >
+                            <View>
+                              <Text style={[styles.groupListName, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}> 
+                                {group.name}
+                              </Text>
+                              <Text style={[styles.groupListInfo, { color: isDark ? '#B0BEC5' : '#757575', flexDirection: 'row', alignItems: 'center' }]}> 
+                                <Ionicons name="person" size={15} color={isDark ? '#B0BEC5' : '#757575'} style={{ marginRight: 2, marginBottom: -2 }} />
+                                {group.members.length}
+                                <Text>  </Text>
+                                <Ionicons name="flag-outline" size={15} color={isDark ? '#B0BEC5' : '#757575'} style={{ marginRight: 2, marginBottom: -2 }} />
+                                {group.target}
+                                <Text>  </Text>
+                                {group.dhikrType}
+                              </Text>
+                            </View>
+                            {/* No arrow icon, only delete icon for admin */}
+                          </TouchableOpacity>
+                          <View style={{ position: 'absolute', right: 8, top: 0, bottom: 0, justifyContent: 'center', zIndex: 2 }}>
+                            <TouchableOpacity
+                              style={{ padding: 4 }}
+                              onPress={() => {
+                                // Confirm delete
+                                Alert.alert(
+                                  'Delete Group',
+                                  'Are you sure you want to delete this group?',
+                                  [
+                                    { text: 'Cancel', style: 'cancel' },
+                                    { text: 'Delete', style: 'destructive', onPress: () => {
+                                      setGroupSessions(prev => prev.filter(g => g.id !== group.id));
+                                      if (selectedGroup && selectedGroup.id === group.id) setSelectedGroup(null);
+                                    }},
+                                  ]
+                                );
+                              }}
+                              accessibilityLabel="Delete Group"
+                            >
+                              <Ionicons name="trash" size={20} color="#E53935" />
+                            </TouchableOpacity>
                           </View>
-                          <Ionicons name="chevron-forward" size={20} color={isDark ? '#B0BEC5' : '#757575'} />
-                        </TouchableOpacity>
+                        </View>
                       ))}
                     </>
                   )}
@@ -1220,22 +1314,34 @@ const styles = StyleSheet.create({
   groupList: {
     maxHeight: 300,
     marginBottom: 20,
+    width: '100%',
+    alignSelf: 'center',
   },
   groupListItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
     borderRadius: 12,
-    marginBottom: 8,
+    marginBottom: 10,
+    minHeight: 64,
+    width: '100%',
+    alignSelf: 'center',
+    gap: 10,
   },
   groupListName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
     marginBottom: 2,
+    textAlign: 'left',
+    width: 180,
   },
   groupListInfo: {
     fontSize: 14,
+    color: '#888',
+    textAlign: 'left',
+    width: 180,
   },
   noGroupsText: {
     textAlign: 'center',

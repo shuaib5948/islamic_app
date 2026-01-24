@@ -228,10 +228,15 @@ export default function PrayerScreen() {
               <Text style={[styles.headerTitle, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
                 {labels.prayerTracker}
               </Text>
-              <Text style={[styles.headerSubtitle, { color: isDark ? '#8B949E' : '#64748B' }]}>
-                {labels.buildConsistency}
-              </Text>
             </View>
+            {stats && (
+              <View style={styles.streakContainer}>
+                <Ionicons name="flame" size={20} color="#FF6B35" />
+                <Text style={[styles.streakText, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+                  {stats.currentStreak}
+                </Text>
+              </View>
+            )}
           </View>
           {/* Location indicator */}
           <View style={[styles.locationContainer, { backgroundColor: isDark ? '#1C2128' : '#F1F5F9' }]}>
@@ -362,14 +367,18 @@ export default function PrayerScreen() {
             const isCompleted = status === 'prayed' || status === 'late';
             const isLate = status === 'late';
             const time = prayerTimes[prayer.name];
-            // Only allow marking up to current prayer
-            const isFuture = idx > currentPrayerIdx;
+            // Determine if prayer can be marked
+            const isFutureDate = selectedDate > today;
+            const isToday = selectedDate === today;
+            const isPastDate = selectedDate < today;
+            const isFuturePrayer = isToday && idx > currentPrayerIdx;
+            const canMark = !isFutureDate && (!isToday || !isFuturePrayer);
             return (
               <TouchableOpacity
                 key={prayer.name}
-                onPress={() => !isFuture && handlePrayerTap(prayer.name)}
-                activeOpacity={isFuture ? 1 : 0.7}
-                disabled={isFuture}
+                onPress={() => canMark && handlePrayerTap(prayer.name)}
+                activeOpacity={canMark ? 0.7 : 1}
+                disabled={!canMark}
                 style={[
                   styles.prayerCard,
                   { 
@@ -378,7 +387,7 @@ export default function PrayerScreen() {
                       : (isDark ? '#1C2128' : '#FFFFFF')
                   },
                   isCompleted && (isLate ? styles.prayerCardLate : styles.prayerCardCompleted),
-                  isFuture && { opacity: 0.5 },
+                  !canMark && { opacity: 0.5 },
                 ]}
               >
                 <View style={styles.prayerLeft}>
@@ -587,17 +596,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 8,
+    marginBottom: 16,
   },
   headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   backButton: {
-    marginRight: 12,
+    position: 'absolute',
+    left: 0,
     padding: 4,
   },
   headerTitles: {
-    flex: 1,
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 24,
@@ -607,9 +619,21 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 2,
   },
+  streakContainer: {
+    position: 'absolute',
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 4,
+  },
+  streakText: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginLeft: 4,
+  },
   // Location Container
   locationContainer: {
-    marginTop: 12,
+    marginTop: 30,
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 10,

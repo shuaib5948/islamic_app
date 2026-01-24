@@ -32,6 +32,12 @@ export const createKhatamGroup = async (
 ): Promise<KhatamGroup> => {
   const groups = await loadKhatamGroups();
   
+  // Generate unique 4-digit join code
+  let joinCode: string;
+  do {
+    joinCode = Math.floor(1000 + Math.random() * 9000).toString();
+  } while (groups.some(g => g.joinCode === joinCode));
+  
   const newGroup: KhatamGroup = {
     id: generateId(),
     name,
@@ -41,6 +47,7 @@ export const createKhatamGroup = async (
     assignments: [],
     isCompleted: false,
     dedication,
+    joinCode,
   };
   
   groups.push(newGroup);

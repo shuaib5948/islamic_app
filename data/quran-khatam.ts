@@ -33,6 +33,7 @@ export interface KhatamGroup {
   isCompleted: boolean;
   completedDate?: string;
   dedication?: string; // For whom this khatam is dedicated
+  joinCode: string; // 4-digit code for others to join
 }
 
 // All 30 Juz of the Quran
