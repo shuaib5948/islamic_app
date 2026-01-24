@@ -1,319 +1,30 @@
+
+
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ADHKAR_COLLECTIONS, SECTIONS } from '../../data/adhkar-collections';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-interface AdhkarCollection {
+// Type for AdhkarCollection
+type AdhkarCollection = {
   id: string;
+  sectionId: string;
+  icon?: string;
+  color: string;
   title: string;
   titleMl: string;
   titleArabic: string;
-  icon: string;
-  color: string;
   content: string[];
-}
+  meaningMl?: string;
+  virtuesMl?: string[];
+  sourceMl?: string;
+};
 
-// Collection of Adhkar/Awrad
-const ADHKAR_COLLECTIONS: AdhkarCollection[] = [
-  {
-    id: 'majlisunnoor',
-    title: 'Majlisun Noor',
-    titleMl: 'മജ്‌ലിസുന്നൂർ',
-    titleArabic: 'مجلس النور',
-    icon: '✨',
-    color: '#FFB300',
-    content: [
-      'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-      'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ',
-      'الرَّحْمَنِ الرَّحِيمِ',
-      'مَالِكِ يَوْمِ الدِّينِ',
-      'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ',
-      'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ',
-      'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ',
-      'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ',
-      'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ الْعَظِيمِ',
-      'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
-    ],
-  },
-  {
-    id: 'haddad-ratib',
-    title: 'Ratibul Haddad',
-    titleMl: 'റാത്തീബുൽ ഹദ്ദാദ്',
-    titleArabic: 'راتب الحداد',
-    icon: '📿',
-    color: '#4CAF50',
-    content: [
-      'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-      'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ حَمْدًا يُوَافِي نِعَمَهُ وَيُكَافِئُ مَزِيدَهُ',
-      'اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِ سَيِّدِنَا مُحَمَّدٍ',
-      'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ',
-      'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-      'الم ۚ ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ',
-      'الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ',
-      'وَالَّذِينَ يُؤْمِنُونَ بِمَا أُنزِلَ إِلَيْكَ وَمَا أُنزِلَ مِن قَبْلِكَ وَبِالْآخِرَةِ هُمْ يُوقِنُونَ',
-      'أُولَٰئِكَ عَلَىٰ هُدًى مِّن رَّبِّهِمْ ۖ وَأُولَٰئِكَ هُمُ الْمُفْلِحُونَ',
-      'وَإِلَٰهُكُمْ إِلَٰهٌ وَاحِدٌ ۖ لَّا إِلَٰهَ إِلَّا هُوَ الرَّحْمَٰنُ الرَّحِيمُ',
-      'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ',
-      'لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ',
-      'مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ',
-      'يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ',
-      'وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ',
-      'وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ',
-      'وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ',
-      'آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ',
-      'كُلٌّ آمَنَ بِاللَّهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ',
-      'لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِ',
-      'وَقَالُوا سَمِعْنَا وَأَطَعْنَا ۖ غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ',
-    ],
-  },
-  {
-    id: 'asmaul-husna',
-    title: 'Asmaul Husna',
-    titleMl: 'അസ്മാഉൽ ഹുസ്‌നാ',
-    titleArabic: 'أسماء الله الحسنى',
-    icon: '🌟',
-    color: '#9C27B0',
-    content: [
-      'هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ',
-      'الرَّحْمَنُ - الرَّحِيمُ - الْمَلِكُ - الْقُدُّوسُ',
-      'السَّلَامُ - الْمُؤْمِنُ - الْمُهَيْمِنُ - الْعَزِيزُ',
-      'الْجَبَّارُ - الْمُتَكَبِّرُ - الْخَالِقُ - الْبَارِئُ',
-      'الْمُصَوِّرُ - الْغَفَّارُ - الْقَهَّارُ - الْوَهَّابُ',
-      'الرَّزَّاقُ - الْفَتَّاحُ - الْعَلِيمُ - الْقَابِضُ',
-      'الْبَاسِطُ - الْخَافِضُ - الرَّافِعُ - الْمُعِزُّ',
-      'الْمُذِلُّ - السَّمِيعُ - الْبَصِيرُ - الْحَكَمُ',
-      'الْعَدْلُ - اللَّطِيفُ - الْخَبِيرُ - الْحَلِيمُ',
-      'الْعَظِيمُ - الْغَفُورُ - الشَّكُورُ - الْعَلِيُّ',
-      'الْكَبِيرُ - الْحَفِيظُ - الْمُقِيتُ - الْحَسِيبُ',
-      'الْجَلِيلُ - الْكَرِيمُ - الرَّقِيبُ - الْمُجِيبُ',
-      'الْوَاسِعُ - الْحَكِيمُ - الْوَدُودُ - الْمَجِيدُ',
-      'الْبَاعِثُ - الشَّهِيدُ - الْحَقُّ - الْوَكِيلُ',
-      'الْقَوِيُّ - الْمَتِينُ - الْوَلِيُّ - الْحَمِيدُ',
-      'الْمُحْصِي - الْمُبْدِئُ - الْمُعِيدُ - الْمُحْيِي',
-      'الْمُمِيتُ - الْحَيُّ - الْقَيُّومُ - الْوَاجِدُ',
-      'الْمَاجِدُ - الْوَاحِدُ - الصَّمَدُ - الْقَادِرُ',
-      'الْمُقْتَدِرُ - الْمُقَدِّمُ - الْمُؤَخِّرُ - الْأَوَّلُ',
-      'الْآخِرُ - الظَّاهِرُ - الْبَاطِنُ - الْوَالِي',
-      'الْمُتَعَالِي - الْبَرُّ - التَّوَّابُ - الْمُنْتَقِمُ',
-      'الْعَفُوُّ - الرَّءُوفُ - مَالِكُ الْمُلْكِ',
-      'ذُو الْجَلَالِ وَالْإِكْرَامِ - الْمُقْسِطُ - الْجَامِعُ',
-      'الْغَنِيُّ - الْمُغْنِي - الْمَانِعُ - الضَّارُّ',
-      'النَّافِعُ - النُّورُ - الْهَادِي - الْبَدِيعُ',
-      'الْبَاقِي - الْوَارِثُ - الرَّشِيدُ - الصَّبُورُ',
-    ],
-  },
-  {
-    id: 'maulid-badriyya',
-    title: 'Mahlarathul Badriyya',
-    titleMl: 'മഹ്‌ലറത്തുൽ ബദ്‌രിയ്യ',
-    titleArabic: 'المحضرة البدرية',
-    icon: '🌙',
-    color: '#3F51B5',
-    content: [
-      'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-      'اللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى سَيِّدِنَا مُحَمَّدٍ',
-      'يَا نَبِيَّ سَلَامٌ عَلَيْكَ يَا رَسُولَ سَلَامٌ عَلَيْكَ',
-      'يَا حَبِيبَ سَلَامٌ عَلَيْكَ صَلَوَاتُ اللَّهِ عَلَيْكَ',
-      'أَشْرَقَ الْبَدْرُ عَلَيْنَا فَاخْتَفَتْ مِنْهُ الْبُدُورُ',
-      'مِثْلَ حُسْنِكَ مَا رَأَيْنَا قَطُّ يَا وَجْهَ السُّرُورِ',
-      'أَنْتَ شَمْسٌ أَنْتَ بَدْرٌ أَنْتَ نُورٌ فَوْقَ نُورٍ',
-      'أَنْتَ إِكْسِيرٌ وَغَالٍ أَنْتَ مِصْبَاحُ الصُّدُورِ',
-      'يَا حَبِيبِي يَا مُحَمَّدْ يَا عَرُوسَ الْخَافِقَيْنِ',
-      'يَا مُؤَيَّدْ يَا مُمَجَّدْ يَا إِمَامَ الْقِبْلَتَيْنِ',
-    ],
-  },
-  {
-    id: 'asmaul-badr',
-    title: 'Asmaul Badr',
-    titleMl: 'അസ്മാഉൽ ബദ്‌ർ',
-    titleArabic: 'أسماء أهل بدر',
-    icon: '⭐',
-    color: '#00BCD4',
-    content: [
-      'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-      'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ',
-      'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِحَقِّ أَسْمَاءِ أَهْلِ بَدْرٍ',
-      'سَيِّدُنَا مُحَمَّدٌ رَسُولُ اللَّهِ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ',
-      'سَيِّدُنَا أَبُو بَكْرٍ الصِّدِّيقُ',
-      'سَيِّدُنَا عُمَرُ بْنُ الْخَطَّابِ',
-      'سَيِّدُنَا عُثْمَانُ بْنُ عَفَّانَ',
-      'سَيِّدُنَا عَلِيُّ بْنُ أَبِي طَالِبٍ',
-      'سَيِّدُنَا حَمْزَةُ بْنُ عَبْدِ الْمُطَّلِبِ',
-      'سَيِّدُنَا الْعَبَّاسُ بْنُ عَبْدِ الْمُطَّلِبِ',
-      'رَضِيَ اللَّهُ تَعَالَى عَنْهُمْ أَجْمَعِينَ',
-    ],
-  },
-  {
-    id: 'asmaun-nabi',
-    title: "Asma'un Nabi",
-    titleMl: 'അസ്മാഉന്നബി',
-    titleArabic: 'أسماء النبي ﷺ',
-    icon: '🕌',
-    color: '#8BC34A',
-    content: [
-      'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-      'مُحَمَّدٌ - أَحْمَدُ - حَامِدٌ - مَحْمُودٌ',
-      'أَحِيدُ - وَحِيدُ - مَاحٍ - حَاشِرٌ',
-      'عَاقِبٌ - طه - يس - طَاهِرٌ',
-      'مُطَهَّرٌ - طَيِّبٌ - سَيِّدٌ - رَسُولٌ',
-      'نَبِيٌّ - رَسُولُ الرَّحْمَةِ - قَيِّمٌ',
-      'جَامِعٌ - مُقْتَفٍ - مُقَفِّي - رَسُولُ الْمَلَاحِمِ',
-      'رَسُولُ الرَّاحَةِ - كَامِلٌ - إِكْلِيلٌ',
-      'مُدَّثِّرٌ - مُزَّمِّلٌ - عَبْدُ اللَّهِ',
-      'حَبِيبُ اللَّهِ - صَفِيُّ اللَّهِ - نَجِيُّ اللَّهِ',
-      'كَلِيمُ اللَّهِ - خَاتَمُ الْأَنْبِيَاءِ',
-      'صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ',
-    ],
-  },
-  {
-    id: 'virdullatheef',
-    title: 'Virdullatheef',
-    titleMl: 'വിർദുല്ലത്തീഫ്',
-    titleArabic: 'ورد اللطيف',
-    icon: '🌸',
-    color: '#E91E63',
-    content: [
-      'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-      'يَا لَطِيفُ يَا لَطِيفُ يَا لَطِيفُ',
-      'أَنْتَ الَّذِي لَطُفْتَ بِخَلْقِكَ',
-      'اللَّهُمَّ الْطُفْ بِنَا فِي تَيْسِيرِ كُلِّ عَسِيرٍ',
-      'فَإِنَّ تَيْسِيرَ كُلِّ عَسِيرٍ عَلَيْكَ يَسِيرٌ',
-      'وَنَسْأَلُكَ الْيُسْرَ وَالْمُعَافَاةَ فِي الدُّنْيَا وَالْآخِرَةِ',
-      'يَا لَطِيفًا بِخَلْقِهِ يَا عَلِيمًا بِخَلْقِهِ يَا خَبِيرًا بِخَلْقِهِ',
-      'الْطُفْ بِنَا يَا لَطِيفُ يَا عَلِيمُ يَا خَبِيرُ',
-      'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ',
-    ],
-  },
-  {
-    id: 'dua-karb',
-    title: 'Dua Al-Karb',
-    titleMl: 'ദുആഉൽ കർബ്',
-    titleArabic: 'دعاء الكرب',
-    icon: '🤲',
-    color: '#607D8B',
-    content: [
-      'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-      'لَا إِلَهَ إِلَّا اللَّهُ الْعَظِيمُ الْحَلِيمُ',
-      'لَا إِلَهَ إِلَّا اللَّهُ رَبُّ الْعَرْشِ الْعَظِيمِ',
-      'لَا إِلَهَ إِلَّا اللَّهُ رَبُّ السَّمَاوَاتِ',
-      'وَرَبُّ الْأَرْضِ وَرَبُّ الْعَرْشِ الْكَرِيمِ',
-      'اللَّهُمَّ إِنِّي أَسْأَلُكَ بِأَنَّ لَكَ الْحَمْدَ',
-      'لَا إِلَهَ إِلَّا أَنْتَ الْمَنَّانُ',
-      'بَدِيعُ السَّمَاوَاتِ وَالْأَرْضِ',
-      'يَا ذَا الْجَلَالِ وَالْإِكْرَامِ',
-      'يَا حَيُّ يَا قَيُّومُ',
-      'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ',
-      'وَأَعُوذُ بِكَ مِنَ الْعَجْزِ وَالْكَسَلِ',
-      'وَأَعُوذُ بِكَ مِنَ الْجُبْنِ وَالْبُخْلِ',
-      'وَأَعُوذُ بِكَ مِنْ غَلَبَةِ الدَّيْنِ وَقَهْرِ الرِّجَالِ',
-    ],
-  },
-  {
-    id: 'dua-saif',
-    title: 'Dua Al-Saif',
-    titleMl: 'ദുആഉസ്സൈഫ്',
-    titleArabic: 'دعاء السيف',
-    icon: '⚔️',
-    color: '#795548',
-    content: [
-      'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-      'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ سَيْفِ اللَّهِ',
-      'وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ',
-      'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ',
-      'فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ',
-      'اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ وَمِنْ خَلْفِي',
-      'وَعَنْ يَمِينِي وَعَنْ شِمَالِي وَمِنْ فَوْقِي',
-      'وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي',
-      'وَصَلَّى اللَّهُ عَلَى سَيِّدِنَا مُحَمَّدٍ وَآلِهِ وَصَحْبِهِ وَسَلَّمَ',
-    ],
-  },
-  {
-    id: 'noorul-iman',
-    title: 'Noorul Iman',
-    titleMl: 'നൂറുൽ ഈമാൻ',
-    titleArabic: 'نور الإيمان',
-    icon: '💡',
-    color: '#FFC107',
-    content: [
-      'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-      'اللَّهُمَّ اجْعَلْ فِي قَلْبِي نُورًا',
-      'وَفِي بَصَرِي نُورًا وَفِي سَمْعِي نُورًا',
-      'وَعَنْ يَمِينِي نُورًا وَعَنْ يَسَارِي نُورًا',
-      'وَفَوْقِي نُورًا وَتَحْتِي نُورًا',
-      'وَأَمَامِي نُورًا وَخَلْفِي نُورًا',
-      'وَاجْعَلْ لِي نُورًا',
-      'اللَّهُمَّ أَعْطِنِي نُورًا وَزِدْنِي نُورًا',
-      'وَاجْعَلْنِي نُورًا',
-      'سُبْحَانَ الَّذِي تَعَطَّفَ بِالْعِزِّ وَقَالَ بِهِ',
-      'سُبْحَانَ الَّذِي لَبِسَ الْمَجْدَ وَتَكَرَّمَ بِهِ',
-      'سُبْحَانَ الَّذِي لَا يَنْبَغِي التَّسْبِيحُ إِلَّا لَهُ',
-    ],
-  },
-  {
-    id: 'wird-nawawi',
-    title: "Wird Al-Nawawi",
-    titleMl: 'വിർദുന്നവവി',
-    titleArabic: 'ورد النووي',
-    icon: '📖',
-    color: '#009688',
-    content: [
-      'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-      'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ',
-      'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ',
-      'أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيَّ الْقَيُّومَ وَأَتُوبُ إِلَيْهِ',
-      'سُبْحَانَ اللَّهِ وَالْحَمْدُ لِلَّهِ وَلَا إِلَهَ إِلَّا اللَّهُ وَاللَّهُ أَكْبَرُ',
-      'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ',
-      'رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ',
-      'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ',
-      'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',
-    ],
-  },
-  {
-    id: 'tawba',
-    title: 'Dua Tawba',
-    titleMl: 'തൗബ',
-    titleArabic: 'دعاء التوبة',
-    icon: '🙏',
-    color: '#673AB7',
-    content: [
-      'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-      'أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ',
-      'أَسْتَغْفِرُ اللَّهَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيَّ الْقَيُّومَ وَأَتُوبُ إِلَيْهِ',
-      'رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ',
-      'اللَّهُمَّ إِنِّي ظَلَمْتُ نَفْسِي ظُلْمًا كَثِيرًا',
-      'وَلَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ',
-      'فَاغْفِرْ لِي مَغْفِرَةً مِنْ عِنْدِكَ',
-      'وَارْحَمْنِي إِنَّكَ أَنْتَ الْغَفُورُ الرَّحِيمُ',
-      'رَبَّنَا اغْفِرْ لَنَا ذُنُوبَنَا وَإِسْرَافَنَا فِي أَمْرِنَا',
-      'وَثَبِّتْ أَقْدَامَنَا وَانْصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ',
-    ],
-  },
-  {
-    id: 'jalaliyya-ratib',
-    title: 'Ratib Al-Jalaliyya',
-    titleMl: 'റാത്തീബ് അൽ-ജലാലിയ്യ',
-    titleArabic: 'راتب الجلالية',
-    icon: '🌺',
-    color: '#F44336',
-    content: [
-      'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-      'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ',
-      'لَا إِلَهَ إِلَّا اللَّهُ لَا إِلَهَ إِلَّا اللَّهُ لَا إِلَهَ إِلَّا اللَّهُ',
-      'يَا جَلِيلُ يَا جَلِيلُ يَا جَلِيلُ',
-      'أَنْتَ الْجَلِيلُ ذُو الْجَلَالِ وَالْإِكْرَامِ',
-      'سُبْحَانَ ذِي الْمُلْكِ وَالْمَلَكُوتِ',
-      'سُبْحَانَ ذِي الْعِزَّةِ وَالْجَبَرُوتِ',
-      'سُبْحَانَ الْحَيِّ الَّذِي لَا يَمُوتُ',
-      'سُبُّوحٌ قُدُّوسٌ رَبُّنَا وَرَبُّ الْمَلَائِكَةِ وَالرُّوحِ',
-      'اللَّهُمَّ أَجِرْنَا مِنَ النَّارِ',
-      'يَا مُجِيرُ يَا مُجِيرُ يَا مُجِيرُ',
-    ],
-  },
-];
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Adhkar List Item Component
 interface AdhkarListItemProps {
@@ -330,18 +41,46 @@ function AdhkarListItem({ adhkar, onPress, isDark, isMalayalam }: AdhkarListItem
       onPress={onPress}
       style={[styles.listItem, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}
     >
-      <View style={[styles.iconContainer, { backgroundColor: adhkar.color + '20' }]}>
+      <View style={[styles.iconContainer, { backgroundColor: adhkar.color + '20' }]}> 
         <Text style={styles.adhkarIcon}>{adhkar.icon}</Text>
       </View>
       <View style={styles.titleContainer}>
-        <Text style={[styles.adhkarTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+        <Text style={[styles.adhkarTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}> 
           {isMalayalam ? adhkar.titleMl : adhkar.title}
         </Text>
-        <Text style={[styles.adhkarTitleArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+        <Text style={[styles.adhkarTitleArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}> 
           {adhkar.titleArabic}
         </Text>
       </View>
       <Ionicons name="chevron-forward" size={20} color={isDark ? '#B0BEC5' : '#757575'} />
+    </TouchableOpacity>
+  );
+}
+
+// Section Card Component
+interface SectionCardProps {
+  section: typeof SECTIONS[number];
+  isDark: boolean;
+  isMalayalam: boolean;
+  onPress: () => void;
+}
+
+function SectionCard({ section, isDark, isMalayalam, onPress }: SectionCardProps) {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={onPress}
+      style={[styles.sectionBox, { backgroundColor: isDark ? '#23272F' : '#FFF8E1', borderColor: isDark ? '#FFD60033' : '#FFD600' }]}
+    >
+      <Text style={[styles.sectionBoxTitle, { color: isDark ? '#FFD600' : '#4E342E' }]}
+        numberOfLines={2}
+        ellipsizeMode="tail"
+      >
+        {isMalayalam ? section.titleMl : section.title}
+      </Text>
+      <View style={styles.sectionBoxIconWrap}>
+        <Ionicons name="chevron-forward" size={24} color={isDark ? '#FFD600' : '#4E342E'} />
+      </View>
     </TouchableOpacity>
   );
 }
@@ -355,46 +94,101 @@ interface AdhkarModalProps {
   isMalayalam: boolean;
 }
 
+
 function AdhkarModal({ visible, adhkar, onClose, isDark, isMalayalam }: AdhkarModalProps) {
+  const [infoVisible, setInfoVisible] = useState(false);
   if (!adhkar) return null;
 
-  return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
-      onRequestClose={onClose}
-    >
-      <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
-        {/* Modal Header - Single Line */}
-        <View style={[styles.modalHeader, { backgroundColor: adhkar.color }]}>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Ionicons name="close" size={28} color="#FFFFFF" />
-          </TouchableOpacity>
-          <Text style={styles.modalTitle}>
-            {isMalayalam ? adhkar.titleMl : adhkar.title}
-          </Text>
-          <View style={styles.closeButton} />
-        </View>
+  const hasInfo = adhkar.meaningMl || adhkar.virtuesMl || adhkar.sourceMl;
 
-        {/* Arabic Content */}
-        <ScrollView 
-          style={styles.modalScrollView}
-          contentContainerStyle={styles.modalScrollContent}
-          showsVerticalScrollIndicator={true}
-        >
-          {adhkar.content.map((line, index) => (
-            <Text 
-              key={index} 
-              style={[styles.arabicLine, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
-            >
-              {line}
+  return (
+    <>
+      <Modal
+        visible={visible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={onClose}
+      >
+        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}> 
+          {/* Modal Header - Single Line */}
+          <View style={[styles.modalHeader, { backgroundColor: adhkar.color }]}> 
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Ionicons name="close" size={28} color="#FFFFFF" />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>
+              {isMalayalam ? adhkar.titleMl : adhkar.title}
             </Text>
-          ))}
-          <View style={{ height: 50 }} />
-        </ScrollView>
-      </SafeAreaView>
-    </Modal>
+            {hasInfo ? (
+              <TouchableOpacity onPress={() => setInfoVisible(true)} style={styles.infoIconButton}>
+                <Ionicons name="information-circle-outline" size={26} color="#FFFFFF" />
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.closeButton} />
+            )}
+          </View>
+
+          {/* Arabic Content */}
+          <ScrollView 
+            style={styles.modalScrollView}
+            contentContainerStyle={styles.modalScrollContent}
+            showsVerticalScrollIndicator={true}
+          >
+            {adhkar.content.map((line, index) => (
+              <Text 
+                key={index} 
+                style={[styles.arabicLine, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              >
+                {line}
+              </Text>
+            ))}
+            <View style={{ height: 50 }} />
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      {/* Info Modal */}
+      <Modal
+        visible={infoVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setInfoVisible(false)}
+      >
+        <View style={styles.infoModalOverlay}>
+          <View style={[styles.infoModalBox, { backgroundColor: isDark ? '#23272F' : '#FFFDE7' }]}> 
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <Text style={[styles.infoModalTitle, { color: isDark ? '#FFD600' : '#4E342E' }]}> 
+                {isMalayalam ? adhkar.titleMl : adhkar.title}
+              </Text>
+              <TouchableOpacity onPress={() => setInfoVisible(false)}>
+                <Ionicons name="close" size={26} color={isDark ? '#FFD600' : '#4E342E'} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={{ maxHeight: SCREEN_HEIGHT * 0.5 }}>
+              {adhkar.meaningMl && (
+                <View style={{ marginBottom: 14 }}>
+                  <Text style={[styles.infoLabel, { color: isDark ? '#FFD600' : '#4E342E' }]}>{isMalayalam ? 'അർത്ഥം' : 'Meaning'}</Text>
+                  <Text style={[styles.infoTextBlock, { color: isDark ? '#FFFFFF' : '#333' }]}>{adhkar.meaningMl}</Text>
+                </View>
+              )}
+              {adhkar.virtuesMl && adhkar.virtuesMl.length > 0 && (
+                <View style={{ marginBottom: 14 }}>
+                  <Text style={[styles.infoLabel, { color: isDark ? '#FFD600' : '#4E342E' }]}>{isMalayalam ? 'ഫലങ്ങൾ' : 'Virtues'}</Text>
+                  {adhkar.virtuesMl.map((v, i) => (
+                    <Text key={i} style={[styles.infoTextBlock, { color: isDark ? '#FFFFFF' : '#333', marginLeft: 8 }]}>• {v}</Text>
+                  ))}
+                </View>
+              )}
+              {adhkar.sourceMl && (
+                <View style={{ marginBottom: 6 }}>
+                  <Text style={[styles.infoLabel, { color: isDark ? '#FFD600' : '#4E342E' }]}>{isMalayalam ? 'ഉറവിടം' : 'Source'}</Text>
+                  <Text style={[styles.infoTextBlock, { color: isDark ? '#FFFFFF' : '#333' }]}>{adhkar.sourceMl}</Text>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 }
 
@@ -404,9 +198,14 @@ export default function DhikrScreen() {
   const { language } = useLanguage();
   const isMalayalam = language === 'ml';
 
-  // State for selected adhkar (for modal)
+
+  // State for selected adhkar (for adhkar modal)
   const [selectedAdhkar, setSelectedAdhkar] = useState<AdhkarCollection | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [adhkarModalVisible, setAdhkarModalVisible] = useState(false);
+
+  // State for selected section (for section modal)
+  const [selectedSection, setSelectedSection] = useState<typeof SECTIONS[number] | null>(null);
+  const [sectionModalVisible, setSectionModalVisible] = useState(false);
 
   const labels = {
     title: isMalayalam ? 'അദ്കാർ & അവ്‌റാദ്' : 'Adhkar & Awrad',
@@ -414,14 +213,25 @@ export default function DhikrScreen() {
     selectToRead: isMalayalam ? 'വായിക്കാൻ ടാപ്പ് ചെയ്യുക' : 'Tap to read',
   };
 
-  const handleOpenModal = (adhkar: AdhkarCollection) => {
+
+  const handleOpenAdhkarModal = (adhkar: AdhkarCollection) => {
     setSelectedAdhkar(adhkar);
-    setModalVisible(true);
+    setAdhkarModalVisible(true);
   };
 
-  const handleCloseModal = () => {
-    setModalVisible(false);
+  const handleCloseAdhkarModal = () => {
+    setAdhkarModalVisible(false);
     setSelectedAdhkar(null);
+  };
+
+  const handleOpenSectionModal = (section: typeof SECTIONS[number]) => {
+    setSelectedSection(section);
+    setSectionModalVisible(true);
+  };
+
+  const handleCloseSectionModal = () => {
+    setSectionModalVisible(false);
+    setSelectedSection(null);
   };
 
   return (
@@ -451,28 +261,69 @@ export default function DhikrScreen() {
         </Text>
       </View>
 
-      {/* Adhkar List */}
-      <ScrollView 
+
+      {/* Section Cards List */}
+      <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {ADHKAR_COLLECTIONS.map(adhkar => (
-          <AdhkarListItem
-            key={adhkar.id}
-            adhkar={adhkar}
-            onPress={() => handleOpenModal(adhkar)}
-            isDark={isDark}
-            isMalayalam={isMalayalam}
-          />
-        ))}
+        <View style={styles.sectionBoxGrid}>
+          {SECTIONS.filter(section => section.itemIds.length > 0).map(section => (
+            <SectionCard
+              key={section.id}
+              section={section}
+              isDark={isDark}
+              isMalayalam={isMalayalam}
+              onPress={() => handleOpenSectionModal(section)}
+            />
+          ))}
+        </View>
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Modal */}
+      {/* Section Modal: List of Adhkar in Section */}
+      <Modal
+        visible={sectionModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={handleCloseSectionModal}
+      >
+        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}> 
+          <View style={[styles.modalHeader, { backgroundColor: isDark ? '#263238' : '#FFD600' }]}> 
+            <TouchableOpacity onPress={handleCloseSectionModal} style={styles.closeButton}>
+              <Ionicons name="close" size={28} color={isDark ? '#FFD600' : '#4E342E'} />
+            </TouchableOpacity>
+            <Text style={[styles.modalTitle, { color: isDark ? '#FFD600' : '#4E342E' }]}> 
+              {selectedSection ? (isMalayalam ? selectedSection.titleMl : selectedSection.title) : ''}
+            </Text>
+            <View style={styles.closeButton} />
+          </View>
+          <ScrollView style={styles.modalScrollView} contentContainerStyle={styles.modalScrollContent}>
+            {selectedSection && selectedSection.itemIds
+              .map(id => ADHKAR_COLLECTIONS.find(a => a.id === id))
+              .filter(a => a !== undefined)
+              .map((adhkar) => (
+                <AdhkarListItem
+                  key={adhkar.id}
+                  adhkar={adhkar}
+                  onPress={() => {
+                    handleCloseSectionModal();
+                    setTimeout(() => handleOpenAdhkarModal(adhkar), 300);
+                  }}
+                  isDark={isDark}
+                  isMalayalam={isMalayalam}
+                />
+              ))}
+            <View style={{ height: 50 }} />
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      {/* Adhkar Modal */}
       <AdhkarModal
-        visible={modalVisible}
+        visible={adhkarModalVisible}
         adhkar={selectedAdhkar}
-        onClose={handleCloseModal}
+        onClose={handleCloseAdhkarModal}
         isDark={isDark}
         isMalayalam={isMalayalam}
       />
@@ -481,6 +332,89 @@ export default function DhikrScreen() {
 }
 
 const styles = StyleSheet.create({
+  infoIconButton: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  infoModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 18,
+  },
+  infoModalBox: {
+    width: '100%',
+    borderRadius: 18,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  infoModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    flex: 1,
+    marginRight: 8,
+  },
+  infoLabel: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginBottom: 2,
+  },
+  infoTextBlock: {
+    fontSize: 15,
+    marginBottom: 4,
+    lineHeight: 22,
+  },
+  sectionBoxGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  sectionBox: {
+    flexBasis: '48%',
+    maxWidth: '48%',
+    aspectRatio: 1.1,
+    minHeight: 110,
+    marginBottom: 14,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+    padding: 12,
+  },
+  sectionBoxTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+    letterSpacing: 0.1,
+    flexShrink: 1,
+  },
+  sectionBoxIconWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 2,
+    marginLeft: 2,
+    marginTop: 16,
+    letterSpacing: 0.2,
+  },
   container: {
     flex: 1,
   },

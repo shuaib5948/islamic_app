@@ -116,7 +116,7 @@ export default function FaraidScreen() {
     parent: { en: 'Parents', ar: 'الوالدان', ml: 'മാതാപിതാക്കൾ' },
     child: { en: 'Children', ar: 'الأولاد', ml: 'മക്കൾ' },
     grandchild: { en: 'Grandchildren', ar: 'أولاد الابن', ml: 'പേരക്കുട്ടികൾ' },
-    grandparent: { en: 'Grandparents', ar: 'الأجداد', ml: 'മുത്തച്ഛൻ/മുത്തശ്ശി' },
+    grandparent: { en: 'Grandparents', ar: 'الأجداد', ml: 'ഉപ്പപ്പ ഉമ്മമ്മ' },
     sibling: { en: 'Siblings', ar: 'الإخوة', ml: 'സഹോദരങ്ങൾ' },
   };
 
