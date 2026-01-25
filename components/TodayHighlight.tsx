@@ -1,6 +1,7 @@
 import { IslamicEvent } from '@/data/hijri-events';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { HijriDate } from '@/utils/hijri-date';
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -9,13 +10,20 @@ interface TodayHighlightProps {
   gregorianDate: Date;
   events: IslamicEvent[];
   isToday?: boolean;
+  onDeleteEvent?: (eventId: string) => void;
 }
+
+const toArabicNumerals = (num: number): string => {
+  const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  return num.toString().split('').map(digit => arabicNumerals[parseInt(digit)]).join('');
+};
 
 export const TodayHighlight: React.FC<TodayHighlightProps> = ({
   hijriDate,
   gregorianDate,
   events,
   isToday = true,
+  onDeleteEvent,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const colorScheme = useColorScheme();
@@ -34,11 +42,11 @@ export const TodayHighlight: React.FC<TodayHighlightProps> = ({
         {/* Date Header */}
         <View style={styles.dateHeader}>
           <View style={styles.hijriDateContainer}>
-            <Text style={styles.hijriDay}>{hijriDate.day}</Text>
+            <Text style={styles.hijriDay}>{toArabicNumerals(hijriDate.day)}</Text>
             <View style={styles.hijriMonthYear}>
               <Text style={styles.hijriMonth}>{hijriDate.monthName}</Text>
               <Text style={styles.hijriMonthArabic}>{hijriDate.monthNameArabic}</Text>
-              <Text style={styles.hijriYear}>{hijriDate.year} AH</Text>
+              <Text style={styles.hijriYear}>{toArabicNumerals(hijriDate.year)} هـ</Text>
             </View>
           </View>
           
@@ -102,12 +110,28 @@ export const TodayHighlight: React.FC<TodayHighlightProps> = ({
               <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
                 {isToday ? "Today's Significance" : `${hijriDate.day} ${hijriDate.monthName}`}
               </Text>
-              <TouchableOpacity 
-                onPress={() => setModalVisible(false)}
-                style={styles.closeButton}
-              >
-                <Text style={[styles.closeButtonText, { color: isDark ? '#B0BEC5' : '#757575' }]}>✕</Text>
-              </TouchableOpacity>
+              <View style={styles.modalHeaderButtons}>
+                {events.some(event => event.id?.startsWith('custom_')) && onDeleteEvent && (
+                  <TouchableOpacity 
+                    onPress={() => {
+                      const customEvent = events.find(event => event.id?.startsWith('custom_'));
+                      if (customEvent && customEvent.id) {
+                        onDeleteEvent(customEvent.id);
+                        setModalVisible(false);
+                      }
+                    }}
+                    style={styles.deleteButton}
+                  >
+                    <Ionicons name="trash" size={20} color="#E53935" />
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity 
+                  onPress={() => setModalVisible(false)}
+                  style={styles.closeButton}
+                >
+                  <Text style={[styles.closeButtonText, { color: isDark ? '#B0BEC5' : '#757575' }]}>✕</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Modal Body */}
@@ -324,6 +348,14 @@ const styles = StyleSheet.create({
   closeButtonText: {
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  modalHeaderButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deleteButton: {
+    padding: 8,
+    marginRight: 8,
   },
   modalBody: {
     padding: 16,

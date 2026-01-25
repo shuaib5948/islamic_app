@@ -123,6 +123,13 @@ export default function HomeScreen() {
 
   const features = [
     {
+      icon: '🔔',
+      title: 'Notifications',
+      titleMl: 'അറിയിപ്പുകൾ',
+      color: '#FF5722',
+      route: '/notifications' as const,
+    },
+    {
       icon: '🌙',
       title: 'Hijri Calendar',
       titleMl: 'Hijri Calendar',

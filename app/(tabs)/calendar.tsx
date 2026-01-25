@@ -4,7 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getEventsForDate, HIJRI_MONTHS } from '@/data/hijri-events';
 import { HIJRI_MONTHS_ML } from '@/data/hijri-events-ml';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { getCustomEvents, getCustomEventsML, saveCustomEvent } from '@/utils/event-storage';
+import { deleteCustomEvent, getCustomEvents, getCustomEventsML, saveCustomEvent } from '@/utils/event-storage';
 import {
   generateHijriMonthCalendar,
   generateHijriMonthCalendarAsync,
@@ -18,6 +18,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+const toArabicNumerals = (num: number): string => {
+  const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  return num.toString().split('').map(digit => arabicNumerals[parseInt(digit)]).join('');
+};
 
 export default function CalendarScreen() {
   const colorScheme = useColorScheme();
@@ -201,6 +206,23 @@ export default function CalendarScreen() {
     }
   };
 
+  // Handle deleting custom event
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      await deleteCustomEvent(eventId);
+      
+      // Reload custom events
+      const [englishEvents, malayalamEvents] = await Promise.all([
+        getCustomEvents(),
+        getCustomEventsML()
+      ]);
+      setCustomEvents(englishEvents);
+      setCustomEventsML(malayalamEvents);
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
+  };
+
   const isViewingToday = currentMonth === todayHijri.month && 
                           currentYear === todayHijri.year && 
                           selectedDay === todayHijri.day;
@@ -242,6 +264,7 @@ export default function CalendarScreen() {
           gregorianDate={selectedGregorianDate}
           events={selectedEvents}
           isToday={isViewingToday}
+          onDeleteEvent={handleDeleteEvent}
         />
 
         {/* Month Navigation */}
@@ -252,7 +275,7 @@ export default function CalendarScreen() {
           
           <TouchableOpacity onPress={goToToday} style={styles.monthTitleContainer}>
             <Text style={[styles.monthTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-              {monthName.name} {currentYear}
+              {monthName.name} {toArabicNumerals(currentYear)}
             </Text>
             <Text style={[styles.monthTitleArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}>
               {monthName.arabic}

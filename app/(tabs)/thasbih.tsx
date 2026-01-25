@@ -91,6 +91,7 @@ export default function ThasbihScreen() {
     create: isMalayalam ? 'സൃഷ്ടിക്കുക' : 'Create',
     join: isMalayalam ? 'ചേരുക' : 'Join',
     cancel: isMalayalam ? 'റദ്ദാക്കുക' : 'Cancel',
+    close: isMalayalam ? 'അടയ്ക്കുക' : 'Close',
     congratulations: isMalayalam ? 'അഭിനന്ദനങ്ങൾ!' : 'Congratulations!',
     targetReached: isMalayalam ? 'ലക്ഷ്യം നേടി!' : 'Target Reached!',
     tapToContinue: isMalayalam ? 'തുടരാൻ ടാപ്പ് ചെയ്യുക' : 'Tap to continue',
@@ -397,6 +398,9 @@ export default function ThasbihScreen() {
               <View style={styles.modalOverlay}>
                 <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}> 
                   <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Group Contributions</Text>
+                  <Text style={[styles.modalSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+                    {isMalayalam ? 'ഗ്രൂപ്പ് അംഗങ്ങളുടെ സംഭാവനകൾ കാണുക' : 'View member contributions to the group'}
+                  </Text>
                   {selectedGroup && Array.isArray(selectedGroup.members) && selectedGroup.members.length > 0 && (
                     <>
                       {(selectedGroup.members || []).map((member, idx) => (
@@ -409,10 +413,20 @@ export default function ThasbihScreen() {
                     </>
                   )}
                   <TouchableOpacity
-                    style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5', marginTop: 16 }]}
+                    style={{
+                      backgroundColor: isDark ? '#4CAF50' : '#2196F3',
+                      paddingVertical: 16,
+                      borderRadius: 12,
+                      marginTop: 16,
+                      alignSelf: 'center',
+                      width: '90%',
+                      alignItems: 'center',
+                    }}
                     onPress={() => setShowContribModal(false)}
                   >
-                    <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Close</Text>
+                    <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' }}>
+                      {isMalayalam ? 'അടയ്ക്കുക' : 'Close'}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -830,40 +844,45 @@ export default function ThasbihScreen() {
             <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
               {labels.joinGroup}
             </Text>
+            <Text style={[styles.modalSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+              {isMalayalam ? 'ഗ്രൂപ്പിൽ ചേരാൻ കോഡ് നൽകുക' : 'Enter the code to join a group'}
+            </Text>
             <TextInput
               style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
-              placeholder="Your Name"
+              placeholder={isMalayalam ? 'നിങ്ങളുടെ പേര്' : 'Your Name'}
               placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
               value={joinNameInput}
               onChangeText={setJoinNameInput}
             />
             <TextInput
               style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
-              placeholder="Enter Join Code"
+              placeholder={isMalayalam ? 'ചേരൽ കോഡ് നൽകുക' : 'Enter Join Code'}
               placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
               value={joinCodeInput}
               onChangeText={setJoinCodeInput}
               autoCapitalize="characters"
               maxLength={4}
             />
-            <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: '#2196F3', marginBottom: 20 }]}
-              onPress={handleJoinByCode}
-            >
-              <Text style={styles.modalButtonText}>{labels.join}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
-              onPress={() => {
-                setShowJoinModal(false);
-                setJoinCodeInput('');
-                setJoinNameInput('');
-              }}
-            >
-              <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-                {labels.cancel}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+                onPress={() => {
+                  setShowJoinModal(false);
+                  setJoinCodeInput('');
+                  setJoinNameInput('');
+                }}
+              >
+                <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                  {labels.cancel}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: '#2196F3' }]}
+                onPress={handleJoinByCode}
+              >
+                <Text style={styles.modalButtonText}>{labels.join}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -875,13 +894,18 @@ export default function ThasbihScreen() {
             <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
               Group History
             </Text>
+            <Text style={[styles.modalSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+              {isMalayalam ? 'നിങ്ങളുടെ സൃഷ്ടിച്ചയും ചേർന്നയും ഗ്രൂപ്പുകൾ' : 'Your created and joined groups'}
+            </Text>
             <ScrollView style={styles.groupList}>
               {groupSessions.length > 0 ? (
                 <>
                   {/* Created Groups */}
                   {groupSessions.filter(g => g.members[0] === 'You').length > 0 && (
                     <>
-                      <Text style={{ color: isDark ? '#B0BEC5' : '#757575', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Created Groups</Text>
+                      <Text style={{ color: isDark ? '#B0BEC5' : '#757575', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>
+                        {isMalayalam ? 'സൃഷ്ടിച്ച ഗ്രൂപ്പുകൾ' : 'Created Groups'}
+                      </Text>
                       {groupSessions.filter(g => g.members[0] === 'You').map((group) => (
                         <View key={group.id} style={{ position: 'relative' }}>
                           <TouchableOpacity
@@ -936,7 +960,9 @@ export default function ThasbihScreen() {
                   {/* Joined Groups */}
                   {groupSessions.filter(g => g.members[0] !== 'You').length > 0 && (
                     <>
-                      <Text style={{ color: isDark ? '#B0BEC5' : '#757575', fontSize: 16, fontWeight: 'bold', marginTop: 20, marginBottom: 10 }}>Joined Groups</Text>
+                      <Text style={{ color: isDark ? '#B0BEC5' : '#757575', fontSize: 16, fontWeight: 'bold', marginTop: 20, marginBottom: 10 }}>
+                        {isMalayalam ? 'ചേർന്ന ഗ്രൂപ്പുകൾ' : 'Joined Groups'}
+                      </Text>
                       {groupSessions.filter(g => g.members[0] !== 'You').map((group) => (
                         <TouchableOpacity
                           key={group.id}
@@ -962,16 +988,24 @@ export default function ThasbihScreen() {
                 </>
               ) : (
                 <Text style={[styles.noGroupsText, { color: isDark ? '#B0BEC5' : '#757575' }]}>
-                  No group history
+                  {isMalayalam ? 'ഗ്രൂപ്പ് ചരിത്രം ലഭ്യമല്ല' : 'No group history'}
                 </Text>
               )}
             </ScrollView>
             <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+              style={{
+                backgroundColor: isDark ? '#4CAF50' : '#2196F3',
+                paddingVertical: 16,
+                borderRadius: 12,
+                marginTop: 16,
+                alignSelf: 'center',
+                width: '90%',
+                alignItems: 'center',
+              }}
               onPress={() => setShowHistoryModal(false)}
             >
-              <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-                Close
+              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' }}>
+                {isMalayalam ? 'അടയ്ക്കുക' : 'Close'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -1285,6 +1319,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 14,
     marginBottom: 20,
     textAlign: 'center',
   },

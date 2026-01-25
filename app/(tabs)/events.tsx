@@ -4,11 +4,14 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { HIJRI_MONTHS, ISLAMIC_EVENTS, IslamicEvent } from '@/data/hijri-events';
 import { HIJRI_MONTHS_ML, ISLAMIC_EVENTS_ML, IslamicEventML } from '@/data/hijri-events-ml';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { getCustomEvents, getCustomEventsML, saveCustomEvent } from '@/utils/event-storage';
+import { deleteCustomEvent, getCustomEvents, getCustomEventsML, saveCustomEvent } from '@/utils/event-storage';
+import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, InteractionManager, Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Swipeable from 'react-native-gesture-handler/Swipeable';
 
 export default function EventsScreen() {
   const colorScheme = useColorScheme();
@@ -213,8 +216,39 @@ export default function EventsScreen() {
     }
   };
 
+  // Handle deleting custom event
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      await deleteCustomEvent(eventId);
+      
+      // Reload custom events
+      const [englishEvents, malayalamEvents] = await Promise.all([
+        getCustomEvents(),
+        getCustomEventsML()
+      ]);
+      setCustomEvents(englishEvents);
+      setCustomEventsML(malayalamEvents);
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
+  };
+
+  // Render right swipe actions for custom events
+  const renderRightActions = (eventId: string) => (
+    <TouchableOpacity
+      style={[styles.deleteAction, { backgroundColor: '#E53935' }]}
+      onPress={() => handleDeleteEvent(eventId)}
+    >
+      <Ionicons name="trash" size={24} color="#FFFFFF" />
+      <Text style={styles.deleteText}>
+        {isMalayalam ? 'ഇല്ലാതാക്കുക' : 'Delete'}
+      </Text>
+    </TouchableOpacity>
+  );
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       
       {/* Header */}
@@ -322,14 +356,34 @@ export default function EventsScreen() {
       <FlatList
         data={filteredEvents}
         keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <EventListItem 
-            event={item} 
-            onPress={() => setSelectedEvent(item)}
-            displayTitle={getEventTitle(item)}
-            isMalayalam={isMalayalam}
-          />
-        )}
+        renderItem={({ item }) => {
+          const isCustomEvent = item.id.startsWith('custom_');
+          
+          if (isCustomEvent) {
+            return (
+              <Swipeable
+                renderRightActions={() => renderRightActions(item.id)}
+                rightThreshold={40}
+              >
+                <EventListItem 
+                  event={item} 
+                  onPress={() => setSelectedEvent(item)}
+                  displayTitle={getEventTitle(item)}
+                  isMalayalam={isMalayalam}
+                />
+              </Swipeable>
+            );
+          }
+          
+          return (
+            <EventListItem 
+              event={item} 
+              onPress={() => setSelectedEvent(item)}
+              displayTitle={getEventTitle(item)}
+              isMalayalam={isMalayalam}
+            />
+          );
+        }}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
@@ -356,12 +410,25 @@ export default function EventsScreen() {
               <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
                 Event Details
               </Text>
-              <TouchableOpacity 
-                onPress={() => setSelectedEvent(null)}
-                style={styles.closeButton}
-              >
-                <Text style={[styles.closeButtonText, { color: isDark ? '#B0BEC5' : '#757575' }]}>✕</Text>
-              </TouchableOpacity>
+              <View style={styles.modalHeaderButtons}>
+                {selectedEvent && selectedEvent.id.startsWith('custom_') && (
+                  <TouchableOpacity 
+                    onPress={() => {
+                      handleDeleteEvent(selectedEvent.id);
+                      setSelectedEvent(null);
+                    }}
+                    style={styles.deleteButton}
+                  >
+                    <Ionicons name="trash" size={20} color="#E53935" />
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity 
+                  onPress={() => setSelectedEvent(null)}
+                  style={styles.closeButton}
+                >
+                  <Text style={[styles.closeButtonText, { color: isDark ? '#B0BEC5' : '#757575' }]}>✕</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Modal Body */}
@@ -613,6 +680,7 @@ export default function EventsScreen() {
         </View>
       </Modal>
     </SafeAreaView>
+  </GestureHandlerRootView>
   );
 }
 
@@ -743,6 +811,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+  modalHeaderButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deleteButton: {
+    padding: 8,
+    marginRight: 8,
+  },
   modalBody: {
     padding: 16,
   },
@@ -840,5 +916,19 @@ const styles = StyleSheet.create({
   typeButtonText: {
     fontSize: 14,
     fontWeight: '500',
+  },
+  deleteAction: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    borderRadius: 8,
+    marginVertical: 4,
+    marginRight: 8,
+  },
+  deleteText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 4,
   },
 });
