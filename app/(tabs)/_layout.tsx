@@ -1,71 +1,82 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 
+import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#2E7D32',
-        tabBarInactiveTintColor: colorScheme === 'dark' ? '#757575' : '#9E9E9E',
+        tabBarActiveTintColor: colors.tabIconSelected,
+        tabBarInactiveTintColor: colors.tabIconDefault,
         headerShown: false,
-        tabBarStyle: { display: 'none' },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
+          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="calendar"
+        name="notifications"
         options={{
-          title: 'Calendar',
-        }}
-      />
-      <Tabs.Screen
-        name="events"
-        options={{
-          title: 'Events',
-        }}
-      />
-      <Tabs.Screen
-        name="dhikr"
-        options={{
-          title: 'Adhkar',
-        }}
-      />
-      <Tabs.Screen
-        name="thasbih"
-        options={{
-          title: 'Thasbih',
-        }}
-      />
-      <Tabs.Screen
-        name="khatam"
-        options={{
-          title: 'Khatam',
-        }}
-      />
-      <Tabs.Screen
-        name="prayer"
-        options={{
-          title: 'Prayer',
-        }}
-      />
-      <Tabs.Screen
-        name="faraid"
-        options={{
-          title: 'Faraid',
+          title: 'Notifications',
+          tabBarIcon: ({ color, size }) => <Ionicons name="notifications" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
+          tabBarIcon: ({ color, size }) => <Ionicons name="settings" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="calendar"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="events"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="dhikr"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="thasbih"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="khatam"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="prayer"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="faraid"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

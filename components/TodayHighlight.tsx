@@ -1,6 +1,8 @@
+import { Colors } from '@/constants/theme';
 import { IslamicEvent } from '@/data/hijri-events';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { HijriDate } from '@/utils/hijri-date';
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -9,17 +11,25 @@ interface TodayHighlightProps {
   gregorianDate: Date;
   events: IslamicEvent[];
   isToday?: boolean;
+  onDeleteEvent?: (eventId: string) => void;
 }
+
+const toArabicNumerals = (num: number): string => {
+  const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  return num.toString().split('').map(digit => arabicNumerals[parseInt(digit)]).join('');
+};
 
 export const TodayHighlight: React.FC<TodayHighlightProps> = ({
   hijriDate,
   gregorianDate,
   events,
   isToday = true,
+  onDeleteEvent,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const colors = isDark ? Colors.dark : Colors.light;
 
   const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const weekDaysArabic = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
@@ -30,15 +40,15 @@ export const TodayHighlight: React.FC<TodayHighlightProps> = ({
 
   return (
     <>
-      <View style={[styles.container, { backgroundColor: isDark ? '#1B5E20' : '#2E7D32' }]}>
+      <View style={[styles.container, { backgroundColor: colors.primary }]}>
         {/* Date Header */}
         <View style={styles.dateHeader}>
           <View style={styles.hijriDateContainer}>
-            <Text style={styles.hijriDay}>{hijriDate.day}</Text>
+            <Text style={styles.hijriDay}>{toArabicNumerals(hijriDate.day)}</Text>
             <View style={styles.hijriMonthYear}>
               <Text style={styles.hijriMonth}>{hijriDate.monthName}</Text>
               <Text style={styles.hijriMonthArabic}>{hijriDate.monthNameArabic}</Text>
-              <Text style={styles.hijriYear}>{hijriDate.year} AH</Text>
+              <Text style={styles.hijriYear}>{toArabicNumerals(hijriDate.year)} هـ</Text>
             </View>
           </View>
           
@@ -96,24 +106,40 @@ export const TodayHighlight: React.FC<TodayHighlightProps> = ({
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             {/* Modal Header */}
-            <View style={[styles.modalHeader, { borderBottomColor: isDark ? '#333' : '#E0E0E0' }]}>
-              <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.accent }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
                 {isToday ? "Today's Significance" : `${hijriDate.day} ${hijriDate.monthName}`}
               </Text>
-              <TouchableOpacity 
-                onPress={() => setModalVisible(false)}
-                style={styles.closeButton}
-              >
-                <Text style={[styles.closeButtonText, { color: isDark ? '#B0BEC5' : '#757575' }]}>✕</Text>
-              </TouchableOpacity>
+              <View style={styles.modalHeaderButtons}>
+                {events.some(event => event.id?.startsWith('custom_')) && onDeleteEvent && (
+                  <TouchableOpacity 
+                    onPress={() => {
+                      const customEvent = events.find(event => event.id?.startsWith('custom_'));
+                      if (customEvent && customEvent.id) {
+                        onDeleteEvent(customEvent.id);
+                        setModalVisible(false);
+                      }
+                    }}
+                    style={styles.deleteButton}
+                  >
+                    <Ionicons name="trash" size={20} color="#E53935" />
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity 
+                  onPress={() => setModalVisible(false)}
+                  style={styles.closeButton}
+                >
+                  <Text style={[styles.closeButtonText, { color: colors.accent }]}>✕</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Modal Body */}
             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
               {/* Date Info */}
-              <View style={[styles.dateInfoSection, { backgroundColor: isDark ? '#1B5E20' : '#2E7D32' }]}>
+              <View style={[styles.dateInfoSection, { backgroundColor: colors.primary }]}>
                 <Text style={styles.modalDateText}>
                   {hijriDate.day} {hijriDate.monthName} {hijriDate.year} AH
                 </Text>
@@ -125,18 +151,18 @@ export const TodayHighlight: React.FC<TodayHighlightProps> = ({
 
               {/* Events */}
               {events.map((event, index) => (
-                <View key={event.id || index} style={[styles.eventCard, { backgroundColor: isDark ? '#263238' : '#F5F5F5' }]}>
+                <View key={event.id || index} style={[styles.eventCard, { backgroundColor: colors.background }]}>
                   {/* Event Header */}
                   <View style={styles.eventCardHeader}>
                     <View style={styles.eventCardTitles}>
-                      <Text style={[styles.eventCardTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                      <Text style={[styles.eventCardTitle, { color: colors.text }]}>
                         {event.title}
                       </Text>
                     </View>
                   </View>
 
                   {/* Description */}
-                  <Text style={[styles.eventCardDescription, { color: isDark ? '#E0E0E0' : '#424242' }]}>
+                  <Text style={[styles.eventCardDescription, { color: colors.text }]}>
                     {event.description}
                   </Text>
                 </View>
@@ -144,11 +170,11 @@ export const TodayHighlight: React.FC<TodayHighlightProps> = ({
 
               {/* No events but Friday */}
               {events.length === 0 && isFriday && (
-                <View style={[styles.eventCard, { backgroundColor: isDark ? '#263238' : '#F5F5F5' }]}>
-                  <Text style={[styles.noEventText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                <View style={[styles.eventCard, { backgroundColor: colors.background }]}>
+                  <Text style={[styles.noEventText, { color: colors.text }]}>
                     Blessed Friday!
                   </Text>
-                  <Text style={[styles.eventCardDescription, { color: isDark ? '#E0E0E0' : '#424242' }]}>
+                  <Text style={[styles.eventCardDescription, { color: colors.text }]}>
                     Send abundant Salawat upon the Prophet ﷺ. Friday is the best day of the week.
                   </Text>
                 </View>
@@ -324,6 +350,14 @@ const styles = StyleSheet.create({
   closeButtonText: {
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  modalHeaderButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deleteButton: {
+    padding: 8,
+    marginRight: 8,
   },
   modalBody: {
     padding: 16,

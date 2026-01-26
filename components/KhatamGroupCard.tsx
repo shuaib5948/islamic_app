@@ -1,5 +1,7 @@
+import { Colors } from '@/constants/theme';
 import { KhatamGroup, calculateKhatamProgress } from '@/data/quran-khatam';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -11,6 +13,7 @@ interface KhatamGroupCardProps {
 export const KhatamGroupCard: React.FC<KhatamGroupCardProps> = ({ group, onPress }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const colors = Colors[colorScheme];
 
   const progress = calculateKhatamProgress(group.assignments);
   const completedCount = group.assignments.filter(a => a.isCompleted).length;
@@ -21,15 +24,15 @@ export const KhatamGroupCard: React.FC<KhatamGroupCardProps> = ({ group, onPress
   const daysLeft = Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
   const getDaysLeftColor = () => {
-    if (group.isCompleted) return '#4CAF50';
-    if (daysLeft < 0) return '#F44336';
-    if (daysLeft <= 3) return '#FF9800';
-    if (daysLeft <= 7) return '#FFC107';
-    return '#4CAF50';
+    if (group.isCompleted) return colors.primary;
+    if (daysLeft < 0) return '#F44336'; // Keep red for overdue
+    if (daysLeft <= 3) return colors.accent;
+    if (daysLeft <= 7) return colors.secondary;
+    return colors.primary;
   };
 
   const getDaysLeftText = () => {
-    if (group.isCompleted) return '✅ Completed!';
+    if (group.isCompleted) return 'Completed!';
     if (daysLeft < 0) return `${Math.abs(daysLeft)} days overdue`;
     if (daysLeft === 0) return 'Due today!';
     if (daysLeft === 1) return '1 day left';
@@ -41,41 +44,51 @@ export const KhatamGroupCard: React.FC<KhatamGroupCardProps> = ({ group, onPress
       onPress={onPress}
       style={[
         styles.container, 
-        { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' },
+        { backgroundColor: colors.card },
         group.isCompleted && styles.completedContainer,
       ]}
     >
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-            📖 {group.name}
-          </Text>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Ionicons name="book" size={18} color={colors.primary} />
+            <Text style={[styles.title, { color: colors.text, marginLeft: 8 }]}>
+              {group.name}
+            </Text>
+          </View>
           {group.dedication && (
-            <Text style={[styles.dedication, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+            <Text style={[styles.dedication, { color: colors.secondary }]}>
               For: {group.dedication}
             </Text>
           )}
         </View>
         <View style={[styles.daysLeftBadge, { backgroundColor: getDaysLeftColor() }]}>
-          <Text style={styles.daysLeftText}>{getDaysLeftText()}</Text>
+          {group.isCompleted ? (
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Ionicons name="checkmark-circle" size={12} color="#FFFFFF" />
+              <Text style={[styles.daysLeftText, {marginLeft: 4}]}>{getDaysLeftText()}</Text>
+            </View>
+          ) : (
+            <Text style={styles.daysLeftText}>{getDaysLeftText()}</Text>
+          )}
         </View>
       </View>
 
       {/* Progress Bar */}
       <View style={styles.progressSection}>
-        <View style={[styles.progressBarBg, { backgroundColor: isDark ? '#37474F' : '#E0E0E0' }]}>
+        <View style={[styles.progressBarBg, { backgroundColor: colors.secondary }]}>
           <View 
             style={[
               styles.progressBarFill, 
               { 
                 width: `${progress}%`,
-                backgroundColor: progress === 100 ? '#4CAF50' : '#2196F3',
+                backgroundColor: progress === 100 ? '#4CAF50' : '#FF9800',
               }
             ]} 
           />
         </View>
-        <Text style={[styles.progressText, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+        <Text style={[styles.progressText, { color: colors.secondary }]}>
           {progress}% Complete
         </Text>
       </View>
@@ -86,7 +99,7 @@ export const KhatamGroupCard: React.FC<KhatamGroupCardProps> = ({ group, onPress
           <Text style={[styles.statValue, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>
             {completedCount}
           </Text>
-          <Text style={[styles.statLabel, { color: isDark ? '#9E9E9E' : '#757575' }]}>
+          <Text style={[styles.statLabel, { color: colors.secondary }]}>
             Completed
           </Text>
         </View>
@@ -94,7 +107,7 @@ export const KhatamGroupCard: React.FC<KhatamGroupCardProps> = ({ group, onPress
           <Text style={[styles.statValue, { color: isDark ? '#FF9800' : '#E65100' }]}>
             {assignedCount - completedCount}
           </Text>
-          <Text style={[styles.statLabel, { color: isDark ? '#9E9E9E' : '#757575' }]}>
+          <Text style={[styles.statLabel, { color: colors.secondary }]}>
             In Progress
           </Text>
         </View>
@@ -102,7 +115,7 @@ export const KhatamGroupCard: React.FC<KhatamGroupCardProps> = ({ group, onPress
           <Text style={[styles.statValue, { color: isDark ? '#9E9E9E' : '#757575' }]}>
             {30 - assignedCount}
           </Text>
-          <Text style={[styles.statLabel, { color: isDark ? '#9E9E9E' : '#757575' }]}>
+          <Text style={[styles.statLabel, { color: colors.secondary }]}>
             Unassigned
           </Text>
         </View>
@@ -111,7 +124,7 @@ export const KhatamGroupCard: React.FC<KhatamGroupCardProps> = ({ group, onPress
       {/* Description */}
       {group.description && (
         <Text 
-          style={[styles.description, { color: isDark ? '#9E9E9E' : '#616161' }]}
+          style={[styles.description, { color: colors.secondary }]}
           numberOfLines={2}
         >
           {group.description}
@@ -119,7 +132,7 @@ export const KhatamGroupCard: React.FC<KhatamGroupCardProps> = ({ group, onPress
       )}
 
       {/* Tap hint */}
-      <Text style={[styles.tapHint, { color: isDark ? '#616161' : '#BDBDBD' }]}>
+      <Text style={[styles.tapHint, { color: colors.secondary }]}>
         Tap to manage →
       </Text>
     </TouchableOpacity>

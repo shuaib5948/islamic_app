@@ -1,24 +1,26 @@
+import { Colors } from '@/constants/theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { DeceasedInfo, Estate, Gender, Heir, HEIR_CONFIGS, HeirConfig, InheritanceResult } from '@/types/inheritance';
 import { calculateInheritance } from '@/utils/faraid-calculator';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    Share,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  Share,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Step = 'gender' | 'heirs' | 'estate' | 'results';
 
@@ -66,12 +68,12 @@ export default function FaraidScreen() {
     each: isMalayalam ? 'ഓരോരുത്തർക്കും' : 'each',
     back: isMalayalam ? '← പിന്നോട്ട്' : '← Back',
     continue: isMalayalam ? 'തുടരുക →' : 'Continue →',
-    calculate: isMalayalam ? 'കണക്കാക്കുക 📊' : 'Calculate 📊',
-    share: isMalayalam ? 'പങ്കിടുക 📤' : 'Share 📤',
+    calculate: isMalayalam ? 'കണക്കാക്കുക' : 'Calculate',
+    share: isMalayalam ? 'പങ്കിടുക' : 'Share',
     newCalculation: isMalayalam ? 'പുതിയ കണക്കുകൂട്ടൽ' : 'New Calculation',
     disclaimer: isMalayalam 
-      ? '⚠️ ഈ കണക്കുകൂട്ടൽ വിദ്യാഭ്യാസ ആവശ്യങ്ങൾക്ക് മാത്രമാണ്. ഔദ്യോഗിക അനന്തരാവകാശ വിധികൾക്ക് ഒരു യോഗ്യനായ ഇസ്ലാമിക പണ്ഡിതനെ (മുഫ്തി) സമീപിക്കുക.'
-      : '⚠️ This calculation is for educational purposes only. Please consult a qualified Islamic scholar (Mufti) for official inheritance rulings.',
+      ? 'ഈ കണക്കുകൂട്ടൽ വിദ്യാഭ്യാസ ആവശ്യങ്ങൾക്ക് മാത്രമാണ്. ഔദ്യോഗിക അനന്തരാവകാശ വിധികൾക്ക് ഒരു യോഗ്യനായ ഇസ്ലാമിക പണ്ഡിതനെ (മുഫ്തി) സമീപിക്കുക.'
+      : 'This calculation is for educational purposes only. Please consult a qualified Islamic scholar (Mufti) for official inheritance rulings.',
     selected: isMalayalam ? 'തിരഞ്ഞെടുത്തു' : 'selected',
     heirsSelected: isMalayalam ? 'അവകാശികൾ തിരഞ്ഞെടുത്തു' : 'heirs selected',
   };
@@ -227,7 +229,7 @@ export default function FaraidScreen() {
           style={[styles.genderCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}
           onPress={() => { setDeceasedGender('male'); setStep('heirs'); }}
         >
-          <Text style={styles.genderIcon}>👨</Text>
+          <Ionicons name="man" size={48} color={Colors[isDark ? 'dark' : 'light'].primary} />
           <Text style={[styles.genderLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
             {isMalayalam ? 'പുരുഷൻ' : 'Male'}
           </Text>
@@ -238,7 +240,7 @@ export default function FaraidScreen() {
           style={[styles.genderCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}
           onPress={() => { setDeceasedGender('female'); setStep('heirs'); }}
         >
-          <Text style={styles.genderIcon}>👩</Text>
+          <Ionicons name="woman" size={48} color={Colors[isDark ? 'dark' : 'light'].primary} />
           <Text style={[styles.genderLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
             {isMalayalam ? 'സ്ത്രീ' : 'Female'}
           </Text>
@@ -251,11 +253,11 @@ export default function FaraidScreen() {
   // Render Heir Selection
   const renderHeirSelection = () => (
     <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-      <View style={[styles.infoBar, { backgroundColor: isDark ? '#1B5E20' : '#E8F5E9' }]}>
-        <Text style={[styles.infoText, { color: isDark ? '#FFFFFF' : '#1B5E20' }]}>
+      <View style={[styles.infoBar, { backgroundColor: isDark ? Colors.dark.primary : Colors.light.primary }]}>
+        <Text style={[styles.infoText, { color: isDark ? '#FFFFFF' : '#FFFFFF' }]}>
           {isMalayalam 
-            ? `മയ്യിത്ത്: ${deceasedGender === 'male' ? '👨 പുരുഷൻ' : '👩 സ്ത്രീ'} | തിരഞ്ഞെടുത്തത്: ${totalSelected} അവകാശി${totalSelected !== 1 ? 'കൾ' : ''}`
-            : `Deceased: ${deceasedGender === 'male' ? '👨 Male' : '👩 Female'} | Selected: ${totalSelected} heir${totalSelected !== 1 ? 's' : ''}`
+            ? `മയ്യിത്ത്: ${deceasedGender === 'male' ? 'പുരുഷൻ' : 'സ്ത്രീ'} | തിരഞ്ഞെടുത്തത്: ${totalSelected} അവകാശി${totalSelected !== 1 ? 'കൾ' : ''}`
+            : `Deceased: ${deceasedGender === 'male' ? 'Male' : 'Female'} | Selected: ${totalSelected} heir${totalSelected !== 1 ? 's' : ''}`
           }
         </Text>
       </View>
@@ -263,7 +265,7 @@ export default function FaraidScreen() {
       {Object.entries(groupedHeirs).map(([category, heirs]) => (
         <View key={category} style={[styles.categoryCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
           <View style={styles.categoryHeader}>
-            <Text style={[styles.categoryTitle, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>
+            <Text style={[styles.categoryTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>
               {isMalayalam ? categoryLabels[category]?.ml : categoryLabels[category]?.en || category}
             </Text>
             <Text style={[styles.categoryTitleArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}>
@@ -284,21 +286,21 @@ export default function FaraidScreen() {
               
               <View style={styles.counterContainer}>
                 <TouchableOpacity
-                  style={[styles.counterButton, { backgroundColor: isDark ? '#2E7D32' : '#E8F5E9' }]}
+                  style={[styles.counterButton, { backgroundColor: isDark ? Colors.dark.primary : Colors.light.primary }]}
                   onPress={() => updateCount(heir.type, -1, heir.maxCount)}
                   disabled={(heirCounts[heir.type] || 0) === 0}
                 >
-                  <Text style={[styles.counterButtonText, { color: isDark ? '#FFFFFF' : '#2E7D32' }]}>−</Text>
+                  <Text style={[styles.counterButtonText, { color: isDark ? '#FFFFFF' : '#FFFFFF' }]}>−</Text>
                 </TouchableOpacity>
-                <Text style={[styles.countText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>
+                <Text style={[styles.countText, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>
                   {heirCounts[heir.type] || 0}
                 </Text>
                 <TouchableOpacity
-                  style={[styles.counterButton, { backgroundColor: isDark ? '#2E7D32' : '#E8F5E9' }]}
+                  style={[styles.counterButton, { backgroundColor: isDark ? Colors.dark.primary : Colors.light.primary }]}
                   onPress={() => updateCount(heir.type, 1, heir.maxCount)}
                   disabled={(heirCounts[heir.type] || 0) >= heir.maxCount}
                 >
-                  <Text style={[styles.counterButtonText, { color: isDark ? '#FFFFFF' : '#2E7D32' }]}>+</Text>
+                  <Text style={[styles.counterButtonText, { color: isDark ? '#FFFFFF' : '#FFFFFF' }]}>+</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -315,7 +317,7 @@ export default function FaraidScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={[styles.categoryCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-          <Text style={[styles.sectionTitle, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>
+          <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>
             {labels.totalEstate}
           </Text>
           <Text style={[styles.sectionSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
@@ -323,16 +325,16 @@ export default function FaraidScreen() {
           </Text>
 
           <TouchableOpacity
-            style={[styles.currencyButton, { borderColor: isDark ? '#4CAF50' : '#2E7D32' }]}
+            style={[styles.currencyButton, { borderColor: isDark ? Colors.dark.primary : Colors.light.primary }]}
             onPress={() => setShowCurrencyModal(true)}
           >
-            <Text style={[styles.currencyButtonText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>
+            <Text style={[styles.currencyButtonText, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>
               {currency} ({currencySymbol})
             </Text>
           </TouchableOpacity>
 
           <View style={styles.inputRow}>
-            <Text style={[styles.inputPrefix, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>{currencySymbol}</Text>
+            <Text style={[styles.inputPrefix, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>{currencySymbol}</Text>
             <TextInput
               style={[styles.input, { backgroundColor: isDark ? '#2C2C2C' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
               value={totalValue}
@@ -345,7 +347,7 @@ export default function FaraidScreen() {
         </View>
 
         <View style={[styles.categoryCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-          <Text style={[styles.sectionTitle, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>
+          <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>
             {labels.deductions}
           </Text>
           <Text style={[styles.sectionSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
@@ -380,7 +382,7 @@ export default function FaraidScreen() {
         </View>
 
         <View style={[styles.categoryCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-          <Text style={[styles.sectionTitle, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>
+          <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>
             {labels.wasiyyah}
           </Text>
           <Text style={[styles.sectionSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
@@ -401,23 +403,23 @@ export default function FaraidScreen() {
         </View>
 
         {/* Summary */}
-        <View style={[styles.categoryCard, { backgroundColor: isDark ? '#1B5E20' : '#E8F5E9' }]}>
-          <Text style={[styles.summaryTitle, { color: isDark ? '#FFFFFF' : '#1B5E20' }]}>{labels.summary}</Text>
+        <View style={[styles.categoryCard, { backgroundColor: isDark ? Colors.dark.primary : Colors.light.primary }]}>
+          <Text style={[styles.summaryTitle, { color: isDark ? '#FFFFFF' : '#FFFFFF' }]}>{labels.summary}</Text>
           <View style={styles.summaryRow}>
-            <Text style={[styles.summaryLabel, { color: isDark ? '#E8F5E9' : '#2E7D32' }]}>{labels.totalEstate}:</Text>
-            <Text style={[styles.summaryValue, { color: isDark ? '#FFFFFF' : '#1B5E20' }]}>{currencySymbol}{parseNumber(totalValue).toLocaleString()}</Text>
+            <Text style={[styles.summaryLabel, { color: isDark ? '#E8F5E9' : '#FFFFFF' }]}>{labels.totalEstate}:</Text>
+            <Text style={[styles.summaryValue, { color: isDark ? '#FFFFFF' : '#FFFFFF' }]}>{currencySymbol}{parseNumber(totalValue).toLocaleString()}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={[styles.summaryLabel, { color: isDark ? '#E8F5E9' : '#2E7D32' }]}>{labels.lessDebts}</Text>
+            <Text style={[styles.summaryLabel, { color: isDark ? '#E8F5E9' : '#FFFFFF' }]}>{labels.lessDebts}</Text>
             <Text style={[styles.deductionValue, { color: '#C62828' }]}>-{currencySymbol}{parseNumber(debts).toLocaleString()}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={[styles.summaryLabel, { color: isDark ? '#E8F5E9' : '#2E7D32' }]}>{labels.lessFuneral}</Text>
+            <Text style={[styles.summaryLabel, { color: isDark ? '#E8F5E9' : '#FFFFFF' }]}>{labels.lessFuneral}</Text>
             <Text style={[styles.deductionValue, { color: '#C62828' }]}>-{currencySymbol}{parseNumber(funeralExpenses).toLocaleString()}</Text>
           </View>
-          <View style={[styles.summaryRow, { borderTopWidth: 1, borderTopColor: isDark ? '#4CAF50' : '#2E7D32', paddingTop: 8, marginTop: 8 }]}>
-            <Text style={[styles.netLabel, { color: isDark ? '#FFFFFF' : '#1B5E20' }]}>{labels.netEstate}</Text>
-            <Text style={[styles.netValue, { color: isDark ? '#FFFFFF' : '#1B5E20' }]}>
+          <View style={[styles.summaryRow, { borderTopWidth: 1, borderTopColor: isDark ? Colors.dark.accent : Colors.light.accent, paddingTop: 8, marginTop: 8 }]}>
+            <Text style={[styles.netLabel, { color: isDark ? '#FFFFFF' : '#FFFFFF' }]}>{labels.netEstate}</Text>
+            <Text style={[styles.netValue, { color: isDark ? '#FFFFFF' : '#FFFFFF' }]}>
               {currencySymbol}{Math.max(0, parseNumber(totalValue) - parseNumber(debts) - parseNumber(funeralExpenses) - Math.min(parseNumber(wasiyyah), (parseNumber(totalValue) - parseNumber(debts) - parseNumber(funeralExpenses)) / 3)).toLocaleString()}
             </Text>
           </View>
@@ -436,7 +438,7 @@ export default function FaraidScreen() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Estate Summary */}
         <View style={[styles.categoryCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-          <Text style={[styles.sectionTitle, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>{labels.estateSummary}</Text>
+          <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>{labels.estateSummary}</Text>
           <View style={styles.summaryRow}>
             <Text style={[styles.summaryLabel, { color: isDark ? '#B0BEC5' : '#757575' }]}>{labels.totalEstate}:</Text>
             <Text style={[styles.summaryValue, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>{formatCurrency(result.estate.totalValue)}</Text>
@@ -448,8 +450,8 @@ export default function FaraidScreen() {
             </View>
           )}
           <View style={[styles.summaryRow, { borderTopWidth: 1, borderTopColor: isDark ? '#333' : '#E0E0E0', paddingTop: 8, marginTop: 8 }]}>
-            <Text style={[styles.netLabel, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>{labels.netEstate}</Text>
-            <Text style={[styles.netValue, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>{formatCurrency(result.netEstate)}</Text>
+            <Text style={[styles.netLabel, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>{labels.netEstate}</Text>
+            <Text style={[styles.netValue, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>{formatCurrency(result.netEstate)}</Text>
           </View>
         </View>
 
@@ -458,12 +460,12 @@ export default function FaraidScreen() {
           <View style={styles.badgeContainer}>
             {result.awl && (
               <View style={[styles.badge, { backgroundColor: '#FFF3E0' }]}>
-                <Text style={styles.badgeText}>{isMalayalam ? '⚠️ ഔൽ പ്രയോഗിച്ചു (العول)' : "⚠️ 'Awl Applied (العول)"}</Text>
+                <Text style={styles.badgeText}>{isMalayalam ? 'ഔൽ പ്രയോഗിച്ചു (العول)' : "'Awl Applied (العول)"}</Text>
               </View>
             )}
             {result.radd && (
               <View style={[styles.badge, { backgroundColor: '#E8F5E9' }]}>
-                <Text style={styles.badgeText}>{isMalayalam ? '🎁 റദ്ദ് പ്രയോഗിച്ചു (الرد)' : '🎁 Radd Applied (الرد)'}</Text>
+                <Text style={styles.badgeText}>{isMalayalam ? 'റദ്ദ് പ്രയോഗിച്ചു (الرد)' : 'Radd Applied (الرد)'}</Text>
               </View>
             )}
           </View>
@@ -471,7 +473,7 @@ export default function FaraidScreen() {
 
         {/* Distribution */}
         <View style={[styles.categoryCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-          <Text style={[styles.sectionTitle, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>{labels.distribution}</Text>
+          <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>{labels.distribution}</Text>
           <Text style={[styles.sectionSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>توزيع الميراث</Text>
 
           {result.heirs.map((share, index) => (
@@ -485,7 +487,7 @@ export default function FaraidScreen() {
                 </Text>
               </View>
               <View style={styles.shareInfo}>
-                <Text style={[styles.shareText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>
+                <Text style={[styles.shareText, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>
                   {share.shareDescription}
                 </Text>
                 <Text style={[styles.amountText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
@@ -500,9 +502,9 @@ export default function FaraidScreen() {
             </View>
           ))}
 
-          <View style={[styles.totalRow, { backgroundColor: isDark ? '#1B5E20' : '#E8F5E9' }]}>
-            <Text style={[styles.totalLabel, { color: isDark ? '#FFFFFF' : '#1B5E20' }]}>{labels.totalDistributed}</Text>
-            <Text style={[styles.totalValue, { color: isDark ? '#FFFFFF' : '#1B5E20' }]}>{formatCurrency(result.totalDistributed)}</Text>
+          <View style={[styles.totalRow, { backgroundColor: isDark ? Colors.dark.primary : Colors.light.primary }]}>
+            <Text style={[styles.totalLabel, { color: isDark ? '#FFFFFF' : '#FFFFFF' }]}>{labels.totalDistributed}</Text>
+            <Text style={[styles.totalValue, { color: isDark ? '#FFFFFF' : '#FFFFFF' }]}>{formatCurrency(result.totalDistributed)}</Text>
           </View>
         </View>
 
@@ -546,11 +548,11 @@ export default function FaraidScreen() {
       <View style={[styles.footer, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
         {step === 'heirs' && (
           <>
-            <TouchableOpacity style={[styles.backBtn, { borderColor: isDark ? '#4CAF50' : '#2E7D32' }]} onPress={() => setStep('gender')}>
-              <Text style={[styles.backBtnText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>{labels.back}</Text>
+            <TouchableOpacity style={[styles.backBtn, { borderColor: Colors[isDark ? 'dark' : 'light'].primary }]} onPress={() => setStep('gender')}>
+              <Text style={[styles.backBtnText, { color: Colors[isDark ? 'dark' : 'light'].primary }]}>{labels.back}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.nextBtn, { backgroundColor: totalSelected > 0 ? '#2E7D32' : '#BDBDBD' }]}
+              style={[styles.nextBtn, { backgroundColor: totalSelected > 0 ? Colors[isDark ? 'dark' : 'light'].primary : Colors[isDark ? 'dark' : 'light'].accent }]}
               onPress={() => setStep('estate')}
               disabled={totalSelected === 0}
             >
@@ -560,11 +562,11 @@ export default function FaraidScreen() {
         )}
         {step === 'estate' && (
           <>
-            <TouchableOpacity style={[styles.backBtn, { borderColor: isDark ? '#4CAF50' : '#2E7D32' }]} onPress={() => setStep('heirs')}>
-              <Text style={[styles.backBtnText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>{labels.back}</Text>
+            <TouchableOpacity style={[styles.backBtn, { borderColor: Colors[isDark ? 'dark' : 'light'].primary }]} onPress={() => setStep('heirs')}>
+              <Text style={[styles.backBtnText, { color: Colors[isDark ? 'dark' : 'light'].primary }]}>{labels.back}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.nextBtn, { backgroundColor: parseNumber(totalValue) > 0 ? '#2E7D32' : '#BDBDBD' }]}
+              style={[styles.nextBtn, { backgroundColor: parseNumber(totalValue) > 0 ? Colors[isDark ? 'dark' : 'light'].primary : Colors[isDark ? 'dark' : 'light'].accent }]}
               onPress={handleCalculate}
               disabled={parseNumber(totalValue) <= 0}
             >
@@ -574,10 +576,10 @@ export default function FaraidScreen() {
         )}
         {step === 'results' && (
           <>
-            <TouchableOpacity style={[styles.backBtn, { borderColor: isDark ? '#4CAF50' : '#2E7D32' }]} onPress={handleShare}>
-              <Text style={[styles.backBtnText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>{labels.share}</Text>
+            <TouchableOpacity style={[styles.backBtn, { borderColor: Colors[isDark ? 'dark' : 'light'].primary }]} onPress={handleShare}>
+              <Text style={[styles.backBtnText, { color: Colors[isDark ? 'dark' : 'light'].primary }]}>{labels.share}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.nextBtn, { backgroundColor: '#2E7D32' }]} onPress={resetCalculator}>
+            <TouchableOpacity style={[styles.nextBtn, { backgroundColor: Colors[isDark ? 'dark' : 'light'].primary }]} onPress={resetCalculator}>
               <Text style={styles.nextBtnText}>{labels.newCalculation}</Text>
             </TouchableOpacity>
           </>
@@ -595,10 +597,7 @@ export default function FaraidScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
           <Text style={[styles.headerBackIcon, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>←</Text>
         </TouchableOpacity>
-        <View>
-          <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>{isMalayalam ? '⚖️ ഫറാഇദ് കാൽക്കുലേറ്റർ' : "⚖️ Farā'iḍ Calculator"}</Text>
-          <Text style={[styles.subtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>حاسبة الفرائض</Text>
-        </View>
+        <Text style={[styles.title, { color: Colors[isDark ? 'dark' : 'light'].primary }]}>{isMalayalam ? 'ഫറാഇദ് കാൽക്കുലേറ്റർ' : "Farā'iḍ Calculator"}</Text>
       </View>
 
       {/* Progress */}
@@ -607,9 +606,9 @@ export default function FaraidScreen() {
           <View key={s} style={styles.progressItem}>
             <View style={[
               styles.progressDot,
-              { backgroundColor: step === s ? '#4CAF50' : (index < ['gender', 'heirs', 'estate', 'results'].indexOf(step) ? '#4CAF50' : '#E0E0E0') }
+              { backgroundColor: step === s ? Colors[isDark ? 'dark' : 'light'].primary : (index < ['gender', 'heirs', 'estate', 'results'].indexOf(step) ? Colors[isDark ? 'dark' : 'light'].primary : Colors[isDark ? 'dark' : 'light'].accent) }
             ]} />
-            {index < 3 && <View style={[styles.progressLine, { backgroundColor: index < ['gender', 'heirs', 'estate', 'results'].indexOf(step) ? '#4CAF50' : '#E0E0E0' }]} />}
+            {index < 3 && <View style={[styles.progressLine, { backgroundColor: index < ['gender', 'heirs', 'estate', 'results'].indexOf(step) ? Colors[isDark ? 'dark' : 'light'].primary : Colors[isDark ? 'dark' : 'light'].accent }]} />}
           </View>
         ))}
       </View>
@@ -631,7 +630,7 @@ export default function FaraidScreen() {
             {CURRENCIES.map(curr => (
               <TouchableOpacity
                 key={curr.code}
-                style={[styles.currencyOption, currency === curr.code && { backgroundColor: isDark ? '#2E7D32' : '#E8F5E9' }]}
+                style={[styles.currencyOption, currency === curr.code && { backgroundColor: Colors[isDark ? 'dark' : 'light'].primary }]}
                 onPress={() => { setCurrency(curr.code); setShowCurrencyModal(false); }}
               >
                 <Text style={[styles.currencyOptionText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
@@ -651,8 +650,8 @@ export default function FaraidScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
-  headerBackButton: { marginRight: 12, padding: 4 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
+  headerBackButton: { position: 'absolute', left: 20, top: 16, padding: 4 },
   headerBackIcon: { fontSize: 24, fontWeight: '600' },
   title: { fontSize: 24, fontWeight: 'bold' },
   subtitle: { fontSize: 16, marginTop: 2 },
@@ -672,10 +671,10 @@ const styles = StyleSheet.create({
   infoBar: { flexDirection: 'row', padding: 12, margin: 16, marginBottom: 0, borderRadius: 12 },
   infoText: { fontSize: 14, fontWeight: '500' },
   categoryCard: { margin: 16, marginBottom: 0, borderRadius: 16, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
-  categoryHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, borderBottomWidth: 1, borderBottomColor: '#E0E0E0', paddingBottom: 8 },
+  categoryHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, borderBottomWidth: 1, borderBottomColor: Colors.light.accent, paddingBottom: 8 },
   categoryTitle: { fontSize: 16, fontWeight: '700' },
   categoryTitleArabic: { fontSize: 14 },
-  heirRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#E0E0E0' },
+  heirRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.light.accent },
   heirInfo: { flex: 1 },
   heirLabel: { fontSize: 15, fontWeight: '500' },
   heirLabelArabic: { fontSize: 12, marginTop: 2 },
@@ -705,7 +704,7 @@ const styles = StyleSheet.create({
   nextBtnText: { fontSize: 16, fontWeight: '600', color: '#FFFFFF' },
   badgeContainer: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginTop: 16, marginHorizontal: 16 },
   badge: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
-  badgeText: { fontSize: 12, fontWeight: '600', color: '#5D4037' },
+  badgeText: { fontSize: 12, fontWeight: '600', color: Colors.light.text },
   distributionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingVertical: 12, borderBottomWidth: 1 },
   shareInfo: { alignItems: 'flex-end' },
   shareText: { fontSize: 14, fontWeight: '600' },
@@ -714,11 +713,11 @@ const styles = StyleSheet.create({
   totalRow: { flexDirection: 'row', justifyContent: 'space-between', padding: 12, borderRadius: 8, marginTop: 12 },
   totalLabel: { fontSize: 16, fontWeight: '700' },
   totalValue: { fontSize: 16, fontWeight: '700' },
-  blockedRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#E0E0E0' },
+  blockedRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.light.accent },
   blockedName: { fontSize: 14, fontWeight: '600' },
   blockedReason: { fontSize: 12, marginTop: 2 },
-  disclaimerText: { fontSize: 12, color: '#5D4037', lineHeight: 18 },
-  disclaimerArabic: { fontSize: 12, color: '#5D4037', marginTop: 8, lineHeight: 20 },
+  disclaimerText: { fontSize: 12, color: Colors.light.text, lineHeight: 18 },
+  disclaimerArabic: { fontSize: 12, color: Colors.light.text, marginTop: 8, lineHeight: 20 },
   modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
   modalContent: { borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '60%' },
   modalTitle: { fontSize: 18, fontWeight: '700', textAlign: 'center', marginBottom: 16 },

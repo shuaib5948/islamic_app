@@ -1,7 +1,10 @@
+import { Colors } from '@/constants/theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Dimensions, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 const CARD_SIZE = (width - 56) / 3; // 3 columns with padding
@@ -80,15 +83,17 @@ const getDailyHadith = () => {
 };
 
 interface FeatureCardProps {
-  icon: string;
+  icon: keyof typeof Ionicons.glyphMap;
   title: string;
   titleMl: string;
   color: string;
   onPress: () => void;
   isMalayalam: boolean;
+  colors: any;
+  isLast?: boolean;
 }
 
-const FeatureCard = ({ icon, title, titleMl, color, onPress, isMalayalam }: FeatureCardProps) => {
+const FeatureCard = ({ icon, title, titleMl, color, onPress, isMalayalam, colors, isLast }: FeatureCardProps) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
@@ -97,18 +102,20 @@ const FeatureCard = ({ icon, title, titleMl, color, onPress, isMalayalam }: Feat
       style={[
         styles.card,
         {
-          backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
+          backgroundColor: colors.card,
           width: CARD_SIZE,
           height: CARD_SIZE,
+          marginLeft: isLast ? (width - CARD_SIZE) / 2 - 12 : 4, // Center the last card
+          marginRight: isLast ? (width - CARD_SIZE) / 2 - 12 : 4,
         },
       ]}
       onPress={onPress}
       activeOpacity={0.7}
     >
       <View style={[styles.iconContainer, { backgroundColor: color }]}>
-        <Text style={styles.icon}>{icon}</Text>
+        <Ionicons name={icon} size={24} color="white" />
       </View>
-      <Text style={[styles.cardTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+      <Text style={[styles.cardTitle, { color: colors.text }]}>
         {isMalayalam ? titleMl : title}
       </Text>
     </TouchableOpacity>
@@ -120,100 +127,91 @@ export default function HomeScreen() {
   const isDark = colorScheme === 'dark';
   const { language } = useLanguage();
   const isMalayalam = language === 'ml';
+  const colors = isDark ? Colors.dark : Colors.light;
 
   const features = [
     {
-      icon: '🌙',
+      icon: 'moon-outline',
       title: 'Hijri Calendar',
       titleMl: 'Hijri Calendar',
-      color: '#2E7D32',
+      color: colors.primary,
       route: '/calendar' as const,
     },
     {
-      icon: '📅',
+      icon: 'calendar-outline',
       title: 'Islamic Events',
       titleMl: 'Islamic Events',
-      color: '#1565C0',
+      color: colors.primary,
       route: '/events' as const,
     },
     {
-      icon: '📿',
+      icon: 'repeat-outline',
       title: 'Adhkar',
       titleMl: 'Adhkar',
-      color: '#7B1FA2',
+      color: colors.primary,
       route: '/dhikr' as const,
     },
     {
-      icon: '🧮',
+      icon: 'calculator-outline',
       title: 'Thasbih Counter',
       titleMl: 'Thasbih Counter',
-      color: '#FF9800',
+      color: colors.primary,
       route: '/thasbih' as const,
     },
     {
-      icon: '📖',
-      title: 'Quran Khatam',
-      titleMl: 'Quran Khatam',
-      color: '#C62828',
-      route: '/khatam' as const,
-    },
-    {
-      icon: '🕌',
-      title: 'Prayer Tracker',
-      titleMl: 'Prayer Tracker',
-      color: '#00695C',
-      route: '/prayer' as const,
-    },
-    {
-      icon: '⚖️',
+      icon: 'scale-outline',
       title: 'Farā\'iḍ',
       titleMl: 'Farā\'iḍ',
-      color: '#6A1B9A',
+      color: colors.primary,
       route: '/faraid' as const,
     },
     {
-      icon: '⚙️',
-      title: 'Settings',
-      titleMl: 'Settings',
-      color: '#455A64',
-      route: '/settings' as const,
+      icon: 'book-outline',
+      title: 'Quran Khatam',
+      titleMl: 'Quran Khatam',
+      color: colors.primary,
+      route: '/khatam' as const,
     },
-  ];
+    {
+      icon: 'home-outline',
+      title: 'Prayer Tracker',
+      titleMl: 'Prayer Tracker',
+      color: colors.primary,
+      route: '/prayer' as const,
+    },
+  ] as const;
 
   const dailyHadith = getDailyHadith();
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.greeting, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+          <Text style={[styles.greeting, { color: colors.primary }]}> 
             بسم الله الرحمن الرحيم
           </Text>
-          <Text style={[styles.appTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-            {isMalayalam ? 'Islamic App' : 'Islamic App'}
-          </Text>
-          <Text style={[styles.appSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
-            {isMalayalam ? 'നിങ്ങളുടെ ദൈനംദിന സഹായി' : 'Your daily companion'}
+          <Text style={[styles.appTitle, { color: colors.text }]}> 
+            {isMalayalam ? 'RuhTrack' : 'RuhTrack'}
           </Text>
         </View>
 
         {/* Daily Hadith Card */}
-        <View style={[styles.hadithCard, { backgroundColor: isDark ? '#1E3A5F' : '#E3F2FD' }]}>
-          <View style={styles.hadithHeader}>
-            <Text style={styles.hadithIcon}>📜</Text>
-            <Text style={[styles.hadithLabel, { color: isDark ? '#90CAF9' : '#1565C0' }]}>
+        <View style={[styles.hadithCard, { backgroundColor: colors.hadith }]}> 
+          <View style={styles.hadithHeader}> 
+            <Ionicons name="document-text-outline" size={18} color={colors.hadithText} style={styles.hadithIcon} /> 
+            <Text style={[styles.hadithLabel, { color: colors.hadithText }]}> 
               {isMalayalam ? 'ഇന്നത്തെ ഹദീസ്' : 'Daily Hadith'}
             </Text>
           </View>
-          <Text style={[styles.hadithArabic, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <Text style={[styles.hadithArabic, { color: colors.hadithText }]}>
             {dailyHadith.arabic}
           </Text>
-          <Text style={[styles.hadithEnglish, { color: isDark ? '#E0E0E0' : '#424242' }]}>
-            "{isMalayalam ? dailyHadith.malayalam : dailyHadith.english}"
+          <Text style={[styles.hadithEnglish, { color: colors.accent }]}>
+            {isMalayalam ? dailyHadith.malayalam : dailyHadith.english}
           </Text>
-          <Text style={[styles.hadithSource, { color: isDark ? '#90CAF9' : '#1565C0' }]}>
+          <Text style={[styles.hadithSource, { color: colors.hadithText }]}>
             — {dailyHadith.source}
           </Text>
         </View>
@@ -229,6 +227,8 @@ export default function HomeScreen() {
               color={feature.color}
               onPress={() => router.push(feature.route)}
               isMalayalam={isMalayalam}
+              colors={colors}
+              isLast={index === features.length - 1}
             />
           ))}
         </View>
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 12,
+    paddingBottom: 24,
     alignItems: 'center',
   },
   greeting: {
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   // Hadith Card Styles
   hadithCard: {
     marginHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 32,
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
@@ -308,13 +308,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     paddingHorizontal: 12,
+    paddingTop: 16,
     justifyContent: 'space-between',
   },
   card: {
     borderRadius: 16,
     padding: 10,
     marginBottom: 12,
-    marginHorizontal: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -330,9 +330,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
-  },
-  icon: {
-    fontSize: 20,
   },
   cardTitle: {
     fontSize: 11,

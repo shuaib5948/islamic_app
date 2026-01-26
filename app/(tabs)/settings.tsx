@@ -1,23 +1,24 @@
+import { Colors } from '@/constants/theme';
 import { Language, useLanguage } from '@/contexts/LanguageContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
-    Alert,
-    Modal,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Switch,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface SettingItemProps {
-  icon: string;
+  icon: keyof typeof Ionicons.glyphMap;
   iconColor: string;
   title: string;
   subtitle?: string;
@@ -26,31 +27,34 @@ interface SettingItemProps {
   isDark: boolean;
 }
 
-const SettingItem = ({ icon, iconColor, title, subtitle, onPress, rightElement, isDark }: SettingItemProps) => (
-  <TouchableOpacity
-    style={[styles.settingItem, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}
-    onPress={onPress}
-    activeOpacity={onPress ? 0.7 : 1}
-    disabled={!onPress && !rightElement}
-  >
-    <View style={[styles.settingIconContainer, { backgroundColor: iconColor }]}>
-      <Text style={styles.settingIcon}>{icon}</Text>
-    </View>
-    <View style={styles.settingContent}>
-      <Text style={[styles.settingTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-        {title}
-      </Text>
-      {subtitle && (
-        <Text style={[styles.settingSubtitle, { color: isDark ? '#9E9E9E' : '#757575' }]}>
-          {subtitle}
+const SettingItem = ({ icon, iconColor, title, subtitle, onPress, rightElement, isDark }: SettingItemProps) => {
+  const colors = Colors[isDark ? 'dark' : 'light'];
+  return (
+    <TouchableOpacity
+      style={[styles.settingItem, { backgroundColor: colors.card }]}
+      onPress={onPress}
+      activeOpacity={onPress ? 0.7 : 1}
+      disabled={!onPress && !rightElement}
+    >
+      <View style={[styles.settingIconContainer, { backgroundColor: iconColor }]}>
+        <Ionicons name={icon} size={20} color="#FFFFFF" />
+      </View>
+      <View style={styles.settingContent}>
+        <Text style={[styles.settingTitle, { color: colors.text }]}>
+          {title}
         </Text>
-      )}
-    </View>
-    {rightElement || (onPress && (
-      <Ionicons name="chevron-forward" size={20} color={isDark ? '#757575' : '#9E9E9E'} />
-    ))}
-  </TouchableOpacity>
-);
+        {subtitle && (
+          <Text style={[styles.settingSubtitle, { color: colors.secondary }]}>
+            {subtitle}
+          </Text>
+        )}
+      </View>
+      {rightElement || (onPress && (
+        <Ionicons name="chevron-forward" size={20} color={colors.secondary} />
+      ))}
+    </TouchableOpacity>
+  );
+};
 
 interface SettingSectionProps {
   title: string;
@@ -58,20 +62,24 @@ interface SettingSectionProps {
   isDark: boolean;
 }
 
-const SettingSection = ({ title, children, isDark }: SettingSectionProps) => (
-  <View style={styles.section}>
-    <Text style={[styles.sectionTitle, { color: isDark ? '#90CAF9' : '#1565C0' }]}>
-      {title}
-    </Text>
-    <View style={[styles.sectionContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-      {children}
+const SettingSection = ({ title, children, isDark }: SettingSectionProps) => {
+  const colors = Colors[isDark ? 'dark' : 'light'];
+  return (
+    <View style={styles.section}>
+      <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+        {title}
+      </Text>
+      <View style={[styles.sectionContent, { backgroundColor: colors.card }]}>
+        {children}
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const colors = Colors[colorScheme];
   const { language, setLanguage } = useLanguage();
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const isMalayalam = language === 'ml';
@@ -171,23 +179,23 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+      <View style={[styles.header, { backgroundColor: colors.card }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <Ionicons name="arrow-back" size={24} color={isDark ? '#FFFFFF' : '#1A1A1A'} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerContent}>
-          <Text style={[styles.headerTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>
             {labels.settings}
           </Text>
-          <Text style={[styles.headerArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+          <Text style={[styles.headerArabic, { color: colors.secondary }]}>
             الإعدادات
           </Text>
         </View>
@@ -197,8 +205,8 @@ export default function SettingsScreen() {
         {/* Language Section */}
         <SettingSection title={labels.language} isDark={isDark}>
           <SettingItem
-            icon="🌐"
-            iconColor="#3F51B5"
+            icon="language-outline"
+            iconColor={colors.primary}
             title={labels.appLanguage}
             subtitle={currentLanguage ? `${currentLanguage.name} (${currentLanguage.nativeName})` : 'English'}
             isDark={isDark}
@@ -209,8 +217,8 @@ export default function SettingsScreen() {
         {/* Notifications Section */}
         <SettingSection title={labels.notifications} isDark={isDark}>
           <SettingItem
-            icon="🔔"
-            iconColor="#FF9800"
+            icon="notifications-outline"
+            iconColor={colors.primary}
             title={labels.enableNotifications}
             subtitle={labels.receiveNotifications}
             isDark={isDark}
@@ -218,15 +226,15 @@ export default function SettingsScreen() {
               <Switch
                 value={notificationsEnabled}
                 onValueChange={setNotificationsEnabled}
-                trackColor={{ false: '#767577', true: '#81C784' }}
-                thumbColor={notificationsEnabled ? '#4CAF50' : '#f4f3f4'}
+                trackColor={{ false: colors.secondary + '40', true: colors.primary }}
+                thumbColor={notificationsEnabled ? "#FFFFFF" : colors.card}
               />
             }
           />
-          <View style={[styles.divider, { backgroundColor: isDark ? '#333' : '#E0E0E0' }]} />
+          <View style={[styles.divider, { backgroundColor: colors.secondary + '20' }]} />
           <SettingItem
-            icon="🕌"
-            iconColor="#2E7D32"
+            icon="time-outline"
+            iconColor={colors.primary}
             title={labels.prayerReminders}
             subtitle={labels.prayerRemindersSubtitle}
             isDark={isDark}
@@ -234,16 +242,16 @@ export default function SettingsScreen() {
               <Switch
                 value={prayerReminders}
                 onValueChange={setPrayerReminders}
-                trackColor={{ false: '#767577', true: '#81C784' }}
-                thumbColor={prayerReminders ? '#4CAF50' : '#f4f3f4'}
+                trackColor={{ false: colors.secondary + '40', true: colors.primary }}
+                thumbColor={prayerReminders ? "#FFFFFF" : colors.card}
                 disabled={!notificationsEnabled}
               />
             }
           />
-          <View style={[styles.divider, { backgroundColor: isDark ? '#333' : '#E0E0E0' }]} />
+          <View style={[styles.divider, { backgroundColor: colors.secondary + '20' }]} />
           <SettingItem
-            icon="📜"
-            iconColor="#1565C0"
+            icon="book-outline"
+            iconColor={colors.primary}
             title={labels.dailyHadith}
             subtitle={labels.dailyHadithSubtitle}
             isDark={isDark}
@@ -251,16 +259,16 @@ export default function SettingsScreen() {
               <Switch
                 value={dailyHadith}
                 onValueChange={setDailyHadith}
-                trackColor={{ false: '#767577', true: '#81C784' }}
-                thumbColor={dailyHadith ? '#4CAF50' : '#f4f3f4'}
+                trackColor={{ false: colors.secondary + '40', true: colors.primary }}
+                thumbColor={dailyHadith ? "#FFFFFF" : colors.card}
                 disabled={!notificationsEnabled}
               />
             }
           />
-          <View style={[styles.divider, { backgroundColor: isDark ? '#333' : '#E0E0E0' }]} />
+          <View style={[styles.divider, { backgroundColor: colors.secondary + '20' }]} />
           <SettingItem
-            icon="📅"
-            iconColor="#7B1FA2"
+            icon="calendar-outline"
+            iconColor={colors.primary}
             title={labels.eventAlerts}
             subtitle={labels.eventAlertsSubtitle}
             isDark={isDark}
@@ -268,8 +276,8 @@ export default function SettingsScreen() {
               <Switch
                 value={eventAlerts}
                 onValueChange={setEventAlerts}
-                trackColor={{ false: '#767577', true: '#81C784' }}
-                thumbColor={eventAlerts ? '#4CAF50' : '#f4f3f4'}
+                trackColor={{ false: colors.secondary + '40', true: colors.primary }}
+                thumbColor={eventAlerts ? "#FFFFFF" : colors.card}
                 disabled={!notificationsEnabled}
               />
             }
@@ -279,8 +287,8 @@ export default function SettingsScreen() {
         {/* Sound & Haptics Section */}
         <SettingSection title={labels.soundHaptics} isDark={isDark}>
           <SettingItem
-            icon="🔊"
-            iconColor="#E91E63"
+            icon="volume-high-outline"
+            iconColor={colors.primary}
             title={labels.sound}
             subtitle={labels.soundSubtitle}
             isDark={isDark}
@@ -288,15 +296,15 @@ export default function SettingsScreen() {
               <Switch
                 value={soundEnabled}
                 onValueChange={setSoundEnabled}
-                trackColor={{ false: '#767577', true: '#81C784' }}
-                thumbColor={soundEnabled ? '#4CAF50' : '#f4f3f4'}
+                trackColor={{ false: colors.secondary + '40', true: colors.primary }}
+                thumbColor={soundEnabled ? "#FFFFFF" : colors.card}
               />
             }
           />
-          <View style={[styles.divider, { backgroundColor: isDark ? '#333' : '#E0E0E0' }]} />
+          <View style={[styles.divider, { backgroundColor: colors.secondary + '20' }]} />
           <SettingItem
-            icon="📳"
-            iconColor="#00BCD4"
+            icon="phone-portrait-outline"
+            iconColor={colors.primary}
             title={labels.vibration}
             subtitle={labels.vibrationSubtitle}
             isDark={isDark}
@@ -304,8 +312,8 @@ export default function SettingsScreen() {
               <Switch
                 value={vibrationEnabled}
                 onValueChange={setVibrationEnabled}
-                trackColor={{ false: '#767577', true: '#81C784' }}
-                thumbColor={vibrationEnabled ? '#4CAF50' : '#f4f3f4'}
+                trackColor={{ false: colors.secondary + '40', true: colors.primary }}
+                thumbColor={vibrationEnabled ? "#FFFFFF" : colors.card}
               />
             }
           />
@@ -314,8 +322,8 @@ export default function SettingsScreen() {
         {/* Data Section */}
         <SettingSection title={labels.data} isDark={isDark}>
           <SettingItem
-            icon="🗑️"
-            iconColor="#F44336"
+            icon="trash-outline"
+            iconColor={colors.primary}
             title={labels.resetAllData}
             subtitle={labels.resetDataSubtitle}
             isDark={isDark}
@@ -326,26 +334,26 @@ export default function SettingsScreen() {
         {/* About Section */}
         <SettingSection title={labels.about} isDark={isDark}>
           <SettingItem
-            icon="ℹ️"
-            iconColor="#2196F3"
+            icon="information-circle-outline"
+            iconColor={colors.primary}
             title={labels.aboutApp}
             subtitle={labels.version}
             isDark={isDark}
             onPress={handleAbout}
           />
-          <View style={[styles.divider, { backgroundColor: isDark ? '#333' : '#E0E0E0' }]} />
+          <View style={[styles.divider, { backgroundColor: colors.secondary + '20' }]} />
           <SettingItem
-            icon="💬"
-            iconColor="#4CAF50"
+            icon="chatbubble-outline"
+            iconColor={colors.primary}
             title={labels.sendFeedback}
             subtitle={labels.feedbackSubtitle}
             isDark={isDark}
             onPress={handleFeedback}
           />
-          <View style={[styles.divider, { backgroundColor: isDark ? '#333' : '#E0E0E0' }]} />
+          <View style={[styles.divider, { backgroundColor: colors.secondary + '20' }]} />
           <SettingItem
-            icon="🔒"
-            iconColor="#607D8B"
+            icon="shield-checkmark-outline"
+            iconColor={colors.primary}
             title={labels.privacyPolicy}
             subtitle={labels.privacySubtitle}
             isDark={isDark}
@@ -355,10 +363,10 @@ export default function SettingsScreen() {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: isDark ? '#757575' : '#9E9E9E' }]}>
+          <Text style={[styles.footerText, { color: colors.secondary }]}>
             بارك الله فيكم
           </Text>
-          <Text style={[styles.footerSubtext, { color: isDark ? '#616161' : '#BDBDBD' }]}>
+          <Text style={[styles.footerSubtext, { color: colors.secondary + '80' }]}>
             {labels.mayAllahBless}
           </Text>
         </View>
@@ -372,13 +380,13 @@ export default function SettingsScreen() {
         onRequestClose={() => setShowLanguageModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
                 {labels.selectLanguage}
               </Text>
               <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
-                <Text style={[styles.modalClose, { color: isDark ? '#90CAF9' : '#1565C0' }]}>✕</Text>
+                <Ionicons name="close" size={24} color={colors.secondary} />
               </TouchableOpacity>
             </View>
             {languageOptions.map((lang) => (
@@ -387,7 +395,7 @@ export default function SettingsScreen() {
                 style={[
                   styles.languageOption,
                   language === lang.code && styles.languageOptionSelected,
-                  { backgroundColor: language === lang.code ? (isDark ? '#1B5E20' : '#E8F5E9') : 'transparent' }
+                  { backgroundColor: language === lang.code ? colors.primary + '20' : 'transparent' }
                 ]}
                 onPress={() => {
                   setLanguage(lang.code);
@@ -395,15 +403,15 @@ export default function SettingsScreen() {
                 }}
               >
                 <View>
-                  <Text style={[styles.languageName, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                  <Text style={[styles.languageName, { color: colors.text }]}>
                     {lang.name}
                   </Text>
-                  <Text style={[styles.languageNative, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+                  <Text style={[styles.languageNative, { color: colors.secondary }]}>
                     {lang.nativeName}
                   </Text>
                 </View>
                 {language === lang.code && (
-                  <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+                  <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
                 )}
               </TouchableOpacity>
             ))}
@@ -483,9 +491,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 14,
   },
-  settingIcon: {
-    fontSize: 18,
-  },
   settingContent: {
     flex: 1,
   },
@@ -532,15 +537,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: 'rgba(0,0,0,0.1)',
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
-  },
-  modalClose: {
-    fontSize: 20,
-    padding: 4,
   },
   languageOption: {
     flexDirection: 'row',
@@ -554,7 +555,7 @@ const styles = StyleSheet.create({
   },
   languageOptionSelected: {
     borderWidth: 2,
-    borderColor: '#4CAF50',
+    borderColor: '#7F8F6A',
   },
   languageName: {
     fontSize: 16,

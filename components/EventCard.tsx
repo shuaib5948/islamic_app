@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/theme';
 import { IslamicEvent } from '@/data/hijri-events';
 import { IslamicEventML } from '@/data/hijri-events-ml';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -14,20 +15,10 @@ interface EventCardProps {
 export const EventCard: React.FC<EventCardProps> = ({ event, displayTitle, displayDescription, isMalayalam = false }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const colors = isDark ? Colors.dark : Colors.light;
 
   const getTypeColor = () => {
-    switch (event.type) {
-      case 'religious':
-        return '#1B5E20';
-      case 'wafat':
-        return '#4A148C';
-      case 'birth':
-        return '#0D47A1';
-      case 'historic':
-        return '#E65100';
-      default:
-        return '#37474F';
-    }
+    return colors.eventTypes[event.type as keyof typeof colors.eventTypes] || colors.primary;
   };
 
   const getTypeLabel = () => {
@@ -49,7 +40,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, displayTitle, displ
   const description = displayDescription || event.description;
 
   return (
-    <View style={[styles.card, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+    <View style={[styles.card, { backgroundColor: colors.card }]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={[styles.typeTag, { backgroundColor: getTypeColor() }]}>
@@ -58,12 +49,12 @@ export const EventCard: React.FC<EventCardProps> = ({ event, displayTitle, displ
       </View>
 
       {/* Title */}
-      <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+      <Text style={[styles.title, { color: colors.text }]}>
         {title}
       </Text>
 
       {/* Description */}
-      <Text style={[styles.description, { color: isDark ? '#E0E0E0' : '#424242' }]}>
+      <Text style={[styles.description, { color: colors.text }]}>
         {description}
       </Text>
     </View>

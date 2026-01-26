@@ -93,8 +93,8 @@ export const getContributionLevel = (dailyPrayers: DailyPrayers): number => {
 
 // Get color for contribution level - Modern emerald theme
 export const getContributionColor = (level: number, isDark: boolean): string => {
-  const lightColors = ['#E2E8F0', '#A7F3D0', '#6EE7B7', '#34D399', '#10B981'];
-  const darkColors = ['#1E293B', '#064E3B', '#047857', '#059669', '#10B981'];
+  const lightColors = ['#F4F1EC', '#E8E2D8', '#D4CCB8', '#B8B094', '#7F8F6A'];
+  const darkColors = ['#2A2A2A', '#4A4A3A', '#6A6A5A', '#8A8A7A', '#7F8F6A'];
   return isDark ? darkColors[level] : lightColors[level];
 };
 

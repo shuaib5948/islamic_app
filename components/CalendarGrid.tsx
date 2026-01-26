@@ -3,6 +3,11 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+const toArabicNumerals = (num: number): string => {
+  const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  return num.toString().split('').map(digit => arabicNumerals[parseInt(digit)]).join('');
+};
+
 interface CalendarDayProps {
   day: number;
   month: number;
@@ -62,7 +67,7 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
             },
           ]}
         >
-          {day}
+          {toArabicNumerals(day)}
         </Text>
         {hasEvents && (
           <View

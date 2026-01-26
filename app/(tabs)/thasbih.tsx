@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,7 +10,6 @@ import {
   Animated,
   Dimensions,
   Modal,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -19,6 +19,7 @@ import {
   TouchableWithoutFeedback,
   View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -45,6 +46,8 @@ export default function ThasbihScreen() {
   const isDark = colorScheme === 'dark';
   const { language } = useLanguage();
   const isMalayalam = language === 'ml';
+  const colors = isDark ? Colors.dark : Colors.light;
+  const styles = getStyles(colors);
 
   // State management
   const [mode, setMode] = useState<'individual' | 'group'>('individual');
@@ -91,6 +94,7 @@ export default function ThasbihScreen() {
     create: isMalayalam ? 'സൃഷ്ടിക്കുക' : 'Create',
     join: isMalayalam ? 'ചേരുക' : 'Join',
     cancel: isMalayalam ? 'റദ്ദാക്കുക' : 'Cancel',
+    close: isMalayalam ? 'അടയ്ക്കുക' : 'Close',
     congratulations: isMalayalam ? 'അഭിനന്ദനങ്ങൾ!' : 'Congratulations!',
     targetReached: isMalayalam ? 'ലക്ഷ്യം നേടി!' : 'Target Reached!',
     tapToContinue: isMalayalam ? 'തുടരാൻ ടാപ്പ് ചെയ്യുക' : 'Tap to continue',
@@ -297,7 +301,7 @@ export default function ThasbihScreen() {
   });
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}> 
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}> 
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
       {/* Milestone Modal Popup from Bottom - Large Full Width Box with Inspire Content */}
@@ -320,7 +324,7 @@ export default function ThasbihScreen() {
             }}
           >
             <View style={{
-              backgroundColor: isDark ? '#1a2636' : '#e3f2fd',
+              backgroundColor: colors.card,
               width: SCREEN_WIDTH,
               paddingHorizontal: 32,
               paddingVertical: 44,
@@ -328,25 +332,25 @@ export default function ThasbihScreen() {
               borderTopRightRadius: 36,
               marginBottom: 0,
               minWidth: 320,
-              shadowColor: '#2196F3',
+              shadowColor: colors.primary,
               shadowOffset: { width: 0, height: -8 },
               shadowOpacity: 0.22,
               shadowRadius: 18,
               elevation: 18,
               alignItems: 'center',
             }}>
-              <Ionicons name="sparkles" size={48} color={isDark ? '#B2FF59' : '#1976D2'} style={{ marginBottom: 12 }} />
-              <Text style={{ color: isDark ? '#B2FF59' : '#1976D2', fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginBottom: 10, letterSpacing: 1 }}>
+              <Ionicons name="sparkles" size={48} color={colors.primary} style={{ marginBottom: 12 }} />
+              <Text style={{ color: colors.primary, fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginBottom: 10, letterSpacing: 1 }}>
                 Achievement Unlocked!
               </Text>
-              <Text style={{ color: isDark ? '#fff' : '#333', fontSize: 20, textAlign: 'center', fontWeight: '600', marginBottom: 8 }}>
+              <Text style={{ color: colors.text, fontSize: 20, textAlign: 'center', fontWeight: '600', marginBottom: 8 }}>
                 You reached your goal!
               </Text>
-              <Text style={{ color: isDark ? '#B2FF59' : '#388E3C', fontSize: 18, textAlign: 'center', fontStyle: 'italic', marginTop: 2, marginBottom: 12 }}>
+              <Text style={{ color: colors.accent, fontSize: 18, textAlign: 'center', fontStyle: 'italic', marginTop: 2, marginBottom: 12 }}>
                 "Every dhikr brings light to your heart. Keep going!"
               </Text>
               <View style={{ marginTop: 18, alignItems: 'center' }}>
-                <Text style={{ color: isDark ? '#fff' : '#1976D2', fontSize: 16, fontWeight: '500', textAlign: 'center' }}>
+                <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '500', textAlign: 'center' }}>
                   Tap anywhere to continue
                 </Text>
               </View>
@@ -358,10 +362,10 @@ export default function ThasbihScreen() {
       {/* App Header (like Hijri Calendar) */}
       <View style={[styles.header, { justifyContent: 'space-between', alignItems: 'center' }]}> 
         <TouchableOpacity onPress={() => router.push('/')} style={styles.backButton} accessibilityLabel="Back to Home">
-          <Text style={[styles.backIcon, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>←</Text>
+          <Text style={[styles.backIcon, { color: colors.text }]}>←</Text>
         </TouchableOpacity>
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <Text style={[styles.title, styles.appTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Tasbih</Text>
+          <Text style={[styles.title, styles.appTitle, { color: colors.text }]}>Tasbih</Text>
         </View>
         <TouchableOpacity
           onPress={() => {
@@ -385,34 +389,47 @@ export default function ThasbihScreen() {
           }
         >
           {mode === 'individual' ? (
-            <Ionicons name="locate" size={24} color={isDark ? '#FFFFFF' : '#1A1A1A'} />
+            <Ionicons name="locate" size={24} color={colors.text} />
           ) : selectedGroup ? (
-            <Ionicons name="stats-chart" size={24} color={isDark ? '#FFFFFF' : '#1A1A1A'} />
+            <Ionicons name="stats-chart" size={24} color={colors.text} />
           ) : groupSessions.length > 0 ? (
-            <Ionicons name="time" size={24} color={isDark ? '#FFFFFF' : '#1A1A1A'} />
+            <Ionicons name="time" size={24} color={colors.text} />
           ) : null}
         </TouchableOpacity>
             {/* Group Contributions Modal */}
             <Modal visible={showContribModal} transparent animationType="fade">
               <View style={styles.modalOverlay}>
-                <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}> 
-                  <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Group Contributions</Text>
+                <View style={styles.modalContent}> 
+                  <Text style={[styles.modalTitle, { color: colors.text }]}>Group Contributions</Text>
+                  <Text style={[styles.modalSubtitle, { color: colors.text }]}>
+                    {isMalayalam ? 'ഗ്രൂപ്പ് അംഗങ്ങളുടെ സംഭാവനകൾ കാണുക' : 'View member contributions to the group'}
+                  </Text>
                   {selectedGroup && Array.isArray(selectedGroup.members) && selectedGroup.members.length > 0 && (
                     <>
                       {(selectedGroup.members || []).map((member, idx) => (
                         <View key={member + idx} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-                          <Ionicons name="person" size={20} color={isDark ? '#B0BEC5' : '#1976D2'} style={{ marginRight: 8 }} />
-                          <Text style={{ color: isDark ? '#FFFFFF' : '#1A1A1A', fontSize: 16, flex: 1 }}>{member}</Text>
-                          <Text style={{ color: isDark ? '#B2FF59' : '#388E3C', fontWeight: 'bold', fontSize: 16 }}>{(selectedGroup.contributions && selectedGroup.contributions[member]) ?? 0}</Text>
+                          <Ionicons name="person" size={20} color={colors.primary} style={{ marginRight: 8 }} />
+                          <Text style={{ color: colors.text, fontSize: 16, flex: 1 }}>{member}</Text>
+                          <Text style={{ color: colors.primary, fontWeight: 'bold', fontSize: 16 }}>{(selectedGroup.contributions && selectedGroup.contributions[member]) ?? 0}</Text>
                         </View>
                       ))}
                     </>
                   )}
                   <TouchableOpacity
-                    style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5', marginTop: 16 }]}
+                    style={{
+                      backgroundColor: colors.primary,
+                      paddingVertical: 16,
+                      borderRadius: 12,
+                      marginTop: 16,
+                      alignSelf: 'center',
+                      width: '90%',
+                      alignItems: 'center',
+                    }}
                     onPress={() => setShowContribModal(false)}
                   >
-                    <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Close</Text>
+                    <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' }}>
+                      {isMalayalam ? 'അടയ്ക്കുക' : 'Close'}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -425,15 +442,15 @@ export default function ThasbihScreen() {
           style={[
             styles.tab,
             mode === 'individual' && styles.tabActive,
-            { backgroundColor: mode === 'individual' ? (isDark ? '#263238' : '#E8F5E9') : (isDark ? '#1E1E1E' : '#FFFFFF') },
+            { backgroundColor: mode === 'individual' ? colors.primary : colors.card },
           ]}
           onPress={() => setMode('individual')}
           activeOpacity={0.8}
         >
-          <Ionicons name="person" size={18} color={mode === 'individual' ? '#388E3C' : (isDark ? '#B0BEC5' : '#757575')} style={{ marginRight: 6 }} />
+          <Ionicons name="person" size={18} color={mode === 'individual' ? '#FFFFFF' : colors.text} style={{ marginRight: 6 }} />
           <Text style={[
             styles.tabText,
-            { color: mode === 'individual' ? '#388E3C' : (isDark ? '#B0BEC5' : '#757575') },
+            { color: mode === 'individual' ? '#FFFFFF' : colors.text },
           ]}>
             {labels.individualMode}
           </Text>
@@ -442,15 +459,15 @@ export default function ThasbihScreen() {
           style={[
             styles.tab,
             mode === 'group' && styles.tabActive,
-            { backgroundColor: mode === 'group' ? (isDark ? '#263238' : '#E3F2FD') : (isDark ? '#1E1E1E' : '#FFFFFF') },
+            { backgroundColor: mode === 'group' ? colors.primary : colors.card },
           ]}
           onPress={() => setMode('group')}
           activeOpacity={0.8}
         >
-          <Ionicons name="people" size={18} color={mode === 'group' ? '#1976D2' : (isDark ? '#B0BEC5' : '#757575')} style={{ marginRight: 6 }} />
+          <Ionicons name="people" size={18} color={mode === 'group' ? '#FFFFFF' : colors.text} style={{ marginRight: 6 }} />
           <Text style={[
             styles.tabText,
-            { color: mode === 'group' ? '#1976D2' : (isDark ? '#B0BEC5' : '#757575') },
+            { color: mode === 'group' ? '#FFFFFF' : colors.text },
           ]}>
             {labels.groupMode}
           </Text>
@@ -520,13 +537,13 @@ export default function ThasbihScreen() {
               style={{ borderRadius: 180 }}
             >
               <View
-                style={[styles.gradientCircle, { backgroundColor: 'transparent', borderWidth: 8, borderColor: '#43cea2' }]}
+                style={[styles.gradientCircle, { backgroundColor: 'transparent', borderWidth: 8, borderColor: colors.primary }]}
               >
-                <View style={[styles.circleGlow, isDark && { borderColor: '#43cea2' }]}/>
-                <Text style={[styles.largeCircleCount, { color: '#43cea2', textShadowColor: '#0008', textShadowOffset: {width: 0, height: 2}, textShadowRadius: 8 }]}> 
+                <View style={[styles.circleGlow, isDark && { borderColor: colors.primary }]}/>
+                <Text style={[styles.largeCircleCount, { color: colors.primary, textShadowColor: '#0008', textShadowOffset: {width: 0, height: 2}, textShadowRadius: 8 }]}> 
                   {count}
                 </Text>
-                <Text style={{ fontSize: 13, color: '#888', marginTop: 2, textAlign: 'center' }}>hold for reset</Text>
+                <Text style={{ fontSize: 13, color: colors.text, marginTop: 2, textAlign: 'center' }}>hold for reset</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -564,7 +581,7 @@ export default function ThasbihScreen() {
               <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
             </TouchableWithoutFeedback>
             {/* Group Name above box */}
-            <Text style={{ color: isDark ? '#FFFFFF' : '#1A1A1A', fontSize: 20, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' }}>{selectedGroup.name}</Text>
+            <Text style={{ color: colors.text, fontSize: 20, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' }}>{selectedGroup.name}</Text>
             {/* Group detail box: only main box, no inner boxes */}
             <View style={{
               flexDirection: 'row',
@@ -572,26 +589,26 @@ export default function ThasbihScreen() {
               alignItems: 'stretch',
               alignSelf: 'center',
               width: 320,
-              backgroundColor: isDark ? '#23272e' : '#fff',
+              backgroundColor: colors.card,
               borderRadius: 18,
               paddingVertical: 0,
               paddingHorizontal: 0,
               borderWidth: 1,
-              borderColor: isDark ? '#333' : '#d0d0d0',
+              borderColor: colors.accent,
               marginBottom: 20,
               overflow: 'hidden',
             }}>
               {/* Left: Person count, centered */}
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 64 }}>
-                <Ionicons name="person" size={22} color={isDark ? '#B0BEC5' : '#1976D2'} style={{ marginRight: 8 }} />
-                <Text style={{ color: isDark ? '#B0BEC5' : '#1976D2', fontSize: 19, fontWeight: '700' }}>{selectedGroup.members.length}</Text>
+                <Ionicons name="person" size={22} color={colors.primary} style={{ marginRight: 8 }} />
+                <Text style={{ color: colors.primary, fontSize: 19, fontWeight: '700' }}>{selectedGroup.members.length}</Text>
               </View>
               {/* Separator line */}
-              <View style={{ width: 2, height: '100%', backgroundColor: isDark ? '#444' : '#d0d0d0' }} />
+              <View style={{ width: 2, height: '100%', backgroundColor: colors.accent }} />
               {/* Right: Code, centered */}
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 64 }}>
-                <Ionicons name="key" size={20} color={isDark ? '#B2FF59' : '#388E3C'} style={{ marginRight: 8 }} />
-                <Text style={{ color: isDark ? '#B2FF59' : '#388E3C', fontSize: 19, fontWeight: '700', letterSpacing: 1 }}>{selectedGroup.joinCode}</Text>
+                <Ionicons name="key" size={20} color={colors.primary} style={{ marginRight: 8 }} />
+                <Text style={{ color: colors.primary, fontSize: 19, fontWeight: '700', letterSpacing: 1 }}>{selectedGroup.joinCode}</Text>
               </View>
             </View>
             {/* Large Animated Circle Counter */}
@@ -620,23 +637,23 @@ export default function ThasbihScreen() {
                 style={{ borderRadius: 180 }}
               >
                 <View
-                  style={[styles.gradientCircle, { backgroundColor: 'transparent', borderWidth: 8, borderColor: '#43cea2' }]}
+                  style={[styles.gradientCircle, { backgroundColor: 'transparent', borderWidth: 8, borderColor: colors.primary }]}
                 >
-                  <View style={[styles.circleGlow, isDark && { borderColor: '#43cea2' }]}/>
+                  <View style={[styles.circleGlow, isDark && { borderColor: colors.primary }]}/>
                   {selectedGroup.target > 0 && selectedGroup.currentCount === 0 ? (
-                    <Text style={[styles.largeCircleCount, { fontSize: 36, color: '#43cea2', textShadowColor: '#0008', textShadowOffset: {width: 0, height: 2}, textShadowRadius: 8 }]}>Completed!</Text>
+                    <Text style={[styles.largeCircleCount, { fontSize: 36, color: colors.primary, textShadowColor: '#0008', textShadowOffset: {width: 0, height: 2}, textShadowRadius: 8 }]}>Completed!</Text>
                   ) : (
-                    <Text style={[styles.largeCircleCount, { color: '#43cea2', textShadowColor: '#0008', textShadowOffset: {width: 0, height: 2}, textShadowRadius: 8 }]}>{selectedGroup.currentCount}</Text>
+                    <Text style={[styles.largeCircleCount, { color: colors.primary, textShadowColor: '#0008', textShadowOffset: {width: 0, height: 2}, textShadowRadius: 8 }]}>{selectedGroup.currentCount}</Text>
                   )}
                 </View>
               </TouchableOpacity>
             </View>
             {/* Target and Progress */}
             <View style={{ alignItems: 'center', marginTop: 10, marginBottom: 20 }}>
-              <Text style={[styles.largeCircleTarget, { color: isDark ? '#B0BEC5' : '#757575', fontSize: 18 }]}>/ {selectedGroup.target}</Text>
-              <View style={[styles.progressContainer, { backgroundColor: isDark ? '#333333' : '#E0E0E0', marginTop: 4, width: 180, marginBottom: 0 }]}> 
+              <Text style={[styles.largeCircleTarget, { color: colors.text, fontSize: 18 }]}>/ {selectedGroup.target}</Text>
+              <View style={[styles.progressContainer, { backgroundColor: colors.accent, marginTop: 4, width: 180, marginBottom: 0 }]}> 
                 <Animated.View
-                  style={[styles.progressBar, { backgroundColor: '#2196F3', width: progressWidth }]}
+                  style={[styles.progressBar, { backgroundColor: colors.primary, width: progressWidth }]}
                 />
               </View>
             </View>
@@ -644,7 +661,7 @@ export default function ThasbihScreen() {
             <TouchableOpacity
               style={{
                 width: '100%',
-                backgroundColor: isDark ? '#23272e' : '#1976D2',
+                backgroundColor: colors.primary,
                 borderTopLeftRadius: 32,
                 borderTopRightRadius: 32,
                 paddingVertical: 44,
@@ -670,8 +687,8 @@ export default function ThasbihScreen() {
               }}
               activeOpacity={0.9}
             >
-              <Text style={{ color: isDark ? '#B2FF59' : '#fff', fontSize: 22, fontWeight: 'bold', textAlign: 'center', letterSpacing: 0.5 }}>{selectedGroup.dhikrType}</Text>
-              <Text style={{ fontSize: 13, color: '#888', textAlign: 'center', marginTop: 6 }}>hold for exit</Text>
+              <Text style={{ color: colors.primary, fontSize: 22, fontWeight: 'bold', textAlign: 'center', letterSpacing: 0.5 }}>{selectedGroup.dhikrType}</Text>
+              <Text style={{ fontSize: 13, color: colors.text, textAlign: 'center', marginTop: 6 }}>hold for exit</Text>
             </TouchableOpacity>
           </Animated.View>
         ) : (
@@ -682,7 +699,7 @@ export default function ThasbihScreen() {
                 style={[
                   styles.groupActionButton,
                   {
-                    backgroundColor: '#4CAF50',
+                    backgroundColor: colors.primary,
                     width: 140,
                     height: 140,
                     borderRadius: 32,
@@ -707,7 +724,7 @@ export default function ThasbihScreen() {
                 style={[
                   styles.groupActionButton,
                   {
-                    backgroundColor: '#2196F3',
+                    backgroundColor: colors.primary,
                     width: 140,
                     height: 140,
                     borderRadius: 32,
@@ -736,29 +753,29 @@ export default function ThasbihScreen() {
       {/* Target Modal */}
       <Modal visible={showTargetModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}> 
-            <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <View style={styles.modalContent}> 
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
               {labels.setTarget}
             </Text>
             <TextInput
-              style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
               placeholder={labels.target}
-              placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+              placeholderTextColor={colors.text}
               keyboardType="numeric"
               value={individualTarget.toString()}
               onChangeText={text => setIndividualTarget(parseInt(text) || 0)}
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+                style={[styles.modalButton, { backgroundColor: colors.card }]}
                 onPress={() => setShowTargetModal(false)}
               >
-                <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                <Text style={[styles.modalButtonText, { color: colors.text }]}>
                   {labels.cancel}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#4CAF50' }]}
+                style={[styles.modalButton, { backgroundColor: colors.primary }]}
                 onPress={() => {
                   setShowTargetModal(false);
                   if (individualTarget > 0) {
@@ -776,44 +793,44 @@ export default function ThasbihScreen() {
       {/* Create Group Modal */}
       <Modal visible={showGroupModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}> 
-            <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <View style={[styles.modalContent]}> 
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
               {labels.createGroup}
             </Text>
             <TextInput
-              style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
               placeholder={labels.groupName}
-              placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+              placeholderTextColor={colors.text}
               value={groupName}
               onChangeText={setGroupName}
             />
             <TextInput
-              style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
               placeholder={labels.groupTarget + ' (Total Count)'}
-              placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+              placeholderTextColor={colors.text}
               keyboardType="numeric"
               value={groupTarget}
               onChangeText={setGroupTarget}
             />
             <TextInput
-              style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
               placeholder="Type of Dhikr (e.g. Subhanallah)"
-              placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+              placeholderTextColor={colors.text}
               value={groupDhikrType}
               onChangeText={setGroupDhikrType}
             />
             {/* Join code is not shown during group creation */}
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+                style={[styles.modalButton, { backgroundColor: colors.card }]}
                 onPress={() => setShowGroupModal(false)}
               >
-                <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                <Text style={[styles.modalButtonText, { color: colors.text }]}>
                   {labels.cancel}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#4CAF50' }]}
+                style={[styles.modalButton, { backgroundColor: colors.primary }]}
                 onPress={handleCreateGroup}
               >
                 <Text style={styles.modalButtonText}>{labels.create}</Text>
@@ -826,44 +843,49 @@ export default function ThasbihScreen() {
       {/* Join Group Modal */}
       <Modal visible={showJoinModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-            <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <View style={[styles.modalContent]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
               {labels.joinGroup}
             </Text>
+            <Text style={[styles.modalSubtitle, { color: colors.text }]}>
+              {isMalayalam ? 'ഗ്രൂപ്പിൽ ചേരാൻ കോഡ് നൽകുക' : 'Enter the code to join a group'}
+            </Text>
             <TextInput
-              style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
-              placeholder="Your Name"
-              placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
+              placeholder={isMalayalam ? 'നിങ്ങളുടെ പേര്' : 'Your Name'}
+              placeholderTextColor={colors.text}
               value={joinNameInput}
               onChangeText={setJoinNameInput}
             />
             <TextInput
-              style={[styles.input, { backgroundColor: isDark ? '#333333' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
-              placeholder="Enter Join Code"
-              placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
+              placeholder={isMalayalam ? 'ചേരൽ കോഡ് നൽകുക' : 'Enter Join Code'}
+              placeholderTextColor={colors.text}
               value={joinCodeInput}
               onChangeText={setJoinCodeInput}
               autoCapitalize="characters"
               maxLength={4}
             />
-            <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: '#2196F3', marginBottom: 20 }]}
-              onPress={handleJoinByCode}
-            >
-              <Text style={styles.modalButtonText}>{labels.join}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
-              onPress={() => {
-                setShowJoinModal(false);
-                setJoinCodeInput('');
-                setJoinNameInput('');
-              }}
-            >
-              <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-                {labels.cancel}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: colors.card }]}
+                onPress={() => {
+                  setShowJoinModal(false);
+                  setJoinCodeInput('');
+                  setJoinNameInput('');
+                }}
+              >
+                <Text style={[styles.modalButtonText, { color: colors.text }]}>
+                  {labels.cancel}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: colors.primary }]}
+                onPress={handleJoinByCode}
+              >
+                <Text style={styles.modalButtonText}>{labels.join}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -871,9 +893,12 @@ export default function ThasbihScreen() {
       {/* Group History Modal */}
       <Modal visible={showHistoryModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-            <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <View style={[styles.modalContent]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
               Group History
+            </Text>
+            <Text style={[styles.modalSubtitle, { color: colors.text }]}>
+              {isMalayalam ? 'നിങ്ങളുടെ സൃഷ്ടിച്ചയും ചേർന്നയും ഗ്രൂപ്പുകൾ' : 'Your created and joined groups'}
             </Text>
             <ScrollView style={styles.groupList}>
               {groupSessions.length > 0 ? (
@@ -881,25 +906,27 @@ export default function ThasbihScreen() {
                   {/* Created Groups */}
                   {groupSessions.filter(g => g.members[0] === 'You').length > 0 && (
                     <>
-                      <Text style={{ color: isDark ? '#B0BEC5' : '#757575', fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Created Groups</Text>
+                      <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>
+                        {isMalayalam ? 'സൃഷ്ടിച്ച ഗ്രൂപ്പുകൾ' : 'Created Groups'}
+                      </Text>
                       {groupSessions.filter(g => g.members[0] === 'You').map((group) => (
                         <View key={group.id} style={{ position: 'relative' }}>
                           <TouchableOpacity
-                            style={[styles.groupListItem, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+                            style={[styles.groupListItem, { backgroundColor: colors.card }]}
                             onPress={() => {
                               setSelectedGroup(group);
                               setShowHistoryModal(false);
                             }}
                           >
                             <View>
-                              <Text style={[styles.groupListName, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}> 
+                              <Text style={[styles.groupListName, { color: colors.text }]}> 
                                 {group.name}
                               </Text>
-                              <Text style={[styles.groupListInfo, { color: isDark ? '#B0BEC5' : '#757575', flexDirection: 'row', alignItems: 'center' }]}> 
-                                <Ionicons name="person" size={15} color={isDark ? '#B0BEC5' : '#757575'} style={{ marginRight: 2, marginBottom: -2 }} />
+                              <Text style={[styles.groupListInfo, { color: colors.accent, flexDirection: 'row', alignItems: 'center' }]}> 
+                                <Ionicons name="person" size={15} color={colors.accent} style={{ marginRight: 2, marginBottom: -2 }} />
                                 {group.members.length}
                                 <Text>  </Text>
-                                <Ionicons name="flag-outline" size={15} color={isDark ? '#B0BEC5' : '#757575'} style={{ marginRight: 2, marginBottom: -2 }} />
+                                <Ionicons name="flag-outline" size={15} color={colors.accent} style={{ marginRight: 2, marginBottom: -2 }} />
                                 {group.target}
                                 <Text>  </Text>
                                 {group.dhikrType}
@@ -936,42 +963,52 @@ export default function ThasbihScreen() {
                   {/* Joined Groups */}
                   {groupSessions.filter(g => g.members[0] !== 'You').length > 0 && (
                     <>
-                      <Text style={{ color: isDark ? '#B0BEC5' : '#757575', fontSize: 16, fontWeight: 'bold', marginTop: 20, marginBottom: 10 }}>Joined Groups</Text>
+                      <Text style={{ color: colors.text, fontSize: 16, fontWeight: 'bold', marginTop: 20, marginBottom: 10 }}>
+                        {isMalayalam ? 'ചേർന്ന ഗ്രൂപ്പുകൾ' : 'Joined Groups'}
+                      </Text>
                       {groupSessions.filter(g => g.members[0] !== 'You').map((group) => (
                         <TouchableOpacity
                           key={group.id}
-                          style={[styles.groupListItem, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+                          style={[styles.groupListItem, { backgroundColor: colors.card }]}
                           onPress={() => {
                             setSelectedGroup(group);
                             setShowHistoryModal(false);
                           }}
                         >
                           <View>
-                            <Text style={[styles.groupListName, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                            <Text style={[styles.groupListName, { color: colors.text }]}>
                               {group.name}
                             </Text>
-                            <Text style={[styles.groupListInfo, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+                            <Text style={[styles.groupListInfo, { color: colors.accent }]}>
                               {group.members.length} members • Target: {group.target} • {group.dhikrType}
                             </Text>
                           </View>
-                          <Ionicons name="chevron-forward" size={20} color={isDark ? '#B0BEC5' : '#757575'} />
+                          <Ionicons name="chevron-forward" size={20} color={colors.accent} />
                         </TouchableOpacity>
                       ))}
                     </>
                   )}
                 </>
               ) : (
-                <Text style={[styles.noGroupsText, { color: isDark ? '#B0BEC5' : '#757575' }]}>
-                  No group history
+                <Text style={[styles.noGroupsText, { color: colors.accent }]}>
+                  {isMalayalam ? 'ഗ്രൂപ്പ് ചരിത്രം ലഭ്യമല്ല' : 'No group history'}
                 </Text>
               )}
             </ScrollView>
             <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: isDark ? '#333333' : '#F5F5F5' }]}
+              style={{
+                backgroundColor: colors.primary,
+                paddingVertical: 16,
+                borderRadius: 12,
+                marginTop: 16,
+                alignSelf: 'center',
+                width: '90%',
+                alignItems: 'center',
+              }}
               onPress={() => setShowHistoryModal(false)}
             >
-              <Text style={[styles.modalButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-                Close
+              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' }}>
+                {isMalayalam ? 'അടയ്ക്കുക' : 'Close'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -1000,7 +1037,7 @@ export default function ThasbihScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -1049,7 +1086,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
     borderWidth: 1,
     borderColor: 'transparent',
-    backgroundColor: '#FFFFFF',
     minWidth: 80,
     justifyContent: 'center',
     shadowColor: '#000',
@@ -1093,11 +1129,11 @@ const styles = StyleSheet.create({
     borderRadius: 160,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#43cea2',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.25,
-    shadowRadius: 32,
-    elevation: 18,
+    // shadowColor: '#43cea2',
+    // shadowOffset: { width: 0, height: 12 },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 32,
+    // elevation: 18,
     borderWidth: 0,
     position: 'relative',
   },
@@ -1281,10 +1317,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 20,
     elevation: 10,
+    backgroundColor: colors.card,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 14,
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -1293,6 +1335,8 @@ const styles = StyleSheet.create({
     padding: 16,
     fontSize: 16,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: colors.accent,
   },
   modalButtons: {
     flexDirection: 'row',
@@ -1329,6 +1373,8 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     gap: 10,
+    borderWidth: 1,
+    borderColor: colors.accent,
   },
   groupListName: {
     fontSize: 17,

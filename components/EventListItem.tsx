@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/theme';
 import { HIJRI_MONTHS, IslamicEvent } from '@/data/hijri-events';
 import { HIJRI_MONTHS_ML, IslamicEventML } from '@/data/hijri-events-ml';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -15,20 +16,10 @@ interface EventListItemProps {
 export const EventListItem: React.FC<EventListItemProps> = ({ event, onPress, displayTitle, isMalayalam = false }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const colors = isDark ? Colors.dark : Colors.light;
 
   const getTypeColor = () => {
-    switch (event.type) {
-      case 'religious':
-        return '#4CAF50';
-      case 'wafat':
-        return '#9C27B0';
-      case 'birth':
-        return '#2196F3';
-      case 'historic':
-        return '#FF9800';
-      default:
-        return '#607D8B';
-    }
+    return colors.eventTypes[event.type as keyof typeof colors.eventTypes] || colors.primary;
   };
 
   const months = isMalayalam ? HIJRI_MONTHS_ML : HIJRI_MONTHS;
@@ -43,7 +34,7 @@ export const EventListItem: React.FC<EventListItemProps> = ({ event, onPress, di
       onPress={onPress}
       style={[
         styles.container, 
-        { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }
+        { backgroundColor: colors.card }
       ]}
     >
       <View style={[styles.dateContainer, { backgroundColor: getTypeColor() }]}>
@@ -54,14 +45,14 @@ export const EventListItem: React.FC<EventListItemProps> = ({ event, onPress, di
       <View style={styles.contentContainer}>
         <View style={styles.titleRow}>
           <Text 
-            style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+            style={[styles.title, { color: colors.text }]}
             numberOfLines={1}
           >
             {title}
           </Text>
         </View>
         <Text 
-          style={[styles.description, { color: isDark ? '#9E9E9E' : '#616161' }]}
+          style={[styles.description, { color: colors.text }]}
           numberOfLines={2}
         >
           {description}
