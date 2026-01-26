@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ISLAMIC_EVENTS, IslamicEvent } from '@/data/hijri-events';
 import { PrayerName } from '@/data/prayer-tracker';
@@ -9,9 +10,10 @@ import { getPrayerTimes } from '@/utils/prayer-times';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface NotificationItem {
   id: string;
@@ -393,7 +395,7 @@ export default function NotificationsScreen() {
 
   const renderRightActions = (id: string) => (
     <TouchableOpacity
-      style={[styles.deleteButton, { backgroundColor: '#FF5252' }]}
+      style={[styles.deleteButton, { backgroundColor: '#C62828' }]}
       onPress={() => deleteNotification(id)}
     >
       <Ionicons name="trash-outline" size={24} color="#FFFFFF" />
@@ -405,15 +407,15 @@ export default function NotificationsScreen() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: isDark ? Colors.dark.background : Colors.light.background }]}>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
         {/* Header */}
-        <View style={[styles.header, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+        <View style={[styles.header, { backgroundColor: isDark ? Colors.dark.card : Colors.light.card }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color={isDark ? '#FFFFFF' : '#1A1A1A'} />
+            <Ionicons name="arrow-back" size={24} color={isDark ? Colors.dark.text : Colors.light.text} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <Text style={[styles.headerTitle, { color: isDark ? Colors.dark.text : Colors.light.text }]}>
             {isMalayalam ? 'അറിയിപ്പുകൾ' : 'Notifications'}
           </Text>
           <View style={styles.placeholder} />
@@ -422,15 +424,15 @@ export default function NotificationsScreen() {
         <ScrollView showsVerticalScrollIndicator={false}>
           {loading ? (
             <View style={styles.emptyContainer}>
-              <Ionicons name="hourglass-outline" size={64} color={isDark ? '#757575' : '#BDBDBD'} />
-              <Text style={[styles.emptyText, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+              <Ionicons name="hourglass-outline" size={64} color={isDark ? Colors.dark.secondary : Colors.light.secondary} />
+              <Text style={[styles.emptyText, { color: isDark ? Colors.dark.secondary : Colors.light.secondary }]}>
                 {isMalayalam ? 'ലോഡിംഗ്...' : 'Loading...'}
               </Text>
             </View>
           ) : notifications.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Ionicons name="notifications-off-outline" size={64} color={isDark ? '#757575' : '#BDBDBD'} />
-              <Text style={[styles.emptyText, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+              <Ionicons name="notifications-off-outline" size={64} color={isDark ? Colors.dark.secondary : Colors.light.secondary} />
+              <Text style={[styles.emptyText, { color: isDark ? Colors.dark.secondary : Colors.light.secondary }]}>
                 {isMalayalam ? 'അറിയിപ്പുകളൊന്നുമില്ല' : 'No notifications yet'}
               </Text>
             </View>
@@ -446,8 +448,8 @@ export default function NotificationsScreen() {
                     style={[
                       styles.notificationItem,
                       {
-                        backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
-                        borderColor: isDark ? '#333333' : '#E0E0E0',
+                        backgroundColor: isDark ? Colors.dark.card : Colors.light.card,
+                        borderColor: isDark ? Colors.dark.accent : Colors.light.accent,
                       },
                     ]}
                     activeOpacity={0.7}
@@ -474,24 +476,24 @@ export default function NotificationsScreen() {
                   >
                     <View style={styles.notificationContent}>
                       <View style={styles.notificationHeader}>
-                        <Text style={[styles.notificationTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                        <Text style={[styles.notificationTitle, { color: isDark ? Colors.dark.text : Colors.light.text }]}>
                           {notification.title}
                         </Text>
                         {!notification.read && (
                           <View style={styles.unreadDot} />
                         )}
                       </View>
-                      <Text style={[styles.notificationMessage, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+                      <Text style={[styles.notificationMessage, { color: isDark ? Colors.dark.secondary : Colors.light.secondary }]}>
                         {notification.message}
                       </Text>
-                      <Text style={[styles.notificationTime, { color: isDark ? '#757575' : '#9E9E9E' }]}>
+                      <Text style={[styles.notificationTime, { color: isDark ? Colors.dark.secondary : Colors.light.secondary }]}>
                         {formatTime12Hour(notification.time)}
                       </Text>
                     </View>
                     <Ionicons
                       name="chevron-forward"
                       size={20}
-                      color={isDark ? '#757575' : '#BDBDBD'}
+                      color={isDark ? Colors.dark.secondary : Colors.light.secondary}
                       style={styles.arrowIcon}
                     />
                   </TouchableOpacity>
@@ -510,25 +512,25 @@ export default function NotificationsScreen() {
         onRequestClose={() => setHadithModal({ visible: false })}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? Colors.dark.card : Colors.light.card }]}>
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+              <Text style={[styles.modalTitle, { color: isDark ? Colors.dark.text : Colors.light.text }]}>
                 {hadithModal.title}
               </Text>
               <TouchableOpacity
                 onPress={() => setHadithModal({ visible: false })}
                 style={styles.closeButton}
               >
-                <Ionicons name="close" size={24} color={isDark ? '#FFFFFF' : '#1A1A1A'} />
+                <Ionicons name="close" size={24} color={isDark ? Colors.dark.text : Colors.light.text} />
               </TouchableOpacity>
             </View>
 
             {hadithModal.hadith && (
               <ScrollView style={styles.hadithContainer}>
-                <Text style={[styles.hadithText, { color: isDark ? '#E0E0E0' : '#333333' }]}>
+                <Text style={[styles.hadithText, { color: isDark ? Colors.dark.text : Colors.light.text }]}>
                   &ldquo;{hadithModal.hadith.text}&rdquo;
                 </Text>
-                <Text style={[styles.hadithSource, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+                <Text style={[styles.hadithSource, { color: isDark ? Colors.dark.secondary : Colors.light.secondary }]}>
                   — {hadithModal.hadith.source}
                 </Text>
               </ScrollView>
@@ -550,7 +552,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: Colors.light.accent,
   },
   backButton: {
     padding: 8,
@@ -607,7 +609,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#2E7D32',
+    backgroundColor: Colors.light.primary,
   },
   notificationMessage: {
     fontSize: 14,
@@ -658,7 +660,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: Colors.light.accent,
   },
   modalTitle: {
     fontSize: 18,

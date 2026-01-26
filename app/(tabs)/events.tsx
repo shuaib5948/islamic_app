@@ -1,5 +1,6 @@
 import { EventCard } from '@/components/EventCard';
 import { EventListItem } from '@/components/EventListItem';
+import { Colors } from '@/constants/theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { HIJRI_MONTHS, ISLAMIC_EVENTS, IslamicEvent } from '@/data/hijri-events';
 import { HIJRI_MONTHS_ML, ISLAMIC_EVENTS_ML, IslamicEventML } from '@/data/hijri-events-ml';
@@ -18,6 +19,7 @@ export default function EventsScreen() {
   const isDark = colorScheme === 'dark';
   const { language, t } = useLanguage();
   const isMalayalam = language === 'ml';
+  const colors = isDark ? Colors.dark : Colors.light;
 
   // Use fast fallback Hijri date (sync)
   const todayHijri = require('@/utils/hijri-date').getTodayHijri();
@@ -248,41 +250,41 @@ export default function EventsScreen() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
+<SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Text style={[styles.backIcon, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>←</Text>
+          <Text style={[styles.backIcon, { color: colors.text }]}>←</Text>
         </TouchableOpacity>
         <View>
-          <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <Text style={[styles.title, { color: colors.text }]}>
             {isMalayalam ? 'ഇസ്ലാമിക മുഹൂർത്തങ്ങൾ' : 'Islamic Events'}
           </Text>
         </View>
         <TouchableOpacity onPress={() => setShowAddEventModal(true)} style={styles.addButton}>
-          <Text style={[styles.addIcon, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>+</Text>
+          <Text style={[styles.addIcon, { color: colors.primary }]}>+</Text>
         </TouchableOpacity>
       </View>
 
       {/* Upcoming Event Box (only after Hijri date loads) */}
       {!isLoadingHijri && upcomingEvent && (
         <TouchableOpacity 
-          style={[styles.upcomingBox, { backgroundColor: isDark ? '#1E3A5F' : '#E3F2FD' }]}
+          style={[styles.upcomingBox, { backgroundColor: colors.primary }]}
           onPress={() => setSelectedEvent(upcomingEvent)}
           activeOpacity={0.7}
         >
-          <Text style={[styles.upcomingLabel, { color: isDark ? '#90CAF9' : '#1565C0' }]}> 
+          <Text style={[styles.upcomingLabel, { color: '#FFFFFF' }]}> 
             {isMalayalam
               ? (isTodayEvent ? 'ഇന്നത്തെ പരിപാടി' : 'അടുത്ത പരിപാടി')
               : (isTodayEvent ? 'Today Event' : 'Upcoming Event')
             }
           </Text>
-          <Text style={[styles.upcomingTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}> 
+          <Text style={[styles.upcomingTitle, { color: '#FFFFFF' }]}> 
             {String(isMalayalam && upcomingEvent && 'titleMl' in upcomingEvent ? upcomingEvent.titleMl : upcomingEvent?.title || '')}
           </Text>
-          <Text style={[styles.upcomingDate, { color: isDark ? '#B0BEC5' : '#757575' }]}> 
+          <Text style={[styles.upcomingDate, { color: 'rgba(255, 255, 255, 0.9)' }]}> 
             {isTodayEvent
               ? (isMalayalam ? 'ഇന്ന്' : 'Today')
               : `${upcomingEvent.day} ${baseMonths[upcomingEvent.month - 1]?.name}`
@@ -290,7 +292,7 @@ export default function EventsScreen() {
           </Text>
         </TouchableOpacity>
       )}
-      <View style={{ zIndex: 2, elevation: 2, backgroundColor: isDark ? '#121212' : '#F5F5F5', marginBottom: 8 }}>
+      <View style={{ zIndex: 2, elevation: 2, backgroundColor: colors.background, marginBottom: 8 }}>
         <ScrollView
           ref={monthScrollRef}
           horizontal
@@ -303,7 +305,7 @@ export default function EventsScreen() {
               styles.monthChip,
               selectedMonth === null && styles.monthChipSelected,
               {
-                backgroundColor: selectedMonth === null ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
+                backgroundColor: selectedMonth === null ? colors.primary : colors.card,
                 paddingHorizontal: 16, // increased padding for better text spacing
                 minWidth: 60, // reduced minimum width for shorter month names
                 alignSelf: 'flex-start',
@@ -315,7 +317,7 @@ export default function EventsScreen() {
             <Text
               style={[
                 styles.monthChipText,
-                { color: selectedMonth === null ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
+                { color: selectedMonth === null ? '#FFFFFF' : colors.text },
               ]}
               numberOfLines={1}
             >
@@ -329,7 +331,7 @@ export default function EventsScreen() {
                 styles.monthChip,
                 selectedMonth === month.number && styles.monthChipSelected,
                 {
-                  backgroundColor: selectedMonth === month.number ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
+                  backgroundColor: selectedMonth === month.number ? colors.primary : colors.card,
                   paddingHorizontal: 16, // increased padding for better text spacing
                   minWidth: 60, // reduced minimum width for shorter month names
                   alignSelf: 'flex-start',
@@ -341,7 +343,7 @@ export default function EventsScreen() {
               <Text
                 style={[
                   styles.monthChipText,
-                  { color: selectedMonth === month.number ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
+                  { color: selectedMonth === month.number ? '#FFFFFF' : colors.text },
                 ]}
                 numberOfLines={1}
               >
@@ -388,7 +390,7 @@ export default function EventsScreen() {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={[styles.emptyText, { color: isDark ? '#757575' : '#9E9E9E' }]}>
+            <Text style={[styles.emptyText, { color: colors.text }]}>
               {isMalayalam ? 'ഇവൻ്റുകളൊന്നും കണ്ടെത്തിയില്ല' : 'No events found'}
             </Text>
           </View>
@@ -404,10 +406,10 @@ export default function EventsScreen() {
         onRequestClose={() => setSelectedEvent(null)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
             {/* Modal Header */}
-            <View style={[styles.modalHeader, { borderBottomColor: isDark ? '#333' : '#E0E0E0' }]}>
-              <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.card }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
                 Event Details
               </Text>
               <View style={styles.modalHeaderButtons}>
@@ -426,7 +428,7 @@ export default function EventsScreen() {
                   onPress={() => setSelectedEvent(null)}
                   style={styles.closeButton}
                 >
-                  <Text style={[styles.closeButtonText, { color: isDark ? '#B0BEC5' : '#757575' }]}>✕</Text>
+                  <Text style={[styles.closeButtonText, { color: colors.accent }]}>✕</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -435,7 +437,7 @@ export default function EventsScreen() {
             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
               {/* Date Info */}
               {selectedEvent && (
-                <View style={[styles.dateInfoSection, { backgroundColor: isDark ? '#1B5E20' : '#2E7D32' }]}>
+                <View style={[styles.dateInfoSection, { backgroundColor: colors.primary }]}>
                   <Text style={styles.modalDateText}>
                     {baseMonths[selectedEvent.month - 1]?.name} {selectedEvent.day}
                   </Text>
@@ -468,17 +470,17 @@ export default function EventsScreen() {
         onRequestClose={() => setShowAddEventModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
             {/* Modal Header */}
-            <View style={[styles.modalHeader, { borderBottomColor: isDark ? '#333' : '#E0E0E0' }]}>
-              <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.card }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
                 {isMalayalam ? 'പുതിയ ഇവന്റ് ചേർക്കുക' : 'Add New Event'}
               </Text>
               <TouchableOpacity
                 onPress={() => setShowAddEventModal(false)}
                 style={styles.closeButton}
               >
-                <Text style={[styles.closeButtonText, { color: isDark ? '#B0BEC5' : '#757575' }]}>✕</Text>
+                <Text style={[styles.closeButtonText, { color: colors.accent }]}>✕</Text>
               </TouchableOpacity>
             </View>
 
@@ -487,17 +489,17 @@ export default function EventsScreen() {
               <View style={styles.formContainer}>
                 {/* Title Input */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>
                     {isMalayalam ? 'തലക്കെട്ട്' : 'Title'}
                   </Text>
                   <TextInput
                     style={[styles.textInput, {
-                      backgroundColor: isDark ? '#263238' : '#F5F5F5',
-                      color: isDark ? '#FFFFFF' : '#1A1A1A',
-                      borderColor: isDark ? '#333' : '#E0E0E0'
+                      backgroundColor: colors.card,
+                      color: colors.text,
+                      borderColor: colors.card
                     }]}
                     placeholder={isMalayalam ? 'ഇവന്റ് തലക്കെട്ട്' : 'Event title'}
-                    placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+                    placeholderTextColor={colors.text}
                     value={newEvent.title}
                     onChangeText={(text) => setNewEvent({ ...newEvent, title: text })}
                   />
@@ -505,17 +507,17 @@ export default function EventsScreen() {
 
                 {/* Description Input */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>
                     {isMalayalam ? 'വിവരണം' : 'Description'}
                   </Text>
                   <TextInput
                     style={[styles.textArea, {
-                      backgroundColor: isDark ? '#263238' : '#F5F5F5',
-                      color: isDark ? '#FFFFFF' : '#1A1A1A',
-                      borderColor: isDark ? '#333' : '#E0E0E0'
+                      backgroundColor: colors.card,
+                      color: colors.text,
+                      borderColor: colors.card
                     }]}
                     placeholder={isMalayalam ? 'ഇവന്റ് വിവരണം' : 'Event description'}
-                    placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+                    placeholderTextColor={colors.text}
                     multiline
                     numberOfLines={4}
                     value={newEvent.description}
@@ -525,7 +527,7 @@ export default function EventsScreen() {
 
                 {/* Month Selection */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>
                     {isMalayalam ? 'മാസം' : 'Month'}
                   </Text>
                   <ScrollView
@@ -541,7 +543,7 @@ export default function EventsScreen() {
                           styles.monthChip,
                           newEvent.month === month.number && styles.monthChipSelected,
                           {
-                            backgroundColor: newEvent.month === month.number ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
+                            backgroundColor: newEvent.month === month.number ? colors.primary : colors.card,
                             paddingHorizontal: 16,
                             minWidth: 60,
                             alignSelf: 'flex-start',
@@ -553,7 +555,7 @@ export default function EventsScreen() {
                         <Text
                           style={[
                             styles.monthChipText,
-                            { color: newEvent.month === month.number ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
+                            { color: newEvent.month === month.number ? '#FFFFFF' : colors.text },
                           ]}
                           numberOfLines={1}
                         >
@@ -566,7 +568,7 @@ export default function EventsScreen() {
 
                 {/* Day Selection */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>
                     {isMalayalam ? 'ദിവസം' : 'Day'}
                   </Text>
                   <ScrollView
@@ -582,7 +584,7 @@ export default function EventsScreen() {
                           styles.monthChip,
                           newEvent.day === day && styles.monthChipSelected,
                           {
-                            backgroundColor: newEvent.day === day ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
+                            backgroundColor: newEvent.day === day ? colors.primary : colors.card,
                             paddingHorizontal: 12,
                             minWidth: 50,
                             alignSelf: 'flex-start',
@@ -594,7 +596,7 @@ export default function EventsScreen() {
                         <Text
                           style={[
                             styles.monthChipText,
-                            { color: newEvent.day === day ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
+                            { color: newEvent.day === day ? '#FFFFFF' : colors.text },
                           ]}
                           numberOfLines={1}
                         >
@@ -607,7 +609,7 @@ export default function EventsScreen() {
 
                 {/* Type Selection */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>
                     {isMalayalam ? 'തരം' : 'Type'}
                   </Text>
                   <ScrollView
@@ -628,7 +630,7 @@ export default function EventsScreen() {
                           styles.monthChip,
                           newEvent.type === type.key && styles.monthChipSelected,
                           {
-                            backgroundColor: newEvent.type === type.key ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
+                            backgroundColor: newEvent.type === type.key ? colors.eventTypes[type.key as keyof typeof colors.eventTypes] : colors.card,
                             paddingHorizontal: 16,
                             minWidth: 80,
                             alignSelf: 'flex-start',
@@ -640,7 +642,7 @@ export default function EventsScreen() {
                         <Text
                           style={[
                             styles.monthChipText,
-                            { color: newEvent.type === type.key ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
+                            { color: newEvent.type === type.key ? '#FFFFFF' : colors.text },
                           ]}
                           numberOfLines={1}
                         >
@@ -654,18 +656,18 @@ export default function EventsScreen() {
                 {/* Action Buttons */}
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity
-                    style={[styles.cancelButton, { backgroundColor: isDark ? '#333' : '#E0E0E0' }]}
+                    style={[styles.cancelButton, { backgroundColor: colors.card }]}
                     onPress={() => {
                       setShowAddEventModal(false);
                       setNewEvent({ title: '', description: '', month: todayHijriMonth, day: todayHijriDay, type: 'religious' });
                     }}
                   >
-                    <Text style={[styles.cancelButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                    <Text style={[styles.cancelButtonText, { color: colors.text }]}>
                       {isMalayalam ? 'റദ്ദാക്കുക' : 'Cancel'}
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.saveButton, { backgroundColor: '#2E7D32' }]}
+                    style={[styles.saveButton, { backgroundColor: colors.primary }]}
                     onPress={handleSaveEvent}
                   >
                     <Text style={styles.saveButtonText}>

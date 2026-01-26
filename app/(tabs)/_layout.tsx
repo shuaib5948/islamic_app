@@ -1,16 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 
+import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#2E7D32',
-        tabBarInactiveTintColor: colorScheme === 'dark' ? '#757575' : '#9E9E9E',
+        tabBarActiveTintColor: colors.tabIconSelected,
+        tabBarInactiveTintColor: colors.tabIconDefault,
         headerShown: false,
       }}
     >
@@ -73,12 +75,6 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="faraid"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="quran-tracker"
         options={{
           href: null,
         }}

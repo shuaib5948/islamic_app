@@ -10,12 +10,24 @@ const tintColorDark = '#fff';
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    text: '#5F6D4E',
+    background: '#F4F1EC',
+    tint: '#7F8F6A',
+    icon: '#7F8F6A',
+    tabIconDefault: '#9EAD8A',
+    tabIconSelected: '#7F8F6A',
+    primary: '#7F8F6A',
+    secondary: '#9EAD8A',
+    accent: '#E8E2D8',
+    card: '#FFFFFF',
+    hadith: '#7F8F6A',
+    hadithText: '#F4F1EC',
+    eventTypes: {
+      religious: '#7F8F6A', // Main olive sage
+      historic: '#6B7F5A',  // Darker olive
+      birth: '#8FA67A',     // Lighter olive
+      wafat: '#5A6B4A',     // Darkest olive
+    },
   },
   dark: {
     text: '#ECEDEE',
@@ -24,6 +36,18 @@ export const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
+    primary: '#7F8F6A',
+    secondary: '#9EAD8A',
+    accent: '#E8E2D8',
+    card: '#1E1E1E',
+    hadith: '#1E3A5F',
+    hadithText: '#FFFFFF',
+    eventTypes: {
+      religious: '#7F8F6A', // Main olive sage
+      historic: '#6B7F5A',  // Darker olive
+      birth: '#8FA67A',     // Lighter olive
+      wafat: '#5A6B4A',     // Darkest olive
+    },
   },
 };
 

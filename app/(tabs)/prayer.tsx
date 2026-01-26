@@ -1,4 +1,5 @@
 import { ContributionGraph } from '@/components/ContributionGraph';
+import { Colors } from '@/constants/theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
   DailyPrayers,
@@ -33,7 +34,6 @@ import {
   Dimensions,
   Modal,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -41,6 +41,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Prayer icon mapping (using Ionicons)
 const PRAYER_ICONS: Record<PrayerName, string> = {
@@ -72,6 +73,7 @@ const getCurrentPrayerIndex = (prayerTimes: PrayerTimes, now: Date) => {
 export default function PrayerScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const colors = Colors[colorScheme];
   const { language } = useLanguage();
   const isMalayalam = language === 'ml';
 
@@ -211,59 +213,59 @@ export default function PrayerScreen() {
   const isToday = selectedDate === today;
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#0D1117' : '#F8FAFC' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#10B981']} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.secondary]} />}
       >
         {/* Header Section */}
         <View style={styles.headerSection}>
           <View style={styles.headerTop}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color={isDark ? '#FFFFFF' : '#0F172A'} />
+              <Ionicons name="arrow-back" size={24} color={colors.text} />
             </TouchableOpacity>
             <View style={styles.headerTitles}>
-              <Text style={[styles.headerTitle, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+              <Text style={[styles.headerTitle, { color: colors.text }]}>
                 {labels.prayerTracker}
               </Text>
             </View>
             {stats && (
               <View style={styles.streakContainer}>
-                <Ionicons name="flame" size={20} color="#FF6B35" />
-                <Text style={[styles.streakText, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+                <Ionicons name="flame" size={20} color="#F59E0B" />
+                <Text style={[styles.streakText, { color: colors.text }]}>
                   {stats.currentStreak}
                 </Text>
               </View>
             )}
           </View>
           {/* Location indicator */}
-          <View style={[styles.locationContainer, { backgroundColor: isDark ? '#1C2128' : '#F1F5F9' }]}>
+          <View style={[styles.locationContainer, { backgroundColor: colors.card }]}>
             {loadingPrayerTimes ? (
               <View style={styles.locationRow}>
-                <ActivityIndicator size="small" color={isDark ? '#8B949E' : '#64748B'} />
-                <Text style={[styles.locationText, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                <ActivityIndicator size="small" color={colors.secondary} />
+                <Text style={[styles.locationText, { color: colors.secondary }]}>
                   {labels.loadingLocation}
                 </Text>
               </View>
             ) : (
               <TouchableOpacity style={styles.locationRow} onPress={() => loadPrayerTimes(true)}>
-                <Ionicons name="location-outline" size={16} color={isDark ? '#8B949E' : '#64748B'} />
-                <Text style={[styles.locationText, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+                <Ionicons name="location-outline" size={16} color={colors.secondary} />
+                <Text style={[styles.locationText, { color: colors.text }]}>
                   {prayerTimesData?.location?.city || 'Unknown Location'}{prayerTimesData?.location?.country ? `, ${prayerTimesData.location.country}` : ''}
                 </Text>
-                <Ionicons name="refresh-outline" size={14} color={isDark ? '#6B7280' : '#9CA3AF'} style={{ marginLeft: 6 }} />
+                <Ionicons name="refresh-outline" size={14} color={colors.secondary} style={{ marginLeft: 6 }} />
               </TouchableOpacity>
             )}
           </View>
         </View>
 
         {/* Combined Card: Next Prayer + Today's Goal */}
-        <View style={[styles.combinedCard, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
+        <View style={[styles.combinedCard, { backgroundColor: colors.card }]}>
           {/* Left: Next Prayer */}
           <View style={styles.combinedLeft}>
-            <Text style={[styles.combinedLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>
+            <Text style={[styles.combinedLabel, { color: colors.secondary }]}>
               {labels.nextPrayer}
             </Text>
             {loadingPrayerTimes ? (
@@ -274,17 +276,17 @@ export default function PrayerScreen() {
                   <Ionicons 
                     name={PRAYER_ICONS[getNextPrayer.name] as any} 
                     size={20} 
-                    color={isDark ? '#FFFFFF' : '#0F172A'} 
+                    color={colors.text} 
                     style={{ marginRight: 6 }}
                   />
-                  <Text style={[styles.combinedPrayerName, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+                  <Text style={[styles.combinedPrayerName, { color: colors.text }]}>
                     {getNextPrayer.info?.label}
                   </Text>
                 </View>
                 <Text style={[styles.combinedCountdown, { color: '#10B981' }]}>
                   {getNextPrayer.timeLeft}
                 </Text>
-                <Text style={[styles.combinedTime, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                <Text style={[styles.combinedTime, { color: colors.secondary }]}>
                   at {getNextPrayer.timeString}
                 </Text>
               </>
@@ -292,21 +294,21 @@ export default function PrayerScreen() {
           </View>
 
           {/* Divider */}
-          <View style={[styles.combinedDivider, { backgroundColor: isDark ? '#30363D' : '#E2E8F0' }]} />
+          <View style={[styles.combinedDivider, { backgroundColor: colors.secondary }]} />
 
           {/* Right: Today's Goal */}
           <View style={styles.combinedRight}>
-            <Text style={[styles.combinedLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>
+            <Text style={[styles.combinedLabel, { color: colors.secondary }]}>
               {labels.todayProgress}
             </Text>
             <View style={[
               styles.goalCircle,
               { 
-                borderColor: completedCount === 5 ? '#10B981' : isDark ? '#30363D' : '#E2E8F0',
+                borderColor: completedCount === 5 ? '#10B981' : colors.secondary,
                 backgroundColor: completedCount === 5 ? 'rgba(16, 185, 129, 0.1)' : 'transparent'
               }
             ]}>
-              <Text style={[styles.goalCount, { color: completedCount === 5 ? '#10B981' : isDark ? '#FFFFFF' : '#0F172A' }]}>
+              <Text style={[styles.goalCount, { color: completedCount === 5 ? '#10B981' : colors.text }]}>
                 {completedCount}/5
               </Text>
             </View>
@@ -331,14 +333,14 @@ export default function PrayerScreen() {
             }}
             style={styles.dateArrowBtn}
           >
-            <Text style={[styles.dateArrow, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>‹</Text>
+            <Text style={[styles.dateArrow, { color: colors.text }]}>‹</Text>
           </TouchableOpacity>
           
           <TouchableOpacity
             onPress={() => setSelectedDate(today)}
             style={styles.dateDisplay}
           >
-            <Text style={[styles.dateText, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+            <Text style={[styles.dateText, { color: colors.text }]}>
               {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
               {isToday && <Text style={styles.todayBadge}> • Today</Text>}
             </Text>
@@ -355,7 +357,7 @@ export default function PrayerScreen() {
             style={[styles.dateArrowBtn, new Date(selectedDate) >= new Date(today) && styles.dateArrowDisabled]}
             disabled={new Date(selectedDate) >= new Date(today)}
           >
-            <Text style={[styles.dateArrow, { color: new Date(selectedDate) >= new Date(today) ? (isDark ? '#30363D' : '#E2E8F0') : (isDark ? '#FFFFFF' : '#0F172A') }]}>›</Text>
+            <Text style={[styles.dateArrow, { color: new Date(selectedDate) >= new Date(today) ? colors.secondary : colors.text }]}>›</Text>
           </TouchableOpacity>
         </View>
 
@@ -384,7 +386,7 @@ export default function PrayerScreen() {
                   { 
                     backgroundColor: isLate 
                       ? (isDark ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.08)')
-                      : (isDark ? '#1C2128' : '#FFFFFF')
+                      : colors.card
                   },
                   isCompleted && (isLate ? styles.prayerCardLate : styles.prayerCardCompleted),
                   !canMark && { opacity: 0.5 },
@@ -396,7 +398,7 @@ export default function PrayerScreen() {
                     {
                       backgroundColor: isCompleted
                         ? status === 'prayed' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.2)'
-                        : isDark ? '#30363D' : '#F1F5F9',
+                        : colors.secondary + '20', // Add transparency to secondary color
                     }
                   ]}>
                     <Ionicons 
@@ -404,20 +406,20 @@ export default function PrayerScreen() {
                       size={22} 
                       color={isCompleted 
                         ? status === 'prayed' ? '#10B981' : '#F59E0B'
-                        : isDark ? '#8B949E' : '#64748B'
+                        : colors.secondary
                       } 
                     />
                   </View>
                   <View>
                     <View style={styles.prayerNameRow}>
-                      <Text style={[styles.prayerName, { color: isLate ? '#F59E0B' : (isDark ? '#FFFFFF' : '#0F172A') }]}>
+                      <Text style={[styles.prayerName, { color: isLate ? '#F59E0B' : colors.text }]}>
                         {info?.label}
                       </Text>
-                      <Text style={[styles.prayerTime, { color: isLate ? '#D97706' : (isDark ? '#8B949E' : '#64748B') }]}>
+                      <Text style={[styles.prayerTime, { color: isLate ? '#D97706' : colors.secondary }]}>
                         {formatTimeDisplay(time)}
                       </Text>
                     </View>
-                    <Text style={[styles.prayerArabic, { color: isLate ? '#D97706' : (isDark ? '#8B949E' : '#64748B') }]}>
+                    <Text style={[styles.prayerArabic, { color: isLate ? '#D97706' : colors.secondary }]}>
                       {info?.arabic}
                     </Text>
                   </View>
@@ -440,8 +442,8 @@ export default function PrayerScreen() {
                       </Text>
                     </View>
                   ) : (
-                    <View style={[styles.markButton, { borderColor: isDark ? '#30363D' : '#E2E8F0' }]}>
-                      <Text style={[styles.markButtonText, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                    <View style={[styles.markButton, { borderColor: colors.secondary + '40' }]}>
+                      <Text style={[styles.markButtonText, { color: colors.secondary }]}>
                         Tap to mark
                       </Text>
                     </View>
@@ -457,10 +459,10 @@ export default function PrayerScreen() {
 
         {/* Stats Summary */}
         {stats && (
-          <View style={[styles.statsCard, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
+          <View style={[styles.statsCard, { backgroundColor: colors.card }]}>
             <View style={styles.statsTitleRow}>
-              <Ionicons name="stats-chart" size={18} color={isDark ? '#FFFFFF' : '#0F172A'} style={{ marginRight: 8 }} />
-              <Text style={[styles.statsTitle, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+              <Ionicons name="stats-chart" size={18} color={colors.text} style={{ marginRight: 8 }} />
+              <Text style={[styles.statsTitle, { color: colors.text }]}>
                 30-Day Summary
               </Text>
             </View>
@@ -468,35 +470,35 @@ export default function PrayerScreen() {
             <View style={styles.statsGrid}>
               <View style={styles.statsItem}>
                 <Text style={[styles.statsValue, { color: '#10B981' }]}>{stats.totalPrayed}</Text>
-                <Text style={[styles.statsLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>On-time</Text>
+                <Text style={[styles.statsLabel, { color: colors.secondary }]}>On-time</Text>
               </View>
               <View style={styles.statsItem}>
                 <Text style={[styles.statsValue, { color: '#F59E0B' }]}>{stats.totalLate}</Text>
-                <Text style={[styles.statsLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>Late</Text>
+                <Text style={[styles.statsLabel, { color: colors.secondary }]}>Late</Text>
               </View>
               <View style={styles.statsItem}>
-                <Text style={[styles.statsValue, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>{stats.consistencyPercentage}%</Text>
-                <Text style={[styles.statsLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>Consistency</Text>
+                <Text style={[styles.statsValue, { color: colors.text }]}>{stats.consistencyPercentage}%</Text>
+                <Text style={[styles.statsLabel, { color: colors.secondary }]}>Consistency</Text>
               </View>
             </View>
 
             {/* Streak Cards */}
             <View style={styles.streakCardsRow}>
-              <View style={[styles.streakCard, { backgroundColor: isDark ? '#30363D' : '#F8FAFC' }]}>
+              <View style={[styles.streakCard, { backgroundColor: colors.secondary + '20' }]}>
                 <Ionicons name="flame" size={20} color="#F59E0B" />
-                <Text style={[styles.streakCardValue, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+                <Text style={[styles.streakCardValue, { color: colors.text }]}>
                   {stats.currentStreak}
                 </Text>
-                <Text style={[styles.streakCardLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                <Text style={[styles.streakCardLabel, { color: colors.secondary }]}>
                   Current
                 </Text>
               </View>
-              <View style={[styles.streakCard, { backgroundColor: isDark ? '#30363D' : '#F8FAFC' }]}>
+              <View style={[styles.streakCard, { backgroundColor: colors.secondary + '20' }]}>
                 <Ionicons name="trophy" size={20} color="#10B981" />
-                <Text style={[styles.streakCardValue, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+                <Text style={[styles.streakCardValue, { color: colors.text }]}>
                   {stats.longestStreak}
                 </Text>
-                <Text style={[styles.streakCardLabel, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                <Text style={[styles.streakCardLabel, { color: colors.secondary }]}>
                   Best
                 </Text>
               </View>
@@ -505,12 +507,12 @@ export default function PrayerScreen() {
         )}
 
         {/* Motivation Quote */}
-        <View style={[styles.quoteCard, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
-          <Ionicons name="bulb-outline" size={24} color={isDark ? '#F59E0B' : '#F59E0B'} style={{ marginBottom: 8 }} />
-          <Text style={[styles.quoteText, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+        <View style={[styles.quoteCard, { backgroundColor: colors.card }]}>
+          <Ionicons name="bulb-outline" size={24} color="#F59E0B" style={{ marginBottom: 8 }} />
+          <Text style={[styles.quoteText, { color: colors.text }]}>
             "The first matter the slave will be brought to account for is prayer."
           </Text>
-          <Text style={[styles.quoteSource, { color: isDark ? '#8B949E' : '#64748B' }]}>
+          <Text style={[styles.quoteSource, { color: colors.secondary }]}>
             — Prophet Muhammad ﷺ
           </Text>
         </View>
@@ -526,8 +528,8 @@ export default function PrayerScreen() {
         onRequestClose={() => setShowStatusModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
-            <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.accent }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
               {labels.markPrayer}
             </Text>
             {selectedPrayer && (
@@ -535,15 +537,15 @@ export default function PrayerScreen() {
                 <Ionicons 
                   name={PRAYER_ICONS[selectedPrayer] as any} 
                   size={28} 
-                  color={isDark ? '#FFFFFF' : '#0F172A'} 
+                  color={colors.text} 
                   style={{ marginRight: 8 }}
                 />
-                <Text style={[styles.modalPrayerName, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+                <Text style={[styles.modalPrayerName, { color: colors.text }]}>
                   {getPrayerInfo(selectedPrayer)?.label}
                 </Text>
               </View>
             )}
-            <Text style={[styles.modalSubtitle, { color: isDark ? '#8B949E' : '#64748B' }]}>
+            <Text style={[styles.modalSubtitle, { color: colors.secondary }]}>
               {labels.howCompleted}
             </Text>
 
@@ -554,7 +556,7 @@ export default function PrayerScreen() {
               <Ionicons name="checkmark-circle" size={28} color="#10B981" style={{ marginRight: 14 }} />
               <View>
                 <Text style={[styles.statusOptionTitle, { color: '#10B981' }]}>{labels.onTime}</Text>
-                <Text style={[styles.statusOptionDesc, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                <Text style={[styles.statusOptionDesc, { color: colors.secondary }]}>
                   Prayed within the designated time
                 </Text>
               </View>
@@ -567,17 +569,17 @@ export default function PrayerScreen() {
               <Ionicons name="time" size={28} color="#F59E0B" style={{ marginRight: 14 }} />
               <View>
                 <Text style={[styles.statusOptionTitle, { color: '#F59E0B' }]}>{labels.late}</Text>
-                <Text style={[styles.statusOptionDesc, { color: isDark ? '#8B949E' : '#64748B' }]}>
+                <Text style={[styles.statusOptionDesc, { color: colors.secondary }]}>
                   Made up after the time passed
                 </Text>
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.cancelButton, { backgroundColor: isDark ? '#30363D' : '#F1F5F9' }]}
+              style={[styles.cancelButton, { backgroundColor: colors.secondary + '20' }]}
               onPress={() => setShowStatusModal(false)}
             >
-              <Text style={[styles.cancelButtonText, { color: isDark ? '#FFFFFF' : '#64748B' }]}>
+              <Text style={[styles.cancelButtonText, { color: colors.text }]}>
                 {labels.cancel}
               </Text>
             </TouchableOpacity>

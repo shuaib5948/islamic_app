@@ -1,5 +1,6 @@
 import { CalendarGrid } from '@/components/CalendarGrid';
 import { TodayHighlight } from '@/components/TodayHighlight';
+import { Colors } from '@/constants/theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getEventsForDate, HIJRI_MONTHS } from '@/data/hijri-events';
 import { HIJRI_MONTHS_ML } from '@/data/hijri-events-ml';
@@ -17,7 +18,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const toArabicNumerals = (num: number): string => {
   const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
@@ -29,6 +31,7 @@ export default function CalendarScreen() {
   const isDark = colorScheme === 'dark';
   const { language } = useLanguage();
   const isMalayalam = language === 'ml';
+  const colors = isDark ? Colors.dark : Colors.light;
 
   // Labels with Malayalam translations
   const labels = {
@@ -228,7 +231,7 @@ export default function CalendarScreen() {
                           selectedDay === todayHijri.day;
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       
       <ScrollView 
@@ -240,7 +243,7 @@ export default function CalendarScreen() {
         {/* App Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={[styles.backIcon, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>←</Text>
+            <Text style={[styles.backIcon, { color: colors.text }]}>←</Text>
           </TouchableOpacity>
           <View>
             <Text style={[styles.appTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
@@ -248,7 +251,7 @@ export default function CalendarScreen() {
             </Text>
           </View>
           <TouchableOpacity onPress={() => setShowAddEventModal(true)} style={styles.addButton}>
-            <Text style={[styles.addIcon, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>+</Text>
+            <Text style={[styles.addIcon, { color: colors.primary }]}>+</Text>
           </TouchableOpacity>
         </View>
 
@@ -268,16 +271,16 @@ export default function CalendarScreen() {
         />
 
         {/* Month Navigation */}
-        <View style={[styles.monthNavigation, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+        <View style={[styles.monthNavigation, { backgroundColor: colors.card }]}>
           <TouchableOpacity onPress={goToPreviousMonth} style={styles.navButton}>
-            <Text style={[styles.navButtonText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>‹</Text>
+            <Text style={[styles.navButtonText, { color: colors.primary }]}>‹</Text>
           </TouchableOpacity>
           
           <TouchableOpacity onPress={goToToday} style={styles.monthTitleContainer}>
-            <Text style={[styles.monthTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+            <Text style={[styles.monthTitle, { color: colors.text }]}>
               {monthName.name} {toArabicNumerals(currentYear)}
             </Text>
-            <Text style={[styles.monthTitleArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+            <Text style={[styles.monthTitleArabic, { color: colors.accent }]}>
               {monthName.arabic}
             </Text>
             {!isViewingToday && (
@@ -286,15 +289,15 @@ export default function CalendarScreen() {
           </TouchableOpacity>
           
           <TouchableOpacity onPress={goToNextMonth} style={styles.navButton}>
-            <Text style={[styles.navButtonText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>›</Text>
+            <Text style={[styles.navButtonText, { color: colors.primary }]}>›</Text>
           </TouchableOpacity>
         </View>
 
         {/* Calendar Grid */}
-        <View style={[styles.calendarContainer, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+        <View style={[styles.calendarContainer, { backgroundColor: colors.card }]}>
           {loadingCalendar ? (
             <View style={{ alignItems: 'center', marginTop: 32 }}>
-              <Text style={{ color: isDark ? '#B0BEC5' : '#757575' }}>Loading calendar...</Text>
+              <Text style={{ color: colors.accent }}>Loading calendar...</Text>
             </View>
           ) : (
             <CalendarGrid
@@ -319,24 +322,24 @@ export default function CalendarScreen() {
         onRequestClose={() => setShowAddEventModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             {/* Modal Header */}
-            <View style={[styles.modalHeader, { borderBottomColor: isDark ? '#333' : '#E0E0E0' }]}>
-              <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.accent }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
                 Add New Event
               </Text>
               <TouchableOpacity
                 onPress={() => setShowAddEventModal(false)}
                 style={styles.closeButton}
               >
-                <Text style={[styles.closeButtonText, { color: isDark ? '#B0BEC5' : '#757575' }]}>✕</Text>
+                <Text style={[styles.closeButtonText, { color: colors.accent }]}>✕</Text>
               </TouchableOpacity>
             </View>
 
             {/* Modal Body */}
             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
               {/* Date Info */}
-              <View style={[styles.dateInfoSection, { backgroundColor: isDark ? '#1B5E20' : '#2E7D32' }]}>
+              <View style={[styles.dateInfoSection, { backgroundColor: colors.primary }]}>
                 <Text style={styles.modalDateText}>
                   {selectedDay} {monthName.name} {currentYear}
                 </Text>
@@ -349,17 +352,17 @@ export default function CalendarScreen() {
               <View style={styles.formContainer}>
                 {/* Title Input */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>
                     Title
                   </Text>
                   <TextInput
                     style={[styles.textInput, {
-                      backgroundColor: isDark ? '#263238' : '#F5F5F5',
-                      color: isDark ? '#FFFFFF' : '#1A1A1A',
-                      borderColor: isDark ? '#333' : '#E0E0E0'
+                      backgroundColor: colors.background,
+                      color: colors.text,
+                      borderColor: colors.accent
                     }]}
                     placeholder="Event title"
-                    placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+                    placeholderTextColor={colors.accent}
                     value={newEvent.title}
                     onChangeText={(text) => setNewEvent({ ...newEvent, title: text })}
                   />
@@ -367,17 +370,17 @@ export default function CalendarScreen() {
 
                 {/* Description Input */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>
                     Description
                   </Text>
                   <TextInput
                     style={[styles.textArea, {
-                      backgroundColor: isDark ? '#263238' : '#F5F5F5',
-                      color: isDark ? '#FFFFFF' : '#1A1A1A',
-                      borderColor: isDark ? '#333' : '#E0E0E0'
+                      backgroundColor: colors.background,
+                      color: colors.text,
+                      borderColor: colors.accent
                     }]}
                     placeholder="Event description"
-                    placeholderTextColor={isDark ? '#B0BEC5' : '#757575'}
+                    placeholderTextColor={colors.accent}
                     multiline
                     numberOfLines={4}
                     value={newEvent.description}
@@ -387,7 +390,7 @@ export default function CalendarScreen() {
 
                 {/* Type Selection */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>
                     Type
                   </Text>
                   <ScrollView
@@ -408,7 +411,7 @@ export default function CalendarScreen() {
                           styles.monthChip,
                           newEvent.type === type.key && styles.monthChipSelected,
                           {
-                            backgroundColor: newEvent.type === type.key ? '#2E7D32' : isDark ? '#1E1E1E' : '#FFFFFF',
+                            backgroundColor: newEvent.type === type.key ? colors.primary : colors.card,
                             paddingHorizontal: 16,
                             minWidth: 80,
                             alignSelf: 'flex-start',
@@ -420,7 +423,7 @@ export default function CalendarScreen() {
                         <Text
                           style={[
                             styles.monthChipText,
-                            { color: newEvent.type === type.key ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' },
+                            { color: newEvent.type === type.key ? '#FFFFFF' : colors.text },
                           ]}
                           numberOfLines={1}
                         >
@@ -434,18 +437,18 @@ export default function CalendarScreen() {
                 {/* Action Buttons */}
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity
-                    style={[styles.cancelButton, { backgroundColor: isDark ? '#333' : '#E0E0E0' }]}
+                    style={[styles.cancelButton, { backgroundColor: colors.accent }]}
                     onPress={() => {
                       setShowAddEventModal(false);
                       setNewEvent({ title: '', description: '', month: todayHijri.month, day: todayHijri.day, type: 'religious' });
                     }}
                   >
-                    <Text style={[styles.cancelButtonText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                    <Text style={[styles.cancelButtonText, { color: colors.text }]}>
                       Cancel
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.saveButton, { backgroundColor: '#2E7D32' }]}
+                    style={[styles.saveButton, { backgroundColor: colors.primary }]}
                     onPress={handleSaveEvent}
                   >
                     <Text style={styles.saveButtonText}>

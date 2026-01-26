@@ -1,5 +1,7 @@
+import { Colors } from '@/constants/theme';
 import { JuzAssignment, JuzInfo } from '@/data/quran-khatam';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -13,6 +15,7 @@ interface JuzCardProps {
 export const JuzCard: React.FC<JuzCardProps> = ({ juz, assignment, onPress, onLongPress }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const colors = Colors[colorScheme];
 
   const isAssigned = !!assignment;
   const isCompleted = assignment?.isCompleted || false;
@@ -20,13 +23,13 @@ export const JuzCard: React.FC<JuzCardProps> = ({ juz, assignment, onPress, onLo
   const getStatusColor = () => {
     if (isCompleted) return '#4CAF50';
     if (isAssigned) return '#FF9800';
-    return isDark ? '#37474F' : '#E0E0E0';
+    return colors.secondary; // For unassigned, keep theme color
   };
 
-  const getStatusIcon = () => {
-    if (isCompleted) return '✅';
-    if (isAssigned) return '📖';
-    return '○';
+  const getStatusIconProps = () => {
+    if (isCompleted) return { name: 'checkmark-circle-outline' as const, color: '#4CAF50' };
+    if (isAssigned) return { name: 'book-outline' as const, color: '#FF9800' };
+    return { name: 'radio-button-off-outline' as const, color: colors.secondary };
   };
 
   return (
@@ -36,7 +39,7 @@ export const JuzCard: React.FC<JuzCardProps> = ({ juz, assignment, onPress, onLo
       style={[
         styles.container,
         { 
-          backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
+          backgroundColor: colors.card,
           borderLeftColor: getStatusColor(),
         }
       ]}
@@ -47,32 +50,38 @@ export const JuzCard: React.FC<JuzCardProps> = ({ juz, assignment, onPress, onLo
       
       <View style={styles.contentContainer}>
         <View style={styles.titleRow}>
-          <Text style={[styles.juzName, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <Text style={[styles.juzName, { color: colors.text }]}>
             Juz {juz.number}: {juz.name}
           </Text>
-          <Text style={styles.statusIcon}>{getStatusIcon()}</Text>
+          <Ionicons {...getStatusIconProps()} size={16} />
         </View>
         
-        <Text style={[styles.juzNameArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+        <Text style={[styles.juzNameArabic, { color: colors.secondary }]}>
           {juz.nameArabic}
         </Text>
         
-        <Text style={[styles.surahInfo, { color: isDark ? '#9E9E9E' : '#757575' }]}>
+        <Text style={[styles.surahInfo, { color: colors.secondary }]}>
           {juz.startSurah} {juz.startVerse} → {juz.endSurah} {juz.endVerse}
         </Text>
         
         {isAssigned && (
-          <View style={[styles.assigneeContainer, { backgroundColor: isDark ? '#263238' : '#F5F5F5' }]}>
-            <Text style={[styles.assigneeLabel, { color: isDark ? '#B0BEC5' : '#757575' }]}>
-              👤 Assigned to:
-            </Text>
-            <Text style={[styles.assigneeName, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <View style={[styles.assigneeContainer, { backgroundColor: colors.background }]}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Ionicons name="person" size={12} color={colors.secondary} />
+              <Text style={[styles.assigneeLabel, { color: colors.secondary, marginLeft: 4 }]}>
+                Assigned to:
+              </Text>
+            </View>
+            <Text style={[styles.assigneeName, { color: colors.text }]}>
               {assignment.participantName}
             </Text>
             {isCompleted && (
-              <Text style={[styles.completedDate, { color: '#4CAF50' }]}>
-                ✓ Completed
-              </Text>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Ionicons name="checkmark" size={12} color='#4CAF50' />
+                <Text style={[styles.completedDate, { color: '#4CAF50', marginLeft: 4 }]}>
+                  Completed
+                </Text>
+              </View>
             )}
           </View>
         )}
@@ -89,6 +98,7 @@ interface JuzGridProps {
 export const JuzProgressGrid: React.FC<JuzGridProps> = ({ assignments, onJuzPress }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const colors = Colors[colorScheme];
 
   const getJuzStatus = (juzNumber: number) => {
     const assignment = assignments.find(a => a.juzNumber === juzNumber);
@@ -101,7 +111,7 @@ export const JuzProgressGrid: React.FC<JuzGridProps> = ({ assignments, onJuzPres
     switch (status) {
       case 'completed': return '#4CAF50';
       case 'assigned': return '#FF9800';
-      default: return isDark ? '#37474F' : '#E0E0E0';
+      default: return colors.secondary;
     }
   };
 
@@ -120,7 +130,7 @@ export const JuzProgressGrid: React.FC<JuzGridProps> = ({ assignments, onJuzPres
           >
             <Text style={[
               styles.gridCellText,
-              { color: status === 'unassigned' && !isDark ? '#757575' : '#FFFFFF' }
+              { color: status === 'unassigned' ? colors.text : '#FFFFFF' }
             ]}>
               {juzNumber}
             </Text>
@@ -170,9 +180,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     flex: 1,
-  },
-  statusIcon: {
-    fontSize: 16,
   },
   juzNameArabic: {
     fontSize: 16,

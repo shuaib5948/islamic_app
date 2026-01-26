@@ -1,5 +1,6 @@
 import { JuzCard, JuzProgressGrid } from '@/components/JuzCard';
 import { KhatamGroupCard } from '@/components/KhatamGroupCard';
+import { Colors } from '@/constants/theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
   calculateKhatamProgress,
@@ -20,13 +21,13 @@ import {
   markJuzIncomplete,
   removeAssignment,
 } from '@/utils/khatam-storage';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Modal,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -35,10 +36,12 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function KhatamScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const colors = Colors[colorScheme];
   const { language } = useLanguage();
   const isMalayalam = language === 'ml';
 
@@ -46,10 +49,10 @@ export default function KhatamScreen() {
   const labels = {
     title: isMalayalam ? 'ഖുർആൻ ഖത്തം' : 'Quran Khatam',
     subtitle: 'ختم القرآن الجماعي',
-    reminders: isMalayalam ? '⚠️ ഓർമ്മപ്പെടുത്തലുകൾ' : '⚠️ Reminders',
+    reminders: isMalayalam ? 'ഓർമ്മപ്പെടുത്തലുകൾ' : 'Reminders',
     juzRemaining: isMalayalam ? 'ജുസ് ബാക്കി' : 'Juz remaining',
     daysLeft: isMalayalam ? 'ദിവസങ്ങൾ ബാക്കി' : 'days left',
-    groupKhatam: isMalayalam ? '🤝 ഗ്രൂപ്പ് ഖത്തം' : '🤝 Group Khatam',
+    groupKhatam: isMalayalam ? 'ഗ്രൂപ്പ് ഖത്തം' : 'Group Khatam',
     infoText: isMalayalam 
       ? '30 ജുസ് പങ്കെടുക്കുന്നവർക്കിടയിൽ വിതരണം ചെയ്ത് ഗ്രൂപ്പ് ഖുർആൻ ഖത്തം സംഘടിപ്പിക്കുക. പുരോഗതി ട്രാക്ക് ചെയ്യുക, സമയപരിധി നിശ്ചയിക്കുക, ഒരുമിച്ച് ഖുർആൻ പൂർത്തിയാക്കുക!'
       : 'Organize a group Quran Khatam by distributing 30 Juz among participants. Track progress, set deadlines, and complete the Quran together!',
@@ -67,7 +70,7 @@ export default function KhatamScreen() {
     assignJuz: isMalayalam ? 'ജുസ് നിയോഗിക്കുക' : 'Assign Juz',
     participantName: isMalayalam ? 'പങ്കെടുക്കുന്നയാളുടെ പേര്' : 'Participant Name',
     assign: isMalayalam ? 'നിയോഗിക്കുക' : 'Assign',
-    khatamComplete: isMalayalam ? '🎉 ഖത്തം പൂർത്തിയായി!' : '🎉 Khatam Complete!',
+    khatamComplete: isMalayalam ? 'ഖത്തം പൂർത്തിയായി!' : 'Khatam Complete!',
     duaTitle: isMalayalam ? 'ഖത്തം ദുആ' : 'Khatam Dua',
     delete: isMalayalam ? 'ഇല്ലാതാക്കുക' : 'Delete',
     progress: isMalayalam ? 'പുരോഗതി' : 'Progress',
@@ -271,10 +274,10 @@ export default function KhatamScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
-          <Text style={[styles.headerBackIcon, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>←</Text>
+          <Text style={[styles.headerBackIcon, { color: colors.text }]}>←</Text>
         </TouchableOpacity>
         <View>
-          <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <Text style={[styles.title, { color: colors.text }]}>
             {labels.title}
           </Text>
         </View>
@@ -283,9 +286,12 @@ export default function KhatamScreen() {
       {/* Reminders */}
       {reminders.length > 0 && (
         <View style={[styles.reminderContainer, { backgroundColor: isDark ? '#B71C1C' : '#FFEBEE' }]}>
-          <Text style={[styles.reminderTitle, { color: isDark ? '#FFFFFF' : '#C62828' }]}>
-            {labels.reminders}
-          </Text>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Ionicons name="warning" size={16} color={isDark ? '#FFFFFF' : '#C62828'} />
+            <Text style={[styles.reminderTitle, { color: isDark ? '#FFFFFF' : '#C62828', marginLeft: 8 }]}>
+              {labels.reminders}
+            </Text>
+          </View>
           {reminders.map(reminder => (
             <Text 
               key={reminder.group.id} 
@@ -300,13 +306,13 @@ export default function KhatamScreen() {
       {/* Action Boxes */}
       <View style={styles.actionBoxes}>
         <TouchableOpacity 
-          style={[styles.actionBox, { backgroundColor: '#2E7D32' }]}
+          style={[styles.actionBox, { backgroundColor: colors.primary }]}
           onPress={() => setShowCreateModal(true)}
         >
           <Text style={styles.actionBoxText}>{labels.createNew}</Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          style={[styles.actionBox, { backgroundColor: '#2196F3' }]}
+          style={[styles.actionBox, { backgroundColor: colors.secondary }]}
           onPress={() => setShowJoinModal(true)}
         >
           <Text style={styles.actionBoxText}>{labels.joinGroup}</Text>
@@ -316,7 +322,7 @@ export default function KhatamScreen() {
       {/* Groups List */}
       {groups.length > 0 ? (
         <View style={styles.groupsSection}>
-          <Text style={[styles.sectionTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
             Your Khatam Groups
           </Text>
           {groups.map(group => (
@@ -329,10 +335,10 @@ export default function KhatamScreen() {
         </View>
       ) : (
         <View style={styles.emptyContainer}>
-          <Text style={[styles.emptyText, { color: isDark ? '#757575' : '#9E9E9E' }]}>
+          <Text style={[styles.emptyText, { color: colors.secondary }]}>
             No Khatam groups yet
           </Text>
-          <Text style={[styles.emptySubtext, { color: isDark ? '#616161' : '#BDBDBD' }]}>
+          <Text style={[styles.emptySubtext, { color: colors.secondary }]}>
             Create your first group to get started
           </Text>
         </View>
@@ -355,33 +361,39 @@ export default function KhatamScreen() {
           <TouchableOpacity 
             onPress={() => setSelectedGroup(null)}
           >
-            <Text style={[styles.backButtonText, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>
+            <Text style={[styles.backButtonText, { color: colors.primary }]}>
               ← Back to Groups
             </Text>
           </TouchableOpacity>
-          <Text style={[styles.joinCodeText, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-            🔗 {selectedGroup.joinCode}
-          </Text>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Ionicons name="link" size={14} color={colors.primary} />
+            <Text style={[styles.joinCodeText, { color: colors.text, marginLeft: 8 }]}>
+              {selectedGroup.joinCode}
+            </Text>
+          </View>
         </View>
 
         {/* Group Header */}
-        <View style={[styles.groupHeader, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-          <Text style={[styles.groupTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-            📖 {selectedGroup.name}
-          </Text>
+        <View style={[styles.groupHeader, { backgroundColor: colors.card }]}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Ionicons name="book" size={20} color={colors.primary} />
+            <Text style={[styles.groupTitle, { color: colors.text, marginLeft: 8 }]}>
+              {selectedGroup.name}
+            </Text>
+          </View>
           {selectedGroup.dedication && (
-            <Text style={[styles.groupDedication, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+            <Text style={[styles.groupDedication, { color: colors.secondary }]}>
               Dedicated for: {selectedGroup.dedication}
             </Text>
           )}
           
           {/* Progress Circle */}
           <View style={styles.progressCircleContainer}>
-            <View style={[styles.progressCircle, { borderColor: progress === 100 ? '#4CAF50' : '#2196F3' }]}>
-              <Text style={[styles.progressPercent, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+            <View style={[styles.progressCircle, { borderColor: progress === 100 ? colors.primary : colors.secondary }]}>
+              <Text style={[styles.progressPercent, { color: colors.text }]}>
                 {progress}%
               </Text>
-              <Text style={[styles.progressLabel, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+              <Text style={[styles.progressLabel, { color: colors.secondary }]}>
                 Complete
               </Text>
             </View>
@@ -393,19 +405,19 @@ export default function KhatamScreen() {
               <Text style={[styles.quickStatValue, { color: '#4CAF50' }]}>
                 {selectedGroup.assignments.filter(a => a.isCompleted).length}
               </Text>
-              <Text style={[styles.quickStatLabel, { color: isDark ? '#9E9E9E' : '#757575' }]}>Done</Text>
+              <Text style={[styles.quickStatLabel, { color: colors.secondary }]}>Done</Text>
             </View>
             <View style={styles.quickStatItem}>
               <Text style={[styles.quickStatValue, { color: '#FF9800' }]}>
                 {selectedGroup.assignments.filter(a => !a.isCompleted).length}
               </Text>
-              <Text style={[styles.quickStatLabel, { color: isDark ? '#9E9E9E' : '#757575' }]}>In Progress</Text>
+              <Text style={[styles.quickStatLabel, { color: colors.secondary }]}>In Progress</Text>
             </View>
             <View style={styles.quickStatItem}>
-              <Text style={[styles.quickStatValue, { color: isDark ? '#9E9E9E' : '#757575' }]}>
+              <Text style={[styles.quickStatValue, { color: colors.secondary }]}>
                 {remainingJuz.length}
               </Text>
-              <Text style={[styles.quickStatLabel, { color: isDark ? '#9E9E9E' : '#757575' }]}>Unassigned</Text>
+              <Text style={[styles.quickStatLabel, { color: colors.secondary }]}>Unassigned</Text>
             </View>
           </View>
 
@@ -414,19 +426,22 @@ export default function KhatamScreen() {
             style={styles.deleteButton}
             onPress={() => handleDeleteGroup(selectedGroup.id)}
           >
-            <Text style={styles.deleteButtonText}>🗑️ Delete Group</Text>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Ionicons name="trash" size={14} color="#F44336" />
+              <Text style={[styles.deleteButtonText, {marginLeft: 8}]}>Delete Group</Text>
+            </View>
           </TouchableOpacity>
         </View>
 
         {/* Progress Grid */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
             Juz Progress Overview
           </Text>
-          <Text style={[styles.sectionSubtitle, { color: isDark ? '#9E9E9E' : '#757575' }]}>
+          <Text style={[styles.sectionSubtitle, { color: colors.secondary }]}>
             Tap any Juz to assign or update status
           </Text>
-          <View style={[styles.gridCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
+          <View style={[styles.gridCard, { backgroundColor: colors.card }]}>
             <JuzProgressGrid 
               assignments={selectedGroup.assignments}
               onJuzPress={handleJuzPress}
@@ -434,15 +449,15 @@ export default function KhatamScreen() {
             <View style={styles.legendContainer}>
               <View style={styles.legendItem}>
                 <View style={[styles.legendColor, { backgroundColor: '#4CAF50' }]} />
-                <Text style={[styles.legendText, { color: isDark ? '#B0BEC5' : '#757575' }]}>Completed</Text>
+                <Text style={[styles.legendText, { color: colors.secondary }]}>Completed</Text>
               </View>
               <View style={styles.legendItem}>
                 <View style={[styles.legendColor, { backgroundColor: '#FF9800' }]} />
-                <Text style={[styles.legendText, { color: isDark ? '#B0BEC5' : '#757575' }]}>Assigned</Text>
+                <Text style={[styles.legendText, { color: colors.secondary }]}>Assigned</Text>
               </View>
               <View style={styles.legendItem}>
-                <View style={[styles.legendColor, { backgroundColor: isDark ? '#37474F' : '#E0E0E0' }]} />
-                <Text style={[styles.legendText, { color: isDark ? '#B0BEC5' : '#757575' }]}>Unassigned</Text>
+                <View style={[styles.legendColor, { backgroundColor: colors.secondary }]} />
+                <Text style={[styles.legendText, { color: colors.secondary }]}>Unassigned</Text>
               </View>
             </View>
           </View>
@@ -469,7 +484,7 @@ export default function KhatamScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       
       {selectedGroup ? renderGroupDetail() : renderGroupList()}
@@ -481,45 +496,45 @@ export default function KhatamScreen() {
         presentationStyle="pageSheet"
         onRequestClose={() => setShowCreateModal(false)}
       >
-        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
+        <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.background }]}>
           <View style={styles.modalHeader}>
             <TouchableOpacity onPress={() => setShowCreateModal(false)}>
-              <Text style={[styles.modalCancel, { color: isDark ? '#F44336' : '#D32F2F' }]}>Cancel</Text>
+              <Text style={[styles.modalCancel, { color: colors.primary }]}>Cancel</Text>
             </TouchableOpacity>
-            <Text style={[styles.modalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>New Khatam</Text>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>New Khatam</Text>
             <TouchableOpacity onPress={handleCreateGroup}>
               <Text style={[styles.modalSave, { color: '#4CAF50' }]}>Create</Text>
             </TouchableOpacity>
           </View>
 
           <ScrollView style={styles.modalContent}>
-            <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Group Name *</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>Group Name *</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
               value={newGroupName}
               onChangeText={setNewGroupName}
               placeholder="e.g., Ramadan 1447 Khatam"
-              placeholderTextColor={isDark ? '#757575' : '#BDBDBD'}
+              placeholderTextColor={colors.secondary}
             />
 
-            <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Description</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>Description</Text>
             <TextInput
-              style={[styles.input, styles.textArea, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              style={[styles.input, styles.textArea, { backgroundColor: colors.card, color: colors.text }]}
               value={newGroupDescription}
               onChangeText={setNewGroupDescription}
               placeholder="Add a description..."
-              placeholderTextColor={isDark ? '#757575' : '#BDBDBD'}
+              placeholderTextColor={colors.secondary}
               multiline
               numberOfLines={3}
             />
 
-            <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Dedication (Optional)</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>Dedication (Optional)</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
               value={newGroupDedication}
               onChangeText={setNewGroupDedication}
               placeholder="e.g., For the departed soul of..."
-              placeholderTextColor={isDark ? '#757575' : '#BDBDBD'}
+              placeholderTextColor={colors.secondary}
             />
 
             <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>Select Target Days *</Text>
@@ -529,19 +544,19 @@ export default function KhatamScreen() {
                   key={days}
                   style={[
                     styles.dayButton,
-                    { backgroundColor: newGroupTargetDate === getTargetDate(days) ? '#4CAF50' : (isDark ? '#1E1E1E' : '#F5F5F5') }
+                    { backgroundColor: newGroupTargetDate === getTargetDate(days) ? colors.primary : colors.card }
                   ]}
                   onPress={() => setNewGroupTargetDate(getTargetDate(days))}
                 >
                   <Text style={[
                     styles.dayNumberText,
-                    { color: newGroupTargetDate === getTargetDate(days) ? '#FFFFFF' : (isDark ? '#FFFFFF' : '#1A1A1A') }
+                    { color: newGroupTargetDate === getTargetDate(days) ? '#FFFFFF' : colors.text }
                   ]}>
                     {days}
                   </Text>
                   <Text style={[
                     styles.dayLabelText,
-                    { color: newGroupTargetDate === getTargetDate(days) ? '#FFFFFF' : (isDark ? '#B0BEC5' : '#757575') }
+                    { color: newGroupTargetDate === getTargetDate(days) ? '#FFFFFF' : colors.secondary }
                   ]}>
                     days
                   </Text>
@@ -560,20 +575,20 @@ export default function KhatamScreen() {
         onRequestClose={() => setShowJoinModal(false)}
       >
         <View style={styles.assignModalOverlay}>
-          <View style={[styles.assignModalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-            <Text style={[styles.assignModalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <View style={[styles.assignModalContent, { backgroundColor: colors.card }]}>
+            <Text style={[styles.assignModalTitle, { color: colors.text }]}>
               Join Group
             </Text>
-            <Text style={[styles.assignModalSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+            <Text style={[styles.assignModalSubtitle, { color: colors.secondary }]}>
               Enter the 4-digit join code
             </Text>
             
             <TextInput
-              style={[styles.input, { backgroundColor: isDark ? '#263238' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
               value={joinCode}
               onChangeText={setJoinCode}
               placeholder="Enter join code"
-              placeholderTextColor={isDark ? '#757575' : '#BDBDBD'}
+              placeholderTextColor={colors.secondary}
               keyboardType="numeric"
               maxLength={4}
               autoFocus
@@ -608,22 +623,22 @@ export default function KhatamScreen() {
         onRequestClose={() => setShowAssignModal(false)}
       >
         <View style={styles.assignModalOverlay}>
-          <View style={[styles.assignModalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-            <Text style={[styles.assignModalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <View style={[styles.assignModalContent, { backgroundColor: colors.card }]}>
+            <Text style={[styles.assignModalTitle, { color: colors.text }]}>
               Assign Juz {selectedJuz}
             </Text>
             {selectedJuz && (
-              <Text style={[styles.assignModalSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+              <Text style={[styles.assignModalSubtitle, { color: colors.secondary }]}>
                 {getJuzInfo(selectedJuz)?.name} - {getJuzInfo(selectedJuz)?.nameArabic}
               </Text>
             )}
             
             <TextInput
-              style={[styles.input, { backgroundColor: isDark ? '#263238' : '#F5F5F5', color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text }]}
               value={participantName}
               onChangeText={setParticipantName}
               placeholder="Participant name"
-              placeholderTextColor={isDark ? '#757575' : '#BDBDBD'}
+              placeholderTextColor={colors.secondary}
               autoFocus
             />
 
@@ -657,26 +672,30 @@ export default function KhatamScreen() {
         onRequestClose={() => setShowDuaModal(false)}
       >
         <View style={styles.duaModalOverlay}>
-          <View style={[styles.duaModalContent, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-            <Text style={styles.celebrationEmoji}>🎉📖✨</Text>
-            <Text style={[styles.duaModalTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <View style={[styles.duaModalContent, { backgroundColor: colors.card }]}>
+            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+              <Ionicons name="trophy" size={48} color={colors.primary} />
+              <Ionicons name="book" size={48} color={colors.primary} style={{marginHorizontal: 16}} />
+              <Ionicons name="sparkles" size={48} color={colors.primary} />
+            </View>
+            <Text style={[styles.duaModalTitle, { color: colors.text }]}>
               Khatam Complete!
             </Text>
-            <Text style={[styles.duaModalSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+            <Text style={[styles.duaModalSubtitle, { color: colors.secondary }]}>
               Congratulations! Make dua for completing the Quran:
             </Text>
             
             <ScrollView style={styles.duaScrollView}>
-              <Text style={[styles.duaModalArabic, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+              <Text style={[styles.duaModalArabic, { color: colors.text }]}>
                 {KHATAM_DUA.arabic}
               </Text>
-              <Text style={[styles.duaModalTranslation, { color: isDark ? '#B0BEC5' : '#616161' }]}>
+              <Text style={[styles.duaModalTranslation, { color: colors.secondary }]}>
                 {KHATAM_DUA.translation}
               </Text>
             </ScrollView>
 
             <TouchableOpacity 
-              style={[styles.duaModalButton, { backgroundColor: '#4CAF50' }]}
+              style={[styles.duaModalButton, { backgroundColor: colors.primary }]}
               onPress={() => setShowDuaModal(false)}
             >
               <Text style={styles.duaModalButtonText}>آمين - Ameen</Text>
@@ -1060,10 +1079,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 24,
     alignItems: 'center',
-  },
-  celebrationEmoji: {
-    fontSize: 48,
-    marginBottom: 16,
   },
   duaModalTitle: {
     fontSize: 24,
