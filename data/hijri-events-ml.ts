@@ -472,10 +472,10 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     id: 'wafat-ap-kunjamu',
     month: 4,
     day: 10,
-    title: 'Wafat of A.P. Kunjamu Musliyar',
-    titleMl: 'എ.പി. കുഞ്ഞാമു മുസ്‌ലിയാർ വഫാത്ത്',
+    title: 'Wafat of Athipatta usthad ',
+    titleMl: 'അത്തിപ്പറ്റ ഉസ്താദ് വഫാത്ത്',
     type: 'wafat',
-    description: 'A.P. Kunjamu Musliyar, an esteemed spiritual guide, passed away on Rabi al-Thani 10, 1440 AH (18 Dec 2018).',
+    description: 'A.P. Kunjamu musliyar Athipatta Usthad , an esteemed spiritual guide, passed away on Rabi al-Thani 10, 1440 AH (18 Dec 2018).',
     descriptionMl: `അത്തിപ്പറ്റ ഉസ്താദ് എ.പി. കുഞ്ഞാമു മുസ്ലിയാർ ഹിജ്റ 1361 (1942) ജനിച്ചവൻ; ഹിജ്റ 1440 റബീഉൽ ആഖിർ 10 (2018 ഡിസംബർ 18) നാണ് മരണം.`,
   },
   {

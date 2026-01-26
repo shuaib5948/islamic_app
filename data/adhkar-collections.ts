@@ -173,7 +173,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'ayatul-kursi',
 		sectionId: 'morning-evening',
-		color: '#FFD600',
 		title: 'Ayatul Kursi',
 		titleMl: 'ആയത്തുൽ കുർസി',
 		titleArabic: 'آية الكرسي',
@@ -191,7 +190,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'muawwidatayn',
 		sectionId: 'morning-evening',
-		color: '#FFB300',
 		title: 'Muawwidatayn',
 		titleMl: 'മുഅവ്വിദത്തൈനി',
 		titleArabic: 'المعوذتان',
@@ -216,7 +214,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'tasbih',
 		sectionId: 'praising-jannah',
-		color: '#00BCD4',
 		title: 'Tasbih (Glorifying Allah)',
 		titleMl: 'തസ്ബീഹ്',
 		titleArabic: 'سُبْحَانَ اللَّهِ',
@@ -232,7 +229,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'takbir',
 		sectionId: 'praising-jannah',
-		color: '#FFD600',
 		title: 'Takbir (Magnifying Allah)',
 		titleMl: 'തക്ബീർ',
 		titleArabic: 'اللَّهُ أَكْبَرُ',
@@ -248,7 +244,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'tahleel',
 		sectionId: 'praising-jannah',
-		color: '#4CAF50',
 		title: 'Tahleel (Declaration of Faith)',
 		titleMl: 'തഹ്‌ലീൽ',
 		titleArabic: 'لَا إِلَهَ إِلَّا اللَّهُ',
@@ -264,7 +259,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'hawqala',
 		sectionId: 'praising-jannah',
-		color: '#607D8B',
 		title: 'Hawqala (Reliance on Allah)',
 		titleMl: 'ഹൗഖല',
 		titleArabic: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
@@ -280,7 +274,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'light-tongue',
 		sectionId: 'praising-jannah',
-		color: '#FF7043',
 		title: 'Light on Tongue, Heavy on Scale',
 		titleMl: 'നാവിൽ ലളിതമായത്',
 		titleArabic: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ',
@@ -296,7 +289,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'palm-paradise',
 		sectionId: 'praising-jannah',
-		color: '#388E3C',
 		title: 'A Palm Tree in Paradise',
 		titleMl: 'സ്വർഗ്ഗത്തിലെ ഈന്തപ്പന',
 		titleArabic: 'سُبْحَانَ اللَّهِ الْعَظِيمِ وَبِحَمْدِهِ',
@@ -312,7 +304,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'protection-hell',
 		sectionId: 'praising-jannah',
-		color: '#C62828',
 		title: 'Protection from Hellfire',
 		titleMl: 'നരകമോചനത്തിന്',
 		titleArabic: 'اللَّهُمَّ أَجِرْنِي مِنَ النَّارِ',
@@ -328,7 +319,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'for-believers',
 		sectionId: 'praising-jannah',
-		color: '#1976D2',
 		title: 'Prayer for All Believers',
 		titleMl: 'സർവ്വ വിശ്വാസികൾക്കും വേണ്ടിയുള്ള പ്രാർത്ഥന',
 		titleArabic: 'اللَّهُمَّ اغْفِرْ لِلْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ، وَالْمُسْلِمِينَ وَالْمُسْلِمَاتِ، الْأَحْيَاءِ مِنْهُمْ وَالْأَمْوَاتِ',
@@ -344,7 +334,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'comprehensive-prayer',
 		sectionId: 'praising-jannah',
-		color: '#009688',
 		title: 'The Comprehensive Prayer',
 		titleMl: 'ഇരുകലോക നന്മയ്ക്കുള്ള പ്രാർത്ഥന',
 		titleArabic: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',
@@ -365,7 +354,6 @@ export const ADHKAR_COLLECTIONS = [
 					{
 						id: 'ward-off-evil-eye',
 						sectionId: 'special-protection',
-						color: '#3F51B5',
 						title: 'To Ward Off Evil Eye',
 						titleMl: 'കണ്ണേറ് തടയാൻ',
 						titleArabic: 'مَا شَاءَ اللَّهُ لَا قُوَّةَ إِلَّا بِاللَّهِ، تَبَارَكَ اللَّهُ',
@@ -381,7 +369,6 @@ export const ADHKAR_COLLECTIONS = [
 					{
 						id: 'at-time-of-death',
 						sectionId: 'special-protection',
-						color: '#757575',
 						title: 'At the Time of Death',
 						titleMl: 'മരണസമയത്ത്',
 						titleArabic: 'لَا إِلَهَ إِلَّا اللَّهُ',
@@ -397,7 +384,6 @@ export const ADHKAR_COLLECTIONS = [
 					{
 						id: 'protection-grave-torment',
 						sectionId: 'special-protection',
-						color: '#607D8B',
 						title: 'Protection from Grave Torment',
 						titleMl: 'ഖബർ ശിക്ഷയിൽ നിന്നുള്ള സംരക്ഷണം',
 						titleArabic: 'سُورةُ الْمُلْك',
@@ -413,7 +399,6 @@ export const ADHKAR_COLLECTIONS = [
 					{
 						id: 'protection-from-dajjal',
 						sectionId: 'special-protection',
-						color: '#E53935',
 						title: 'Protection from Dajjal',
 						titleMl: 'ദജ്ജാലിൽ നിന്നുള്ള സംരക്ഷണം',
 						titleArabic: 'سُورَة الكَهْف (الآيَات 1-10)',
@@ -429,7 +414,6 @@ export const ADHKAR_COLLECTIONS = [
 					{
 						id: 'for-debt-relief',
 						sectionId: 'special-protection',
-						color: '#388E3C',
 						title: 'For Debt Relief',
 						titleMl: 'കടം വീട്ടാൻ സഹായിക്കാൻ',
 						titleArabic: 'اللَّهُمَّ مَالِكَ الْمُلْكِ ...',
@@ -445,7 +429,6 @@ export const ADHKAR_COLLECTIONS = [
 					{
 						id: 'bodily-pain',
 						sectionId: 'special-protection',
-						color: '#FF7043',
 						title: 'When Feeling Bodily Pain',
 						titleMl: 'വേദനയുള്ള ഭാഗത്ത് കൈവെച്ച്',
 						titleArabic: 'بِسْمِ اللَّهِ (3 times) أَعُوذُ بِاللَّهِ وَقُدْرَتِهِ ...',
@@ -461,7 +444,6 @@ export const ADHKAR_COLLECTIONS = [
 					{
 						id: 'returning-from-travel',
 						sectionId: 'special-protection',
-						color: '#1976D2',
 						title: 'Returning from Travel',
 						titleMl: 'യാത്ര കഴിഞ്ഞ് തിരിച്ചെത്തുമ്പോൾ',
 						titleArabic: 'آيِبُونَ تَائِبُونَ عَابِدُونَ لِرَبِّنَا حَامِدُونَ',
@@ -477,7 +459,6 @@ export const ADHKAR_COLLECTIONS = [
 					{
 						id: 'yunus-dua',
 						sectionId: 'special-protection',
-						color: '#009688',
 						title: 'Dua of Yunus (AS)',
 						titleMl: 'വിപത്തുകളിൽ നിന്ന് കാക്കാൻ - യൂനുസ് നബിയുടെ ദുആ',
 						titleArabic: 'لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ',
@@ -493,7 +474,6 @@ export const ADHKAR_COLLECTIONS = [
 					{
 						id: 'to-gain-allahs-love',
 						sectionId: 'special-protection',
-						color: '#E91E63',
 						title: "To Gain Allah's Love",
 						titleMl: 'അല്ലാഹുവിന്റെ സ്നേഹം ലഭിക്കാൻ',
 						titleArabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ حُبَّكَ ...',
@@ -509,7 +489,6 @@ export const ADHKAR_COLLECTIONS = [
 					{
 						id: 'four-best-words',
 						sectionId: 'special-protection',
-						color: '#FFD600',
 						title: 'The Four Best Words',
 						titleMl: 'ഏറ്റവും ശ്രേഷ്ഠമായ തസ്ബീഹ്',
 						titleArabic: 'سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ',
@@ -525,7 +504,6 @@ export const ADHKAR_COLLECTIONS = [
 				{
 					id: 'hearing-thunder',
 					sectionId: 'nature-wonders',
-					color: '#607D8B',
 					title: 'Upon Hearing Thunder',
 					titleMl: 'ഇടിമിന്നൽ കേൾക്കുമ്പോൾ',
 					titleArabic: 'سُبْحَانَ الَّذِي يُسَبِّحُ الرَّعْدُ بِحَمْدِهِ وَالْمَلَائِكَةُ مِنْ خِيفَتِهِ',
@@ -541,7 +519,6 @@ export const ADHKAR_COLLECTIONS = [
 				{
 					id: 'when-rains',
 					sectionId: 'nature-wonders',
-					color: '#1976D2',
 					title: 'When it Rains',
 					titleMl: 'മഴ പെയ്യുമ്പോൾ',
 					titleArabic: 'اللَّهُمَّ صَيِّبًا نَافِعًا',
@@ -557,7 +534,6 @@ export const ADHKAR_COLLECTIONS = [
 				{
 					id: 'strong-wind',
 					sectionId: 'nature-wonders',
-					color: '#FF7043',
 					title: 'When a Strong Wind Blows',
 					titleMl: 'ശക്തമായ കാറ്റടിക്കുമ്പോൾ',
 					titleArabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَهَا ...',
@@ -573,7 +549,6 @@ export const ADHKAR_COLLECTIONS = [
 				{
 					id: 'seeing-pleasant',
 					sectionId: 'nature-wonders',
-					color: '#FFD600',
 					title: 'When Seeing Something Pleasant',
 					titleMl: 'നല്ലൊരു കാഴ്ച കാണുമ്പോൾ',
 					titleArabic: 'مَا شَاءَ اللَّهُ لَا قُوَّةَ إِلَّا بِاللَّهِ',
@@ -589,7 +564,6 @@ export const ADHKAR_COLLECTIONS = [
 				{
 					id: 'new-moon',
 					sectionId: 'nature-wonders',
-					color: '#4CAF50',
 					title: 'When Sighting the New Moon',
 					titleMl: 'പുതിയ ചന്ദ്രനെ കാണുമ്പോൾ',
 					titleArabic: 'اللَّهُمَّ أَهِلَّهُ عَلَيْنَا بِالْيُمْنِ وَالْإِيمَانِ ...',
@@ -605,7 +579,6 @@ export const ADHKAR_COLLECTIONS = [
 				{
 					id: 'seeing-ocean',
 					sectionId: 'nature-wonders',
-					color: '#009688',
 					title: 'Upon Seeing the Ocean',
 					titleMl: 'കടൽ കാണുമ്പോൾ',
 					titleArabic: 'سُبْحَانَ اللَّهِ',
@@ -621,7 +594,6 @@ export const ADHKAR_COLLECTIONS = [
 				{
 					id: 'seeing-garden',
 					sectionId: 'nature-wonders',
-					color: '#FF7043',
 					title: "When Seeing a Garden or Nature's Beauty",
 					titleMl: 'പൂന്തോട്ടമോ പ്രകൃതി ഭംഗിയോ കാണുമ്പോൾ',
 					titleArabic: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
@@ -637,7 +609,6 @@ export const ADHKAR_COLLECTIONS = [
 				{
 					id: 'at-sunrise',
 					sectionId: 'nature-wonders',
-					color: '#FFD600',
 					title: 'At Sunrise',
 					titleMl: 'സൂര്യോദയം കാണുമ്പോൾ',
 					titleArabic: 'الْحَمْدُ لِلَّهِ الَّذِي أَقَالَنَا يَوْمَنَا هَذَا',
@@ -653,7 +624,6 @@ export const ADHKAR_COLLECTIONS = [
 			{
 				id: 'greeting-each-other',
 				sectionId: 'social-life',
-				color: '#1976D2',
 				title: 'Greeting Each Other',
 				titleMl: 'പരസ്പരം കാണുമ്പോൾ',
 				titleArabic: 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ',
@@ -669,7 +639,6 @@ export const ADHKAR_COLLECTIONS = [
 			{
 				id: 'expressing-gratitude',
 				sectionId: 'social-life',
-				color: '#FFD600',
 				title: 'Expressing Gratitude',
 				titleMl: 'നന്ദി പ്രകടിപ്പിക്കുമ്പോൾ',
 				titleArabic: 'جَزَاكَ اللَّهُ خَيْرًا',
@@ -685,7 +654,6 @@ export const ADHKAR_COLLECTIONS = [
 			{
 				id: 'expressing-love',
 				sectionId: 'social-life',
-				color: '#C62828',
 				title: 'Expressing Love for Someone',
 				titleMl: 'ഒരാളോട് സ്നേഹം പ്രകടിപ്പിക്കുമ്പോൾ',
 				titleArabic: 'أَحَبَّكَ الَّذِي أَحْبَبْتَنِي لَهُ',
@@ -701,7 +669,6 @@ export const ADHKAR_COLLECTIONS = [
 			{
 				id: 'good-news',
 				sectionId: 'social-life',
-				color: '#4CAF50',
 				title: 'On Receiving Good News',
 				titleMl: 'സന്തോഷ വാർത്ത കേൾക്കുമ്പോൾ',
 				titleArabic: 'بَارَكَ اللَّهُ لَكَ',
@@ -717,7 +684,6 @@ export const ADHKAR_COLLECTIONS = [
 			{
 				id: 'new-clothes',
 				sectionId: 'social-life',
-				color: '#81C784',
 				title: 'Seeing Someone in New Clothes',
 				titleMl: 'പുതിയ വസ്ത്രം ധരിച്ചയാളെ കാണുമ്പോൾ',
 				titleArabic: 'تُبْلَى وَيُخْلِفُ اللَّهُ تَعَالَى',
@@ -733,7 +699,6 @@ export const ADHKAR_COLLECTIONS = [
 			{
 				id: 'marriage-blessing',
 				sectionId: 'social-life',
-				color: '#FFD600',
 				title: 'Marriage Blessing',
 				titleMl: 'വിവാഹ ആശംസ',
 				titleArabic: 'بَارَكَ اللَّهُ لَكَ، وَبَارَكَ عَلَيْكَ، وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ',
@@ -749,7 +714,6 @@ export const ADHKAR_COLLECTIONS = [
 			{
 				id: 'exiting-gathering',
 				sectionId: 'social-life',
-				color: '#607D8B',
 				title: 'Exiting a Gathering',
 				titleMl: 'സദസ്സുകളിൽ നിന്ന് എഴുന്നേൽക്കുമ്പോൾ',
 				titleArabic: 'سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَسْتَغْفِرُكَ وَأَتُوبُ إِلَيْكَ',
@@ -765,7 +729,6 @@ export const ADHKAR_COLLECTIONS = [
 			{
 				id: 'praying-for-someone',
 				sectionId: 'social-life',
-				color: '#388E3C',
 				title: 'Praying for Someone',
 				titleMl: 'ഒരാൾക്ക് വേണ്ടി പ്രാർത്ഥിക്കുമ്പോൾ',
 				titleArabic: 'بَارَكَ اللَّهُ فِيكَ',
@@ -781,7 +744,6 @@ export const ADHKAR_COLLECTIONS = [
 			{
 				id: 'seeking-protection',
 				sectionId: 'social-life',
-				color: '#FF7043',
 				title: 'Seeking Protection from Evil',
 				titleMl: 'തിന്മകളിൽ നിന്ന് കാവൽ തേടുമ്പോൾ',
 				titleArabic: 'أَعُوذُ بِاللَّهِ',
@@ -797,7 +759,6 @@ export const ADHKAR_COLLECTIONS = [
 			{
 				id: 'facing-loss',
 				sectionId: 'social-life',
-				color: '#607D8B',
 				title: 'When Facing Loss or Death',
 				titleMl: 'മരണവാർത്തയോ വിപത്തോ ഉണ്ടാകുമ്പോൾ',
 				titleArabic: 'إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ',
@@ -813,7 +774,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'start-ablution',
 			sectionId: 'worship',
-			color: '#00BCD4',
 			title: 'Starting Ablution',
 			titleMl: 'വുളൂഅ് തുടങ്ങുമ്പോൾ',
 			titleArabic: 'بِسْمِ اللَّهِ',
@@ -829,7 +789,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'after-ablution',
 			sectionId: 'worship',
-			color: '#4CAF50',
 			title: 'After Ablution',
 			titleMl: 'വുളൂഇന് ശേഷം',
 			titleArabic: 'أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ ...',
@@ -845,7 +804,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'after-azan',
 			sectionId: 'worship',
-			color: '#FFD600',
 			title: 'After Azan',
 			titleMl: 'Azan-ന് ശേഷം',
 			titleArabic: 'اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ ...',
@@ -861,7 +819,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'post-prayer-tasbeeh',
 			sectionId: 'worship',
-			color: '#388E3C',
 			title: 'Post-Prayer Tasbeeh',
 			titleMl: 'നമസ്കാരത്തിന് ശേഷമുള്ള തസ്ബീഹുകൾ',
 			titleArabic: 'سُبْحَانَ اللَّهِ ...',
@@ -882,7 +839,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'istikhara',
 			sectionId: 'worship',
-			color: '#FF7043',
 			title: 'Istikhara Prayer',
 			titleMl: 'ഇസ്തിഖാറ നമസ്കാരത്തിലെ പ്രാർത്ഥന',
 			titleArabic: 'اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ ...',
@@ -898,7 +854,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'tahajjud',
 			sectionId: 'worship',
-			color: '#1976D2',
 			title: 'Prayer During Tahajjud',
 			titleMl: 'തഹജ്ജുദ് സമയത്തെ പ്രാർത്ഥന',
 			titleArabic: 'اللَّهُمَّ لَكَ الْحَمْدُ أَنْتَ نُورُ السَّمَاوَاتِ ...',
@@ -914,7 +869,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'steadfast-prayer',
 			sectionId: 'worship',
-			color: '#C62828',
 			title: 'For Steadfastness in Prayer',
 			titleMl: 'നമസ്കാരത്തിൽ സ്ഥിരത ലഭിക്കാൻ',
 			titleArabic: 'رَبِّ اجْعَلْنِي مُقِيمَ الصَّلَاةِ وَمِنْ ذُرِّيَّتِي ۚ رَبَّنَا وَتَقَبَّلْ دُعَاءِ',
@@ -930,7 +884,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'before-quran',
 			sectionId: 'worship',
-			color: '#607D8B',
 			title: 'Before Reciting Quran',
 			titleMl: 'ഖുർആൻ പാരായണം തുടങ്ങുമ്പോൾ',
 			titleArabic: 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ',
@@ -946,7 +899,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'after-quran',
 			sectionId: 'worship',
-			color: '#FF7043',
 			title: 'After Reciting Quran',
 			titleMl: 'ഖുർആൻ പാരായണം കഴിഞ്ഞാൽ',
 			titleArabic: 'سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ، لَا إِلَهَ إِلَّا أَنْتَ، أَسْتَغْفِرُكَ وَأَتُوبُ إِلَيْكَ',
@@ -962,7 +914,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'breaking-fast',
 			sectionId: 'worship',
-			color: '#FFD600',
 			title: 'When Breaking Fast',
 			titleMl: 'നോമ്പ് തുറക്കുമ്പോൾ',
 			titleArabic: 'ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ، وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ',
@@ -978,7 +929,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'prayer-parents',
 		sectionId: 'family-parents',
-		color: '#8D6E63',
 		title: 'Prayer for Parents',
 		titleMl: 'മാതാപിതാക്കൾക്ക് വേണ്ടി',
 		titleArabic: 'رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا',
@@ -994,7 +944,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'peace-family',
 		sectionId: 'family-parents',
-		color: '#4CAF50',
 		title: 'For Peace in Family',
 		titleMl: 'കുടുംബ സമാധാനത്തിനും സൽസന്താനങ്ങൾക്കും',
 		titleArabic: 'رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا',
@@ -1010,7 +959,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'pious-children',
 		sectionId: 'family-parents',
-		color: '#FFD600',
 		title: 'For Pious Children',
 		titleMl: 'സൽസന്താനങ്ങൾ ലഭിക്കാനും സ്വഭാവശുദ്ധിക്കും',
 		titleArabic: 'رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ',
@@ -1026,7 +974,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'blessing-home',
 		sectionId: 'family-parents',
-		color: '#1976D2',
 		title: 'For Blessing in Home',
 		titleMl: 'വീടിനും താമസസ്ഥലത്തിനും ബറകത്ത് ലഭിക്കാൻ',
 		titleArabic: 'رَبِّ أَنْزِلْنِي مُنْزَلًا مُبَارَكًا وَأَنْتَ خَيْرُ الْمُنْزِلِينَ',
@@ -1042,7 +989,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'pregnancy-offspring',
 		sectionId: 'family-parents',
-		color: '#FF7043',
 		title: 'For Pregnancy & Good Offspring',
 		titleMl: 'ഗർഭസ്ഥ ശിശുവിനും സന്താനസൗഭാഗ്യത്തിനും',
 		titleArabic: 'رَبِّ هَبْ لِي مِنْ لَدُنْكَ ذُرِّيَّةً طَيِّبَةً ۖ إِنَّكَ سَمِيعُ الدُّعَاءِ',
@@ -1058,7 +1004,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'marital-love',
 		sectionId: 'family-parents',
-		color: '#C62828',
 		title: 'For Marital Love & Unity',
 		titleMl: 'ദമ്പതികൾക്കിടയിലെ സ്നേഹത്തിനും ഐക്യത്തിനും',
 		titleArabic: 'اللَّهُمَّ أَلِّفْ بَيْنَ قُلُوبِنَا، وَأَصْلِحْ ذَاتَ بَيْنِنَا',
@@ -1074,7 +1019,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'protection-family',
 		sectionId: 'family-parents',
-		color: '#607D8B',
 		title: 'For Protection of Family',
 		titleMl: 'കുടുംബത്തിന്റെ സുരക്ഷയ്ക്കും തിന്മകളിൽ നിന്നുള്ള മോചനത്തിനും',
 		titleArabic: 'رَبِّ نَجِّنِي وَأَهْلِي مِمَّا يَعْمَلُونَ',
@@ -1090,7 +1034,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'for-relatives',
 		sectionId: 'family-parents',
-		color: '#388E3C',
 		title: 'For Relatives & Predecessors',
 		titleMl: 'ബന്ധുക്കൾക്കും മുൻഗാമികൾക്കും വേണ്ടിയുള്ള പ്രാർത്ഥന',
 		titleArabic: 'رَبَّنَا اغْفِرْ لَنَا وَلِإِخْوَانِنَا الَّذِينَ سَبَقُونَا بِالْإِيمَانِ وَلَا تَجْعَلْ فِي قُلُوبِنَا غِلًّا لِّلَّذِينَ آمَنُوا',
@@ -1106,7 +1049,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'welcoming-guest',
 		sectionId: 'family-parents',
-		color: '#FFD600',
 		title: 'Welcoming a Guest',
 		titleMl: 'അതിഥികളെ സ്വീകരിക്കുമ്പോൾ',
 		titleArabic: 'مَرْحَبًا بِضَيْفِنَا',
@@ -1122,7 +1064,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'home-paradise',
 		sectionId: 'family-parents',
-		color: '#81C784',
 		title: 'A Home in Paradise',
 		titleMl: 'സ്വർഗ്ഗത്തിൽ ഒരു വീട് ലഭിക്കാൻ',
 		titleArabic: 'رَبِّ ابْنِ لِي عِنْدَكَ بَيْتًا فِي الْجَنَّةِ',
@@ -1138,7 +1079,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'increase-knowledge',
 			sectionId: 'knowledge-guidance',
-			color: '#1976D2',
 			title: 'Prayer for Knowledge',
 			titleMl: 'അറിവ് വർദ്ധിക്കാൻ',
 			titleArabic: 'رَبِّ زِدْنِي عِلْمًا',
@@ -1154,7 +1094,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'clarity-speech',
 			sectionId: 'knowledge-guidance',
-			color: '#FF7043',
 			title: 'Clarity & Speech',
 			titleMl: 'സംസാരശേഷിക്കും മനക്കരുത്തിനും',
 			titleArabic: 'رَبِّ اشْرَحْ لِي صَدْرِي',
@@ -1170,7 +1109,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'guidance-rightness',
 			sectionId: 'knowledge-guidance',
-			color: '#4CAF50',
 			title: 'Guidance & Rightness',
 			titleMl: 'ഹിദായത്തിനും കൃത്യതയ്ക്കും',
 			titleArabic: 'اللَّهُمَّ اهْدِنِي وَسَدِّدْنِي',
@@ -1186,7 +1124,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'steadfast-heart',
 			sectionId: 'knowledge-guidance',
-			color: '#C62828',
 			title: 'Steadfastness of Heart',
 			titleMl: 'ഹൃദയം ഉറച്ചുനിൽക്കാൻ',
 			titleArabic: 'يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَى دِينِكَ',
@@ -1202,7 +1139,6 @@ export const ADHKAR_COLLECTIONS = [
 		{
 			id: 'ease-tasks',
 			sectionId: 'knowledge-guidance',
-			color: '#FFD600',
 			title: 'Ease in Tasks',
 			titleMl: 'കാര്യങ്ങൾ എളുപ്പമാകാൻ',
 			titleArabic: 'رَبِّي يَسِّرْ وَلَا تُعَسِّرْ',
@@ -1218,7 +1154,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'yunus-prayer',
 		sectionId: 'hardship-relief',
-		color: '#1976D2',
 		title: 'The Prayer of Prophet Yunus',
 		titleMl: 'വിഷമഘട്ടങ്ങളിൽ (യൂനുസ് നബി)',
 		titleArabic: 'دعاء يونس',
@@ -1234,7 +1169,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'debt-relief',
 		sectionId: 'hardship-relief',
-		color: '#FF7043',
 		title: 'Prayer for Debt Relief',
 		titleMl: 'കടബാധ്യത തീരാൻ',
 		titleArabic: 'دعاء قضاء الدين',
@@ -1250,7 +1184,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'protection-enemies',
 		sectionId: 'hardship-relief',
-		color: '#C62828',
 		title: 'Protection from Enemies',
 		titleMl: 'ശത്രുഭയമുണ്ടാകുമ്പോൾ',
 		titleArabic: 'دعاء الحماية من الأعداء',
@@ -1266,7 +1199,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'peace-of-mind',
 		sectionId: 'hardship-relief',
-		color: '#009688',
 		title: 'For Peace of Mind',
 		titleMl: 'മനസ്സമാധാനത്തിന്',
 		titleArabic: 'طمأنينة القلب',
@@ -1282,7 +1214,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'anger-control',
 		sectionId: 'hardship-relief',
-		color: '#FFA000',
 		title: 'Controlling Anger',
 		titleMl: 'ദേഷ്യം വരുമ്പോൾ',
 		titleArabic: 'عند الغضب',
@@ -1298,7 +1229,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'removing-doubts',
 		sectionId: 'hardship-relief',
-		color: '#607D8B',
 		title: 'For Removing Doubts',
 		titleMl: 'സംശയം വരുമ്പോൾ',
 		titleArabic: 'عند الشكوك',
@@ -1314,7 +1244,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'calamity',
 		sectionId: 'hardship-relief',
-		color: '#C62828',
 		title: 'During Calamity',
 		titleMl: 'മുസീബത്തുകൾ (വിപത്തുകൾ) ഉണ്ടാകുമ്പോൾ',
 		titleArabic: 'عند المصيبة',
@@ -1330,7 +1259,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'patience',
 		sectionId: 'hardship-relief',
-		color: '#4CAF50',
 		title: 'Prayer for Patience',
 		titleMl: 'ക്ഷമ ലഭിക്കാൻ',
 		titleArabic: 'دعاء الصبر',
@@ -1346,7 +1274,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'trust-allah',
 		sectionId: 'hardship-relief',
-		color: '#FFD600',
 		title: 'Ultimate Trust in Allah',
 		titleMl: 'പേടി തോന്നുമ്പോൾ',
 		titleArabic: 'حسبنا الله ونعم الوكيل',
@@ -1362,7 +1289,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'healing',
 		sectionId: 'hardship-relief',
-		color: '#81C784',
 		title: 'Prayer for Healing',
 		titleMl: 'രോഗശമനത്തിന്',
 		titleArabic: 'دعاء الشفاء',
@@ -1378,7 +1304,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'before-eating',
 		sectionId: 'daily-situations',
-		color: '#4CAF50',
 		title: 'Before Eating',
 		titleMl: 'ഭക്ഷണത്തിന് മുൻപ്',
 		titleArabic: 'قبل الأكل',
@@ -1394,7 +1319,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'after-eating',
 		sectionId: 'daily-situations',
-		color: '#FF7043',
 		title: 'After Eating',
 		titleMl: 'ഭക്ഷണം കഴിച്ചുകഴിഞ്ഞാൽ',
 		titleArabic: 'بعد الأكل',
@@ -1409,7 +1333,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'leaving-home',
 		sectionId: 'daily-situations',
-		color: '#1976D2',
 		title: 'Leaving Home',
 		titleMl: 'വീട്ടിൽ നിന്ന് പുറത്തിറങ്ങുമ്പോൾ',
 		titleArabic: 'عند الخروج من المنزل',
@@ -1424,7 +1347,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'entering-home',
 		sectionId: 'daily-situations',
-		color: '#8D6E63',
 		title: 'Entering Home',
 		titleMl: 'വീട്ടിൽ പ്രവേശിക്കുമ്പോൾ',
 		titleArabic: 'عند دخول المنزل',
@@ -1439,7 +1361,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'entering-masjid',
 		sectionId: 'daily-situations',
-		color: '#FFD600',
 		title: 'Entering Masjid',
 		titleMl: 'പള്ളിയിൽ പ്രവേശിക്കുമ്പോൾ',
 		titleArabic: 'عند دخول المسجد',
@@ -1454,7 +1375,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'leaving-masjid',
 		sectionId: 'daily-situations',
-		color: '#009688',
 		title: 'Leaving Masjid',
 		titleMl: 'പള്ളിയിൽ നിന്ന് പുറത്തിറങ്ങുമ്പോൾ',
 		titleArabic: 'عند الخروج من المسجد',
@@ -1469,7 +1389,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'boarding-vehicle',
 		sectionId: 'daily-situations',
-		color: '#00BCD4',
 		title: 'Boarding Vehicle',
 		titleMl: 'വാഹനത്തിൽ കയറുമ്പോൾ',
 		titleArabic: 'عند ركوب الدابة',
@@ -1485,7 +1404,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'wearing-clothes',
 		sectionId: 'daily-situations',
-		color: '#9C27B0',
 		title: 'Wearing Clothes',
 		titleMl: 'വസ്ത്രം ധരിക്കുമ്പോൾ',
 		titleArabic: 'عند لبس الثوب',
@@ -1500,7 +1418,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'looking-mirror',
 		sectionId: 'daily-situations',
-		color: '#607D8B',
 		title: 'Looking in Mirror',
 		titleMl: 'കണ്ണാടി നോക്കുമ്പോൾ',
 		titleArabic: 'عند النظر في المرآة',
@@ -1514,7 +1431,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'after-sneezing',
 		sectionId: 'daily-situations',
-		color: '#FFB300',
 		title: 'After Sneezing',
 		titleMl: 'തുമ്മുമ്പോൾ',
 		titleArabic: 'بعد العطاس',
@@ -1529,7 +1445,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'reply-sneeze',
 		sectionId: 'daily-situations',
-		color: '#388E3C',
 		title: 'Reply to Sneeze',
 		titleMl: 'മറ്റൊരാൾ തുമ്മിയാൽ',
 		titleArabic: 'عند سماع العطاس',
@@ -1544,7 +1459,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'for-profit',
 		sectionId: 'daily-situations',
-		color: '#FFA000',
 		title: 'For Profit/Barakah',
 		titleMl: 'കച്ചവടത്തിൽ/ജോലിയിൽ ലാഭത്തിന്',
 		titleArabic: 'عند الربح في التجارة',
@@ -1559,7 +1473,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'after-gathering',
 		sectionId: 'daily-situations',
-		color: '#607D8B',
 		title: 'After Gathering',
 		titleMl: 'മജ്ലിസ് കഴിയുമ്പോൾ',
 		titleArabic: 'كفارة المجلس',
@@ -1574,7 +1487,6 @@ export const ADHKAR_COLLECTIONS = [
 	{
 		id: 'entering-bathroom',
 		sectionId: 'daily-situations',
-		color: '#607D8B',
 		title: 'Entering Bathroom',
 		titleMl: 'ശുചിമുറിയിൽ കയറുമ്പോൾ',
 		titleArabic: 'عند دخول الخلاء',
