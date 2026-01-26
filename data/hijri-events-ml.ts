@@ -58,7 +58,7 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     titleMl: 'സഫർ മാസത്തിന്റെ തുടക്കം',
     type: 'religious',
     description: "Safar is the second month of the Hijri calendar. Islam rejects superstitions associated with this month and teaches that Safar carries no inherent misfortune.",
-    descriptionMl: 'സഫർ ഹിജ്‌റ കലണ്ടറിലെ രണ്ടാമത്തെ മാസം ആണ്. സഫർക്കുമായി ബന്ധപ്പെട്ട അന്ധവിശ്വാസങ്ങൾക്കും ദുരഭാഷകൾക്കും ഇസ്ലാം യുക്തിതർക്കമായ മറുപടി നൽകുന്നു; സഫറിന് തന്നെ ശുഭമോ അമംഗലമോ ഇല്ലെന്ന് പഠിപ്പിക്കുന്നു.',
+    descriptionMl: 'സഫർ ഹിജ്‌റ കലണ്ടറിലെ രണ്ടാമത്തെ മാസം ആണ്. സഫറുമായി ബന്ധപ്പെട്ട അന്ധവിശ്വാസങ്ങൾക്കും ദുരഭാഷകൾക്കും ഇസ്ലാം യുക്തിതർക്കമായ മറുപടി നൽകുന്നു; സഫറിന് തന്നെ ശുഭമോ അമംഗലമോ ഇല്ലെന്ന് പഠിപ്പിക്കുന്നു.',
   },
   // RABI AL-AWWAL
   {
@@ -246,7 +246,7 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     titleMl: 'ജാഫർ ഇബ്ൻ അബീ താലിബ് (റ) വഫാത്ത് ',
     type: 'wafat',
     description: "Ja'far ibn Abi Talib (RA), brother of Ali (RA) and cousin of the Prophet ﷺ, famed for leading the migration to Abyssinia and for his martyrdom at Mu'tah; the Prophet ﷺ praised his sacrifice.",
-    descriptionMl: 'അലി (റ) ന്റെ സഹോദരനും പ്രവാചകനെ (സ) യുടെ രാജകുമാരനായ ജാഫർ ഇബ്ൻ അബീ താലിബ് (റ) അബ്സീനിയ ഹിജ്‌റയിലാണു മുസ്ലിം സംഘത്തെ നയിച്ചത്. മുഅ്ത യുദ്ധകളത്തിൽ  വെച്ച് ഇരുവശം കൈകളും നഷ്ടപ്പെടുത്തി; പ്രവാചകൻ ﷺ അദ്ദേഹത്തിന് സ്വർഗ്ഗത്തിൽ ചിറകുകൾ നൽകിയതായി വിശേഷിപ്പിച്ചു.',
+    descriptionMl: 'അലി (റ) ന്റെ സഹോദരനും പ്രവാചകനെ (സ) യുടെ രാജകുമാരനായ ജാഫർ ഇബ്ൻ അബീ താലിബ് (റ) അബ്സീനിയ ഹിജ്‌റയിലാണു മുസ്ലിം സംഘത്തെ നയിച്ചത്. മുഅ്ത യുദ്ധകളത്തിൽ  വെച്ച് ഇരുവശം കൈകളും നഷ്ടപ്പെടുത്തി. പ്രവാചകൻ ﷺ അദ്ദേഹത്തിന് സ്വർഗ്ഗത്തിൽ ചിറകുകൾ നൽകിയതായി വിശേഷിപ്പിച്ചു.',
   },
   {
     id: 'wafat-said-bin-harith',
@@ -316,7 +316,7 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     titleMl: 'അബു ഹുറൈറ (റ) യുടെ വഫാത്ത്',
     type: 'wafat',
     description: 'Abu Hurairah (RA) — companion famed for transmitting a large number of hadiths; dedicated his life to preserving the Prophet\'s traditions and passed away in Dhul-Qadah.',
-    descriptionMl: 'പ്രവാചകനെ (സ) നിന്നെ നിന്നുള്ള ഏറ്റവും കൂടുതലുള്ള ഹദീസുകൾ റിപ്പോർട്ട് ചെയ്ത സ്വഹാബിയായ അബു ഹുറൈറ (റ) ദുൽഖഅദയിൽ വഫാത്തായി.',
+    descriptionMl: 'പ്രവാചകൻ (സ) നിന്നുള്ള ഏറ്റവും കൂടുതലുള്ള ഹദീസുകൾ റിപ്പോർട്ട് ചെയ്ത സ്വഹാബിയായ അബു ഹുറൈറ (റ) ദുൽഖഅദയിൽ വഫാത്തായി.',
   },
   {
     id: 'wafat-ibn-qayyim',
@@ -346,7 +346,7 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     titleMl: 'ഇമാം നവവി (റ) യുടെ വഫാത്ത്',
     type: 'wafat',
     description: 'Imam Nawawi — author of "Riyad as-Salihin" and key hadith works; passed away on Rajab 24.',
-    descriptionMl: 'ഇമാം നവവി (റ) — പ്രശസ്ത ഗ്രന്ഥങ്ങൾക്ക് കവിമായ പണ്ഡിതൻ; ഹിജ്റ 676-ൽ റജബ് 24-ന് വഫാത്തായി.',
+    descriptionMl: 'ഇമാം നവവി (റ) — പ്രശസ്ത ഗ്രന്ഥങ്ങൾക്ക് കവിയായ പണ്ഡിതൻ; ഹിജ്റ 676-ൽ റജബ് 24-ന് വഫാത്തായി.',
   },
   {
     id: 'wafat-khadija',
@@ -436,7 +436,7 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     titleMl: 'കാളമ്പാടി മുഹമ്മദ് മുസ്‌ലിയാർ വഫാത്ത് ',
     type: 'wafat',
     description: "Kalambadi Muhammad Musliyar, Samastha's eighth president, passed away on Dhul Qadah 16, 1433 AH (2 Oct 2012).",
-    descriptionMl: `ഹിജ്റ 1935-ൽ ജനിച്ച് സമസ്തയുടെ അദ്ധ്യക്ഷ സ്ഥാനത്ത് സേവിച്ചു; ഹിജ്റ 1433 ദുൽഖഅദ് 16 (2012 ഒക്ടോബർ 2) നാണ് വിയോഗം.`,
+    descriptionMl: `ഹിജ്റ 1935-ൽ ജനിച്ച് സമസ്തയുടെ അദ്ധ്യക്ഷ സ്ഥാനത്ത് സേവിച്ചു; ഹിജ്റ 1433 ദുൽഖഅദ് 16 (2012 ഒക്ടോബർ 2) നാണ് വഫാത്ത് .`,
   },
   {
     id: 'wafat-nellikuth-ismail',
@@ -446,7 +446,7 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     titleMl: 'നെല്ലിക്കുത്ത് ഇസ്മാഈൽ മുസ്‌ലിയാർ വഫാത്ത്',
     type: 'wafat',
     description: "Nellikuth Ismail Musliyar, scholar and author of the Arabic–Malayalam dictionary 'Al-Manhal', passed away on Muharram 24, 1431 AH (10 Jan 2010).",
-    descriptionMl: `നെല്ലിക്കുത്ത് ഇസ്മാഈൽ മുസ്ലിയാർ 1940-ൽ ജനിച്ചു, അറബി-മലയാള നിഘണ്ടു 'അൽ-മൻഹൽ' രചിച്ചു; ഹിജ്റ 1431 മുഹറം 24 (2010 ജനുവരി 10) ന് വിയോഗം.`,
+    descriptionMl: `നെല്ലിക്കുത്ത് ഇസ്മാഈൽ മുസ്ലിയാർ 1940-ൽ ജനിച്ചു, അറബി-മലയാള നിഘണ്ടു 'അൽ-മൻഹൽ' രചിച്ചു; ഹിജ്റ 1431 മുഹറം 24 (2010 ജനുവരി 10) ന് വഫാത്ത്.`,
   },
   {
     id: 'wafat-anakkara-c-koyakkutti',
@@ -476,7 +476,7 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     titleMl: 'അത്തിപ്പറ്റ ഉസ്താദ് വഫാത്ത്',
     type: 'wafat',
     description: 'A.P. Kunjamu musliyar Athipatta Usthad , an esteemed spiritual guide, passed away on Rabi al-Thani 10, 1440 AH (18 Dec 2018).',
-    descriptionMl: `അത്തിപ്പറ്റ ഉസ്താദ് എ.പി. കുഞ്ഞാമു മുസ്ലിയാർ ഹിജ്റ 1361 (1942) ജനിച്ചവൻ; ഹിജ്റ 1440 റബീഉൽ ആഖിർ 10 (2018 ഡിസംബർ 18) നാണ് മരണം.`,
+    descriptionMl: `അത്തിപ്പറ്റ ഉസ്താദ് എ.പി. കുഞ്ഞാമു മുസ്ലിയാർ ഹിജ്റ 1361 (1942) ജനിച്ചവൻ; ഹിജ്റ 1440 റബീഉൽ ആഖിർ 10 (2018 ഡിസംബർ 18) നാണ് വഫാത്ത്.`,
   },
   {
     id: 'wafat-sayyid-ahmad-bukhari',
@@ -486,7 +486,7 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     titleMl: 'സയ്യിദ് അഹ്മദ് ജലാലുദ്ദീൻ അൽ-ബുഖാരി വഫാത്ത്',
     type: 'wafat',
     description: 'Sayyid Ahmad Jalaluddin al-Bukhari is a historic Sufi figure associated with Kadalundi Bandar; traditional records mark his passing on Rabi al-Thani 18.',
-    descriptionMl: `കടലുണ്ടി ബന്ദറിൽ മഖാമുള്ള സയ്യിദ് അഹ്മദ് ജലാലുദ്ദീൻ അൽ-ബുഖാരി ശൈഖ് പരമ്പരയിലെ ഒരു പ്രമുഖ വക്താവാണ്; ഹിജ്റ റബീഉൽ ആഖിർ 18 ന് അദ്ദേഹത്തിന്റെ വിയോഗമുണ്ടായത് ചരിത്ര രേഖകളിൽ കാണപ്പെടുന്നു.`,
+    descriptionMl: `കടലുണ്ടി ബന്ദറിൽ മഖാമുള്ള സയ്യിദ് അഹ്മദ് ജലാലുദ്ദീൻ അൽ-ബുഖാരി ശൈഖ് പരമ്പരയിലെ ഒരു പ്രമുഖ വക്താവാണ്; ഹിജ്റ റബീഉൽ ആഖിർ 18 ന് അദ്ദേഹത്തിന്റെ വഫാത്ത് ചരിത്ര രേഖകളിൽ കാണപ്പെടുന്നു.`,
   },
   {
     id: 'wafat-varakkal-mullakkoya',
@@ -536,7 +536,7 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     titleMl: 'ശൈഖുനാ കെ.കെ. അബൂബക്കർ ഹസ്റത്ത് വഫാത്ത്',
     type: 'wafat',
     description: 'K.K. Abubacker Hasrath was an influential figure in northern Malabar; traditional notes record his passing on Rajab 16.',
-    descriptionMl: `കെ.കെ. അബൂബക്കർ ഹസ്രത്ത് വടക്കൻ മലബാറിലെ മുസ്ലീം നവോത്ഥാന ചരിത്രത്തിൽ പ്രസിദ്ധനായ നേതാവായിരുന്നു; റജബ് 16-ന് വഫാത്തായി രേഖകളിൽ പറയുന്നു.`,
+    descriptionMl: `കെ.കെ. അബൂബക്കർ ഹസ്രത്ത് വടക്കൻ മലബാറിലെ മുസ്ലീം നവോത്ഥാന ചരിത്രത്തിൽ പ്രസിദ്ധനായ നേതാവായിരുന്നു; റജബ് 16-ന് വഫാത്തായെതെന്ന് രേഖകളിൽ പറയുന്നു.`,
   },
   {
     id: 'wafat-ek-hassan',
@@ -668,7 +668,7 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     titleMl: 'മക്ക വിജയം (കാരുണ്യത്തിന്റെ വിജയം)',
     type: 'historic',
     description: 'The Prophet ﷺ entered Makkah peacefully with many followers and granted general amnesty to former opponents.',
-    descriptionMl: 'ഇത് വലിയൊരു യുദ്ധമായിരുന്നില്ല. പതിനായിരക്കണക്കിന് അനുയായികളുമായി പ്രവാചകൻ ﷺ മക്കയിലേക്ക് പ്രവേശിച്ചു. മുമ്പ് നബി തങ്ങളെ കാലങ്ങളോളം ഉപദ്രവിച്ച ശത്രുക്കൾക്കോട് അദ്ദേഹം പൊതുമാപ്പ് പ്രഖ്യാപിച്ചു. ലോകചരിത്രത്തിലെ ഏറ്റവും സമാധാനപരമായ വിപ്ലവമായി ഇത് കണക്കാക്കപ്പെടുന്നു.',
+    descriptionMl: 'ഇത് വലിയൊരു യുദ്ധമായിരുന്നില്ല. പതിനായിരക്കണക്കിന് അനുയായികളുമായി പ്രവാചകൻ ﷺ മക്കയിലേക്ക് പ്രവേശിച്ചു. മുമ്പ് നബി തങ്ങളെ കാലങ്ങളോളം ഉപദ്രവിച്ച ശത്രുക്കളോട്  അദ്ദേഹം പൊതുമാപ്പ് പ്രഖ്യാപിച്ചു. ലോകചരിത്രത്തിലെ ഏറ്റവും സമാധാനപരമായ വിപ്ലവമായി ഇത് കണക്കാക്കപ്പെടുന്നു.',
   },
   {
     id: 'battle-hattin',
@@ -678,7 +678,7 @@ export const ISLAMIC_EVENTS_ML: IslamicEventML[] = [
     titleMl: 'ഹൈത്തീൻ യുദ്ധം (ഹൈത്തീൻ യുദ്ധം)',
     type: 'historic',
     description: 'AD 1187 — Saladin (Salahuddin Ayyubi) led forces to a decisive victory over the Crusaders, leading to the recapture of Jerusalem.',
-    descriptionMl: 'കുരിശുയുദ്ധങ്ങളുടെ കാലഘട്ടത്തിലെ ഏറ്റവും നിർണായകമായ യുദ്ധങ്ങളിൽ ഒന്ന്. സുൽത്താൻ സലാഹുദ്ദീൻ അയ്യൂബി നയിച്ചായ്‌തു; കുരിശുസൈന്യം പരാജയപ്പെടുത്തി ഫലസ്തീനും ഖുദ്സും മุസ്ലിം അധികാരത്തിലായി വീണ്ടെടുത്തു. യുദ്ധത്തിന് ശേഷം സലാഹുദ്ദീൻ കാണിച്ച കാരുണ്യം പലരും പ്രശംസിച്ചു.',
+    descriptionMl: 'കുരിശുയുദ്ധങ്ങളുടെ കാലഘട്ടത്തിലെ ഏറ്റവും നിർണായകമായ യുദ്ധങ്ങളിൽ ഒന്ന്. സുൽത്താൻ സലാഹുദ്ദീൻ അയ്യൂബിയാണ് നയിച്ചത് ; കുരിശുസൈന്യം പരാജയപ്പെടുത്തി ഫലസ്തീനും ഖുദ്സും മุസ്ലിം അധികാരത്തിലായി വീണ്ടെടുത്തു. യുദ്ധത്തിന് ശേഷം സലാഹുദ്ദീൻ കാണിച്ച കാരുണ്യം പലരും പ്രശംസിച്ചു.',
   },
 ];
 

@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Colors } from '../../constants/theme';
 import { ADHKAR_COLLECTIONS, SECTIONS } from '../../data/adhkar-collections';
 
 // Type for AdhkarCollection
@@ -13,7 +14,7 @@ type AdhkarCollection = {
   id: string;
   sectionId: string;
   icon?: string;
-  color: string;
+  color?: string;
   title: string;
   titleMl: string;
   titleArabic: string;
@@ -35,24 +36,28 @@ interface AdhkarListItemProps {
 }
 
 function AdhkarListItem({ adhkar, onPress, isDark, isMalayalam }: AdhkarListItemProps) {
+  const color = adhkar.color || Colors.light.primary;
+  // Find the section icon for this adhkar
+  const section = SECTIONS.find(s => s.id === adhkar.sectionId);
+  const icon = section?.icon || adhkar.icon || 'heart-outline';
   return (
     <TouchableOpacity
       activeOpacity={0.7}
       onPress={onPress}
-      style={[styles.listItem, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}
+      style={[styles.listItem, { backgroundColor: isDark ? Colors.dark.card : Colors.light.card }]}
     >
-      <View style={[styles.iconContainer, { backgroundColor: adhkar.color + '20' }]}> 
-        <Text style={styles.adhkarIcon}>{adhkar.icon}</Text>
+      <View style={[styles.iconContainer, { backgroundColor: color + '20' }]}> 
+        <Ionicons name={icon as any} size={24} color={color} />
       </View>
       <View style={styles.titleContainer}>
-        <Text style={[styles.adhkarTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}> 
+        <Text style={[styles.adhkarTitle, { color: isDark ? Colors.dark.text : Colors.light.text }]}> 
           {isMalayalam ? adhkar.titleMl : adhkar.title}
         </Text>
-        <Text style={[styles.adhkarTitleArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}> 
+        <Text style={[styles.adhkarTitleArabic, { color: isDark ? Colors.dark.secondary : Colors.light.secondary }]}> 
           {adhkar.titleArabic}
         </Text>
       </View>
-      <Ionicons name="chevron-forward" size={20} color={isDark ? '#B0BEC5' : '#757575'} />
+      <Ionicons name="chevron-forward" size={20} color={isDark ? Colors.dark.secondary : Colors.light.secondary} />
     </TouchableOpacity>
   );
 }
@@ -70,17 +75,17 @@ function SectionCard({ section, isDark, isMalayalam, onPress }: SectionCardProps
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={onPress}
-      style={[styles.sectionBox, { backgroundColor: isDark ? '#23272F' : '#FFF8E1', borderColor: isDark ? '#FFD60033' : '#FFD600' }]}
+      style={[styles.sectionBox, { backgroundColor: isDark ? Colors.dark.card : Colors.light.card, borderColor: isDark ? Colors.dark.primary : Colors.light.primary }]}
     >
-      <Text style={[styles.sectionBoxTitle, { color: isDark ? '#FFD600' : '#4E342E' }]}
+      <View style={styles.sectionIconContainer}>
+        <Ionicons name={section.icon as any} size={32} color={isDark ? Colors.dark.primary : Colors.light.primary} />
+      </View>
+      <Text style={[styles.sectionBoxTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}
         numberOfLines={2}
         ellipsizeMode="tail"
       >
         {isMalayalam ? section.titleMl : section.title}
       </Text>
-      <View style={styles.sectionBoxIconWrap}>
-        <Ionicons name="chevron-forward" size={24} color={isDark ? '#FFD600' : '#4E342E'} />
-      </View>
     </TouchableOpacity>
   );
 }
@@ -100,32 +105,34 @@ function AdhkarModal({ visible, adhkar, onClose, isDark, isMalayalam }: AdhkarMo
   if (!adhkar) return null;
 
   const hasInfo = adhkar.meaningMl || adhkar.virtuesMl || adhkar.sourceMl;
+  const color = adhkar.color || (isDark ? Colors.dark.primary : Colors.light.primary);
 
   return (
     <>
       <Modal
         visible={visible}
         animationType="slide"
-        presentationStyle="pageSheet"
+        transparent={true}
         onRequestClose={onClose}
       >
-        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}> 
-          {/* Modal Header - Single Line */}
-          <View style={[styles.modalHeader, { backgroundColor: adhkar.color }]}> 
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={28} color="#FFFFFF" />
-            </TouchableOpacity>
-            <Text style={styles.modalTitle}>
-              {isMalayalam ? adhkar.titleMl : adhkar.title}
-            </Text>
-            {hasInfo ? (
-              <TouchableOpacity onPress={() => setInfoVisible(true)} style={styles.infoIconButton}>
-                <Ionicons name="information-circle-outline" size={26} color="#FFFFFF" />
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? Colors.dark.card : Colors.light.card }]}>
+            {/* Modal Header - Single Line */}
+            <View style={[styles.modalHeader, { backgroundColor: color }]}> 
+              <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                <Ionicons name="close" size={28} color="#FFFFFF" />
               </TouchableOpacity>
-            ) : (
-              <View style={styles.closeButton} />
-            )}
-          </View>
+              <Text style={styles.modalTitle}>
+                {isMalayalam ? adhkar.titleMl : adhkar.title}
+              </Text>
+              {hasInfo ? (
+                <TouchableOpacity onPress={() => setInfoVisible(true)} style={styles.infoIconButton}>
+                  <Ionicons name="information-circle-outline" size={26} color="#FFFFFF" />
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.closeButton} />
+              )}
+            </View>
 
           {/* Arabic Content */}
           <ScrollView 
@@ -136,14 +143,15 @@ function AdhkarModal({ visible, adhkar, onClose, isDark, isMalayalam }: AdhkarMo
             {adhkar.content.map((line, index) => (
               <Text 
                 key={index} 
-                style={[styles.arabicLine, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}
+                style={[styles.arabicLine, { color: isDark ? Colors.dark.text : Colors.light.text }]}
               >
                 {line}
               </Text>
             ))}
-            <View style={{ height: 50 }} />
+            <View style={{ height: 20 }} />
           </ScrollView>
-        </SafeAreaView>
+          </View>
+        </View>
       </Modal>
 
       {/* Info Modal */}
@@ -154,34 +162,34 @@ function AdhkarModal({ visible, adhkar, onClose, isDark, isMalayalam }: AdhkarMo
         onRequestClose={() => setInfoVisible(false)}
       >
         <View style={styles.infoModalOverlay}>
-          <View style={[styles.infoModalBox, { backgroundColor: isDark ? '#23272F' : '#FFFDE7' }]}> 
+          <View style={[styles.infoModalBox, { backgroundColor: isDark ? Colors.dark.card : Colors.light.card }]}> 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <Text style={[styles.infoModalTitle, { color: isDark ? '#FFD600' : '#4E342E' }]}> 
+              <Text style={[styles.infoModalTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}> 
                 {isMalayalam ? adhkar.titleMl : adhkar.title}
               </Text>
               <TouchableOpacity onPress={() => setInfoVisible(false)}>
-                <Ionicons name="close" size={26} color={isDark ? '#FFD600' : '#4E342E'} />
+                <Ionicons name="close" size={26} color={isDark ? Colors.dark.primary : Colors.light.primary} />
               </TouchableOpacity>
             </View>
             <ScrollView style={{ maxHeight: SCREEN_HEIGHT * 0.5 }}>
               {adhkar.meaningMl && (
                 <View style={{ marginBottom: 14 }}>
-                  <Text style={[styles.infoLabel, { color: isDark ? '#FFD600' : '#4E342E' }]}>{isMalayalam ? 'അർത്ഥം' : 'Meaning'}</Text>
-                  <Text style={[styles.infoTextBlock, { color: isDark ? '#FFFFFF' : '#333' }]}>{adhkar.meaningMl}</Text>
+                  <Text style={[styles.infoLabel, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>{isMalayalam ? 'അർത്ഥം' : 'Meaning'}</Text>
+                  <Text style={[styles.infoTextBlock, { color: isDark ? Colors.dark.text : Colors.light.text }]}>{adhkar.meaningMl}</Text>
                 </View>
               )}
               {adhkar.virtuesMl && adhkar.virtuesMl.length > 0 && (
                 <View style={{ marginBottom: 14 }}>
-                  <Text style={[styles.infoLabel, { color: isDark ? '#FFD600' : '#4E342E' }]}>{isMalayalam ? 'ഫലങ്ങൾ' : 'Virtues'}</Text>
+                  <Text style={[styles.infoLabel, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>{isMalayalam ? 'ഫലങ്ങൾ' : 'Virtues'}</Text>
                   {adhkar.virtuesMl.map((v, i) => (
-                    <Text key={i} style={[styles.infoTextBlock, { color: isDark ? '#FFFFFF' : '#333', marginLeft: 8 }]}>• {v}</Text>
+                    <Text key={i} style={[styles.infoTextBlock, { color: isDark ? Colors.dark.text : Colors.light.text, marginLeft: 8 }]}>• {v}</Text>
                   ))}
                 </View>
               )}
               {adhkar.sourceMl && (
                 <View style={{ marginBottom: 6 }}>
-                  <Text style={[styles.infoLabel, { color: isDark ? '#FFD600' : '#4E342E' }]}>{isMalayalam ? 'ഉറവിടം' : 'Source'}</Text>
-                  <Text style={[styles.infoTextBlock, { color: isDark ? '#FFFFFF' : '#333' }]}>{adhkar.sourceMl}</Text>
+                  <Text style={[styles.infoLabel, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>{isMalayalam ? 'ഉറവിടം' : 'Source'}</Text>
+                  <Text style={[styles.infoTextBlock, { color: isDark ? Colors.dark.text : Colors.light.text }]}>{adhkar.sourceMl}</Text>
                 </View>
               )}
             </ScrollView>
@@ -203,13 +211,11 @@ export default function DhikrScreen() {
   const [selectedAdhkar, setSelectedAdhkar] = useState<AdhkarCollection | null>(null);
   const [adhkarModalVisible, setAdhkarModalVisible] = useState(false);
 
-  // State for selected section (for section modal)
+  // State for selected section (show adhkar list on same page)
   const [selectedSection, setSelectedSection] = useState<typeof SECTIONS[number] | null>(null);
-  const [sectionModalVisible, setSectionModalVisible] = useState(false);
 
   const labels = {
-    title: isMalayalam ? 'അദ്കാർ & അവ്‌റാദ്' : 'Adhkar & Awrad',
-    subtitle: 'الأذكار والأوراد',
+    title: 'Adhkar & Awrad',
     selectToRead: isMalayalam ? 'വായിക്കാൻ ടാപ്പ് ചെയ്യുക' : 'Tap to read',
   };
 
@@ -224,100 +230,99 @@ export default function DhikrScreen() {
     setSelectedAdhkar(null);
   };
 
-  const handleOpenSectionModal = (section: typeof SECTIONS[number]) => {
+  const handleSelectSection = (section: typeof SECTIONS[number]) => {
     setSelectedSection(section);
-    setSectionModalVisible(true);
   };
 
-  const handleCloseSectionModal = () => {
-    setSectionModalVisible(false);
+  const handleBackToSections = () => {
     setSelectedSection(null);
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? Colors.dark.background : Colors.light.background }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={isDark ? '#FFFFFF' : '#1A1A1A'} />
-        </TouchableOpacity>
-        <View>
-          <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
-            📿 {labels.title}
-          </Text>
-          <Text style={[styles.subtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
-            {labels.subtitle}
-          </Text>
-        </View>
-      </View>
-
-      {/* Info Card */}
-      <View style={[styles.infoCard, { backgroundColor: isDark ? '#1B5E20' : '#E8F5E9' }]}>
-        <Ionicons name="information-circle" size={20} color={isDark ? '#81C784' : '#2E7D32'} />
-        <Text style={[styles.infoText, { color: isDark ? '#81C784' : '#2E7D32' }]}>
-          {labels.selectToRead}
-        </Text>
-      </View>
-
-
-      {/* Section Cards List */}
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={styles.sectionBoxGrid}>
-          {SECTIONS.filter(section => section.itemIds.length > 0).map(section => (
-            <SectionCard
-              key={section.id}
-              section={section}
-              isDark={isDark}
-              isMalayalam={isMalayalam}
-              onPress={() => handleOpenSectionModal(section)}
-            />
-          ))}
-        </View>
-        <View style={{ height: 100 }} />
-      </ScrollView>
-
-      {/* Section Modal: List of Adhkar in Section */}
-      <Modal
-        visible={sectionModalVisible}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={handleCloseSectionModal}
-      >
-        <SafeAreaView style={[styles.modalContainer, { backgroundColor: isDark ? '#121212' : '#F5F5F5' }]}> 
-          <View style={[styles.modalHeader, { backgroundColor: isDark ? '#263238' : '#FFD600' }]}> 
-            <TouchableOpacity onPress={handleCloseSectionModal} style={styles.closeButton}>
-              <Ionicons name="close" size={28} color={isDark ? '#FFD600' : '#4E342E'} />
+        {selectedSection ? (
+          <>
+            <TouchableOpacity onPress={handleBackToSections} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color={isDark ? Colors.dark.text : Colors.light.text} />
             </TouchableOpacity>
-            <Text style={[styles.modalTitle, { color: isDark ? '#FFD600' : '#4E342E' }]}> 
-              {selectedSection ? (isMalayalam ? selectedSection.titleMl : selectedSection.title) : ''}
+            <View style={styles.headerTitleContainer}>
+              <Text style={[styles.title, { color: isDark ? Colors.dark.text : Colors.light.text }]}>
+                {selectedSection.title}
+              </Text>
+            </View>
+            <View style={styles.placeholder} />
+          </>
+        ) : (
+          <>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color={isDark ? Colors.dark.text : Colors.light.text} />
+            </TouchableOpacity>
+            <View style={styles.centeredTitleContainer}>
+              <Text style={[styles.title, { color: isDark ? Colors.dark.text : Colors.light.text }]}>
+                {labels.title}
+              </Text>
+            </View>
+            <View style={styles.placeholder} />
+          </>
+        )}
+      </View>
+
+      {/* Content */}
+      {selectedSection ? (
+        // Show adhkar list for selected section
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {selectedSection.itemIds
+            .map(id => ADHKAR_COLLECTIONS.find(a => a.id === id))
+            .filter(a => a !== undefined)
+            .map((adhkar) => (
+              <AdhkarListItem
+                key={adhkar.id}
+                adhkar={adhkar}
+                onPress={() => handleOpenAdhkarModal(adhkar)}
+                isDark={isDark}
+                isMalayalam={isMalayalam}
+              />
+            ))}
+          <View style={{ height: 100 }} />
+        </ScrollView>
+      ) : (
+        // Show sections grid
+        <>
+          {/* Info Card */}
+          <View style={[styles.infoCard, { backgroundColor: isDark ? Colors.dark.secondary + '20' : Colors.light.secondary + '20' }]}>
+            <Ionicons name="information-circle" size={20} color={isDark ? Colors.dark.primary : Colors.light.primary} />
+            <Text style={[styles.infoText, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>
+              {labels.selectToRead}
             </Text>
-            <View style={styles.closeButton} />
           </View>
-          <ScrollView style={styles.modalScrollView} contentContainerStyle={styles.modalScrollContent}>
-            {selectedSection && selectedSection.itemIds
-              .map(id => ADHKAR_COLLECTIONS.find(a => a.id === id))
-              .filter(a => a !== undefined)
-              .map((adhkar) => (
-                <AdhkarListItem
-                  key={adhkar.id}
-                  adhkar={adhkar}
-                  onPress={() => {
-                    handleCloseSectionModal();
-                    setTimeout(() => handleOpenAdhkarModal(adhkar), 300);
-                  }}
+
+          {/* Section Cards List */}
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+          >
+            <View style={styles.sectionBoxGrid}>
+              {SECTIONS.filter(section => section.itemIds.length > 0).map(section => (
+                <SectionCard
+                  key={section.id}
+                  section={section}
                   isDark={isDark}
                   isMalayalam={isMalayalam}
+                  onPress={() => handleSelectSection(section)}
                 />
               ))}
-            <View style={{ height: 50 }} />
+            </View>
+            <View style={{ height: 100 }} />
           </ScrollView>
-        </SafeAreaView>
-      </Modal>
+        </>
+      )}
 
       {/* Adhkar Modal */}
       <AdhkarModal
@@ -394,11 +399,16 @@ const styles = StyleSheet.create({
     elevation: 2,
     padding: 12,
   },
+  sectionIconContainer: {
+    marginBottom: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   sectionBoxTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 8,
+    marginTop: 8,
     letterSpacing: 0.1,
     flexShrink: 1,
   },
@@ -421,9 +431,23 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 8,
+  },
+  centeredTitleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  placeholder: {
+    width: 40, // Same width as backButton for symmetry
   },
   backButton: {
     marginRight: 12,
@@ -432,10 +456,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-  },
-  subtitle: {
-    fontSize: 16,
-    marginTop: 2,
   },
   infoCard: {
     flexDirection: 'row',
@@ -492,6 +512,23 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '100%',
+    maxHeight: '70%',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
+  },
   modalContainer: {
     flex: 1,
   },
@@ -499,7 +536,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,
+    paddingVertical: 12,
     paddingHorizontal: 16,
   },
   closeButton: {
@@ -516,15 +553,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   modalScrollView: {
-    flex: 1,
+    maxHeight: SCREEN_HEIGHT * 0.5,
   },
   modalScrollContent: {
-    padding: 20,
+    padding: 16,
   },
   arabicLine: {
-    fontSize: 26,
-    lineHeight: 52,
+    fontSize: 22,
+    lineHeight: 44,
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
 });
