@@ -2,9 +2,8 @@ import { Colors } from '@/constants/theme';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'react-native';
 import { useEffect, useState } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, StatusBar, Text, View } from 'react-native';
 import 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
