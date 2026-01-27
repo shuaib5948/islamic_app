@@ -258,11 +258,9 @@ export default function EventsScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Text style={[styles.backIcon, { color: colors.text }]}>←</Text>
         </TouchableOpacity>
-        <View>
-          <Text style={[styles.title, { color: colors.text }]}>
-            {isMalayalam ? 'ഇസ്ലാമിക മുഹൂർത്തങ്ങൾ' : 'Islamic Events'}
-          </Text>
-        </View>
+        <Text style={[styles.title, { color: colors.text, fontSize: isMalayalam ? 20 : 28, textAlign: 'center', flex: 1 }]}>
+          {isMalayalam ? 'ഇസ്ലാമിക മുഹൂർത്തങ്ങൾ' : 'Islamic Events'}
+        </Text>
         <TouchableOpacity onPress={() => setShowAddEventModal(true)} style={styles.addButton}>
           <Text style={[styles.addIcon, { color: colors.primary }]}>+</Text>
         </TouchableOpacity>
