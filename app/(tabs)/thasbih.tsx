@@ -82,7 +82,7 @@ export default function ThasbihScreen() {
   const contentRef = useRef<View>(null);
 
   const labels = {
-    title: isMalayalam ? 'തസ്ബീഹ്' : 'Tasbih',
+    title: isMalayalam ? 'തസ്ബീഹ്' : 'DigiTasbih',
     subtitle: 'تسبيح',
     individualMode: isMalayalam ? 'വ്യക്തിഗതം' : 'Individual',
     groupMode: isMalayalam ? 'ഗ്രൂപ്പ്' : 'Group',
@@ -419,7 +419,7 @@ export default function ThasbihScreen() {
           <Text style={[styles.backIcon, { color: colors.text }]}>←</Text>
         </TouchableOpacity>
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <Text style={[styles.title, styles.appTitle, { color: colors.text }]}>Tasbih</Text>
+          <Text style={[styles.title, styles.appTitle, { color: colors.text }]}>DigiThasbih</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity
@@ -437,7 +437,7 @@ export default function ThasbihScreen() {
             style={{ padding: 4, marginRight: selectedGroup && selectedGroup.members[0] === 'You' ? 8 : 0 }}
             accessibilityLabel={
               mode === 'individual'
-                ? 'Set Tasbih Target'
+                ? 'Set DigiThasbih Target'
                 : selectedGroup
                   ? 'Group Progress'
                   : 'Add Group'
@@ -774,7 +774,7 @@ export default function ThasbihScreen() {
             <ScrollView style={{ flex: 1, width: '100%' }} showsVerticalScrollIndicator={false}>
               <View style={{ padding: 20, paddingTop: 10 }}>
                 <Text style={[styles.appTitle, { color: colors.text, textAlign: 'center', marginBottom: 20 }]}>
-                  {isMalayalam ? 'നിങ്ങളുടെ തസ്ബീഹ് ഗ്രൂപ്പുകൾ' : 'Your Tasbih Groups'}
+                  {isMalayalam ? 'നിങ്ങളുടെ തസ്ബീഹ് ഗ്രൂപ്പുകൾ' : 'Your DigiThasbih Groups'}
                 </Text>
 
                 {/* Created Groups Section */}
@@ -830,7 +830,7 @@ export default function ThasbihScreen() {
                               
                               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
                                 <Text style={{ color: colors.text, fontSize: 14, fontWeight: '500' }}>
-                                  Progress: {group.currentCount}/{group.target}
+                                  Remaining: {group.currentCount}
                                 </Text>
                               </View>
                             </View>

@@ -222,8 +222,8 @@ export default function HomeScreen() {
     },
     {
       icon: 'calculator-outline',
-      title: 'Thasbih Counter',
-      titleMl: 'Thasbih Counter',
+      title: 'DigiThasbih',
+      titleMl: 'DigiThasbih',
       color: colors.primary,
       route: '/thasbih' as const,
     },
