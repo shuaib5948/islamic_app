@@ -7,13 +7,13 @@ import { HIJRI_MONTHS_ML } from '@/data/hijri-events-ml';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { deleteCustomEvent, getCustomEvents, getCustomEventsML, saveCustomEvent } from '@/utils/event-storage';
 import {
-  generateHijriMonthCalendar,
-  generateHijriMonthCalendarAsync,
-  getHijriMonthName,
-  getTodayHijri,
-  getTodayHijriAsync,
-  HijriDate,
-  hijriToGregorian
+    generateHijriMonthCalendar,
+    generateHijriMonthCalendarAsync,
+    getHijriMonthName,
+    getTodayHijri,
+    getTodayHijriAsync,
+    HijriDate,
+    hijriToGregorian
 } from '@/utils/hijri-date';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
@@ -539,7 +539,7 @@ const styles = StyleSheet.create({
   },
   todayButton: {
     fontSize: 11,
-    color: '#4CAF50',
+    color: Colors.light.eventTypes.religious,
     marginTop: 4,
   },
   calendarContainer: {

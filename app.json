@@ -1,32 +1,35 @@
 {
   "expo": {
     "name": "RuhTrack",
-    "slug": "hijri-calendar",
+    "slug": "ruhtrack",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/app logo.png",
-    "scheme": "hijri-calendar",
+    "icon": "./assets/app_logo1.png",
+    "scheme": "ruhtrack",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+
     "ios": {
       "supportsTablet": true
     },
+
     "android": {
+      "package": "com.shuaib.ruhtrack",
       "adaptiveIcon": {
-        "backgroundColor": "#1B5E20"
-      },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+        "foregroundImage": "./assets/app_logo.png",
+        "backgroundColor": "#F7F5F2"
+      }
     },
+
     "web": {
       "output": "static"
     },
+
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "imageWidth": 200,
+          "image": "./assets/app_logo.png",
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
           "dark": {
@@ -34,10 +37,6 @@
           }
         }
       ]
-    ],
-    "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
-    }
+    ]
   }
 }

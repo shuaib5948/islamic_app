@@ -10,43 +10,56 @@ const tintColorDark = '#fff';
 
 export const Colors = {
   light: {
-    text: '#5F6D4E',
-    background: '#F4F1EC',
-    tint: '#7F8F6A',
-    icon: '#7F8F6A',
-    tabIconDefault: '#9EAD8A',
-    tabIconSelected: '#7F8F6A',
-    primary: '#7F8F6A',
-    secondary: '#9EAD8A',
-    accent: '#E8E2D8',
-    card: '#FFFFFF',
-    hadith: '#7F8F6A',
-    hadithText: '#F4F1EC',
+    text: '#6F4B3A',
+    background: '#F7F5F2',
+
+    tint: '#90674E',
+    icon: '#90674E',
+
+    tabIconDefault: '#B9A79A',
+    tabIconSelected: '#90674E',
+
+    primary: '#90674E',
+    secondary: '#B9A79A',
+    accent: '#E1D7CF',
+
+    // 🟤 All cards use brown combination
+    card: '#FBF9F6',
+    hadith: '#90674E',
+    hadithText: '#F7F5F2',
+
     eventTypes: {
-      religious: '#7F8F6A', // Main olive sage
-      historic: '#6B7F5A',  // Darker olive
-      birth: '#8FA67A',     // Lighter olive
-      wafat: '#5A6B4A',     // Darkest olive
+      religious: '#90674E',
+      historic: '#B9A79A',
+      birth: '#E1D7CF',
+      wafat: '#6F4B3A',
     },
   },
+
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-    primary: '#7F8F6A',
-    secondary: '#9EAD8A',
-    accent: '#E8E2D8',
-    card: '#1E1E1E',
-    hadith: '#1E3A5F',
+    text: '#F7F5F2',
+    background: '#1F1B18',
+
+    tint: '#C4A792',
+    icon: '#C4A792',
+
+    tabIconDefault: '#8A7568',
+    tabIconSelected: '#C4A792',
+
+    primary: '#C4A792',
+    secondary: '#A88D7B',
+    accent: '#6F4B3A',
+
+    // 🟤 Dark brown cards
+    card: '#2A221E',
+    hadith: '#90674E',
     hadithText: '#FFFFFF',
+
     eventTypes: {
-      religious: '#7F8F6A', // Main olive sage
-      historic: '#6B7F5A',  // Darker olive
-      birth: '#8FA67A',     // Lighter olive
-      wafat: '#5A6B4A',     // Darkest olive
+      religious: '#90674E',
+      historic: '#A88D7B',
+      birth: '#E1D7CF',
+      wafat: '#6F4B3A',
     },
   },
 };

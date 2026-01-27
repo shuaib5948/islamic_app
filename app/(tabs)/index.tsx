@@ -5,7 +5,7 @@ import { REFLECTION_QUESTIONS } from '@/data/reflection-questions';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Dimensions, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -132,6 +132,8 @@ export default function HomeScreen() {
   const isMalayalam = language === 'ml';
   const colors = isDark ? Colors.dark : Colors.light;
 
+  const scrollViewRef = useRef<ScrollView>(null);
+
   const [showReflection, setShowReflection] = useState(false);
   const [reflectionStep, setReflectionStep] = useState<'question' | 'mood' | 'guidance'>('question');
   const [selectedMood, setSelectedMood] = useState<string>('');
@@ -140,6 +142,33 @@ export default function HomeScreen() {
 
   const today = new Date().toISOString().split('T')[0];
   const question = REFLECTION_QUESTIONS[currentQuestionIndex % REFLECTION_QUESTIONS.length];
+
+  // Handle swipe between hadith and reflection
+  const handleScrollEnd = (event: any) => {
+    const scrollPosition = event.nativeEvent.contentOffset.x;
+    const page = Math.round(scrollPosition / width);
+    const isReflectionPage = page === 1;
+    
+    if (isReflectionPage !== showReflection) {
+      setShowReflection(isReflectionPage);
+      if (isReflectionPage) {
+        // Reset reflection state when switching to reflection
+        setReflectionStep('question');
+        setSelectedMood('');
+        setGuidance(null);
+        // Move to next question
+        setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+      }
+    }
+  };
+  // Auto-scroll when showReflection changes
+  useEffect(() => {
+    if (scrollViewRef.current) {
+      const pageIndex = showReflection ? 1 : 0;
+      const scrollX = pageIndex * (width - 64);
+      scrollViewRef.current.scrollTo({ x: scrollX, animated: true });
+    }
+  }, [showReflection]);
 
   // Auto-switch between hadith and reflection every 8 seconds
   // But don't switch if user is actively in reflection steps (mood selection or guidance)
@@ -166,7 +195,6 @@ export default function HomeScreen() {
 
     return () => clearInterval(interval);
   }, [showReflection, reflectionStep]);
-
   const handleReflectContinue = () => {
     setReflectionStep('mood');
   };
@@ -270,13 +298,39 @@ export default function HomeScreen() {
         <View style={[styles.hadithCard, { backgroundColor: colors.hadith }]}>
           {/* Content indicator */}
           <View style={styles.contentIndicator}>
-            <View style={[styles.indicatorDot, { backgroundColor: showReflection ? colors.primary : 'transparent' }]} />
             <View style={[styles.indicatorDot, { backgroundColor: !showReflection ? colors.primary : 'transparent' }]} />
+            <View style={[styles.indicatorDot, { backgroundColor: showReflection ? colors.primary : 'transparent' }]} />
           </View>
 
-          {showReflection ? (
-            // Reflection Content
-            <>
+          <ScrollView
+            ref={scrollViewRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={handleScrollEnd}
+            style={styles.swipeContainer}
+          >
+            {/* Hadith Page */}
+            <View style={styles.pageContainer}>
+              <View style={styles.hadithHeader}>
+                <Ionicons name="document-text-outline" size={18} color={colors.hadithText} style={styles.hadithIcon} />
+                <Text style={[styles.hadithLabel, { color: colors.hadithText }]}>
+                  {isMalayalam ? 'ഇന്നത്തെ ഹദീസ്' : 'Daily Hadith'}
+                </Text>
+              </View>
+              <Text style={[styles.hadithArabic, { color: colors.hadithText }]}>
+                {dailyHadith.arabic}
+              </Text>
+              <Text style={[styles.hadithEnglish, { color: colors.accent }]}>
+                {isMalayalam ? dailyHadith.malayalam : dailyHadith.english}
+              </Text>
+              <Text style={[styles.hadithSource, { color: colors.hadithText }]}>
+                — {dailyHadith.source}
+              </Text>
+            </View>
+
+            {/* Reflection Page */}
+            <View style={styles.pageContainer}>
               {reflectionStep === 'question' && (
                 <>
                   <View style={styles.hadithHeader}>
@@ -386,27 +440,8 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                 </>
               )}
-            </>
-          ) : (
-            // Daily Hadith Content
-            <>
-              <View style={styles.hadithHeader}>
-                <Ionicons name="document-text-outline" size={18} color={colors.hadithText} style={styles.hadithIcon} />
-                <Text style={[styles.hadithLabel, { color: colors.hadithText }]}>
-                  {isMalayalam ? 'ഇന്നത്തെ ഹദീസ്' : 'Daily Hadith'}
-                </Text>
-              </View>
-              <Text style={[styles.hadithArabic, { color: colors.hadithText }]}>
-                {dailyHadith.arabic}
-              </Text>
-              <Text style={[styles.hadithEnglish, { color: colors.accent }]}>
-                {isMalayalam ? dailyHadith.malayalam : dailyHadith.english}
-              </Text>
-              <Text style={[styles.hadithSource, { color: colors.hadithText }]}>
-                — {dailyHadith.source}
-              </Text>
-            </>
-          )}
+            </View>
+          </ScrollView>
         </View>
 
         {/* Feature Grid */}
@@ -544,6 +579,13 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
+  },
+  swipeContainer: {
+    flex: 1,
+  },
+  pageContainer: {
+    width: width - 64,
+    paddingVertical: 16,
   },
   // Reflection Styles
   reflectionQuestion: {

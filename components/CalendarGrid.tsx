@@ -1,7 +1,8 @@
+import { Colors } from '@/constants/theme';
 import { getEventsForDate } from '@/data/hijri-events';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const toArabicNumerals = (num: number): string => {
   const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
@@ -31,6 +32,7 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
 }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const colors = isDark ? Colors.dark : Colors.light;
   const builtInEvents = getEventsForDate(month, day);
   const customEventsForDay = customEvents.filter(event => 
     event.month === month && event.day === day
@@ -40,8 +42,8 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
   const hasHighImportance = false; // Removed importance field
 
   const getEventIndicatorColor = () => {
-    if (hasHighImportance) return '#FFD700';
-    if (hasEvents) return '#4CAF50';
+    if (hasHighImportance) return colors.primary;
+    if (hasEvents) return colors.eventTypes.religious;
     return 'transparent';
   };
 
@@ -52,7 +54,7 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
           styles.dayContainer,
           isToday && styles.todayContainer,
           isSelected && styles.selectedContainer,
-          { backgroundColor: isSelected ? '#1B5E20' : isToday ? (isDark ? '#2E7D32' : '#C8E6C9') : 'transparent' },
+          { backgroundColor: isSelected ? colors.primary : isToday ? colors.secondary : 'transparent' },
         ]}
       >
         <Text
@@ -60,10 +62,8 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
             styles.dayText,
             {
               color: isSelected || isToday
-                ? '#FFFFFF'
-                : isDark
-                ? '#FFFFFF'
-                : '#1A1A1A',
+                ? colors.card
+                : colors.text,
             },
           ]}
         >
@@ -78,7 +78,7 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
           />
         )}
       </View>
-      <Text style={[styles.gregorianDay, { color: isDark ? '#9E9E9E' : '#757575' }]}>
+      <Text style={[styles.gregorianDay, { color: colors.secondary }]}>
         {gregorianDate.getDate()}
       </Text>
     </TouchableOpacity>
@@ -108,6 +108,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const colors = isDark ? Colors.dark : Colors.light;
 
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -135,7 +136,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
             <Text
               style={[
                 styles.weekDayText,
-                { color: index === 5 ? '#4CAF50' : isDark ? '#B0BEC5' : '#757575' },
+                { color: index === 5 ? colors.eventTypes.religious : colors.secondary },
               ]}
             >
               {day}
@@ -178,13 +179,13 @@ const styles = StyleSheet.create({
   dayContainer: {
     width: 36,
     height: 36,
-    borderRadius: 18,
+    borderRadius: Platform.OS === 'android' ? 20 : 18,
     justifyContent: 'center',
     alignItems: 'center',
   },
   todayContainer: {
     borderWidth: 2,
-    borderColor: '#4CAF50',
+    borderColor: Colors.light.eventTypes.religious,
   },
   selectedContainer: {
     borderWidth: 0,
