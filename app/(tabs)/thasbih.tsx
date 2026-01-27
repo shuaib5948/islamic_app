@@ -3,8 +3,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { router, useNavigation } from 'expo-router';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   Alert,
   Animated,
@@ -32,6 +32,8 @@ interface GroupSession {
   dhikrType: string;
   joinCode: string;
   contributions: { [member: string]: number };
+  creator: string; // Add creator field to track who created the group
+  joinedMembers: string[]; // Track members who joined via join method
 }
 
 export default function ThasbihScreen() {
@@ -65,6 +67,7 @@ export default function ThasbihScreen() {
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [joinCodeInput, setJoinCodeInput] = useState('');
   const [joinNameInput, setJoinNameInput] = useState('');
 
@@ -87,8 +90,8 @@ export default function ThasbihScreen() {
     target: isMalayalam ? 'ലക്ഷ്യം' : 'Target',
     setTarget: isMalayalam ? 'ലക്ഷ്യം സജ്ജമാക്കുക' : 'Set Target',
     reset: isMalayalam ? 'പുനഃസജ്ജമാക്കുക' : 'Reset',
-    createGroup: isMalayalam ? 'ഗ്രൂപ്പ് സൃഷ്ടിക്കുക' : 'Create Group',
-    joinGroup: isMalayalam ? 'ഗ്രൂപ്പിൽ ചേരുക' : 'Join Group',
+    createGroup: isMalayalam ? 'സൃഷ്ടിക്കുക' : 'Create Group',
+    joinGroup: isMalayalam ? 'ചേരുക' : 'Join Group',
     groupName: isMalayalam ? 'ഗ്രൂപ്പ് നാമം' : 'Group Name',
     groupTarget: isMalayalam ? 'ഗ്രൂപ്പ് ലക്ഷ്യം' : 'Group Target',
     create: isMalayalam ? 'സൃഷ്ടിക്കുക' : 'Create',
@@ -107,11 +110,10 @@ export default function ThasbihScreen() {
     if (mode === 'individual' && count > 0 && individualTarget > 0 && count % individualTarget === 0) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
-    // Group mode progress (if needed)
+    // Group mode progress (countdown calculator)
     if (mode === 'group') {
       const progress = selectedGroup?.target > 0 ? 
-        Math.min((selectedGroup.target - (selectedGroup?.currentCount || 0)) / selectedGroup.target, 1) :
-        Math.min((selectedGroup?.currentCount || 0) / (selectedGroup?.target || 1), 1);
+        Math.min((selectedGroup.target - (selectedGroup?.currentCount || 0)) / selectedGroup.target, 1) : 0;
       Animated.timing(progressAnim, {
         toValue: progress,
         duration: 300,
@@ -126,6 +128,35 @@ export default function ThasbihScreen() {
       setCount(individualTarget);
     }
   }, [isCountdown, individualTarget, mode]);
+
+  // Hide tab bar for thasbih screen
+  const navigation = useNavigation();
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      tabBarStyle: { display: 'none' }
+    });
+  }, [navigation]);
+
+  // Migrate existing groups to add creator and joinedMembers fields for backward compatibility
+  useEffect(() => {
+    setGroupSessions(prev => prev.map(group => {
+      const updatedGroup = { ...group };
+      
+      // Add creator field if missing
+      if (!group.creator) {
+        // For existing groups, assume they were created by 'You' if 'You' is the first member
+        updatedGroup.creator = group.members[0] === 'You' ? 'You' : 'Unknown';
+      }
+      
+      // Add joinedMembers field if missing
+      if (!group.joinedMembers) {
+        // For existing groups, joinedMembers are all members except the creator
+        updatedGroup.joinedMembers = group.members.filter(member => member !== updatedGroup.creator);
+      }
+      
+      return updatedGroup;
+    }));
+  }, []);
 
   // Helper: get current user name for group mode
   const getCurrentUser = () => {
@@ -260,6 +291,8 @@ export default function ThasbihScreen() {
       dhikrType: groupDhikrType,
       joinCode: code,
       contributions: { 'You': 0 },
+      creator: 'You', // Set creator as 'You' for created groups
+      joinedMembers: [], // Creator doesn't join, they create
     };
 
     setGroupSessions(prev => [...prev, newGroup]);
@@ -278,12 +311,23 @@ export default function ThasbihScreen() {
     }
     const group = groupSessions.find(g => g.joinCode === joinCodeInput.trim());
     if (group) {
+      // Check if already a member
+      if (group.members.includes(joinNameInput.trim())) {
+        Alert.alert('Already Member', 'You are already a member of this group.');
+        return;
+      }
+      
       // Add member and initialize their contribution if not present
       const updatedContribs = { ...group.contributions };
       if (!(joinNameInput.trim() in updatedContribs)) {
         updatedContribs[joinNameInput.trim()] = 0;
       }
-      const updatedGroup = { ...group, members: [...group.members, joinNameInput.trim()], contributions: updatedContribs };
+      const updatedGroup = { 
+        ...group, 
+        members: [...group.members, joinNameInput.trim()], 
+        contributions: updatedContribs,
+        joinedMembers: [...(group.joinedMembers || []), joinNameInput.trim()] // Track joined members
+      };
       setGroupSessions(prev => prev.map(g => g.id === group.id ? updatedGroup : g));
       setSelectedGroup(updatedGroup);
       setShowJoinModal(false);
@@ -361,41 +405,74 @@ export default function ThasbihScreen() {
 
       {/* App Header (like Hijri Calendar) */}
       <View style={[styles.header, { justifyContent: 'space-between', alignItems: 'center' }]}> 
-        <TouchableOpacity onPress={() => router.push('/')} style={styles.backButton} accessibilityLabel="Back to Home">
+        <TouchableOpacity 
+          onPress={() => {
+            if (mode === 'group' && selectedGroup) {
+              setSelectedGroup(null);
+            } else {
+              router.push('/');
+            }
+          }} 
+          style={styles.backButton} 
+          accessibilityLabel={mode === 'group' && selectedGroup ? "Back to Groups" : "Back to Home"}
+        >
           <Text style={[styles.backIcon, { color: colors.text }]}>←</Text>
         </TouchableOpacity>
         <View style={{ flex: 1, alignItems: 'center' }}>
           <Text style={[styles.title, styles.appTitle, { color: colors.text }]}>Tasbih</Text>
         </View>
-        <TouchableOpacity
-          onPress={() => {
-            if (mode === 'individual') {
-              setShowTargetModal(true);
-            } else if (mode === 'group') {
-              if (selectedGroup) {
-                setShowContribModal(true);
-              } else if (groupSessions.length > 0) {
-                setShowHistoryModal(true);
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={() => {
+              if (mode === 'individual') {
+                setShowTargetModal(true);
+              } else if (mode === 'group') {
+                if (selectedGroup) {
+                  setShowContribModal(true);
+                } else {
+                  setShowAddModal(true);
+                }
               }
+            }}
+            style={{ padding: 4, marginRight: selectedGroup && selectedGroup.members[0] === 'You' ? 8 : 0 }}
+            accessibilityLabel={
+              mode === 'individual'
+                ? 'Set Tasbih Target'
+                : selectedGroup
+                  ? 'Group Progress'
+                  : 'Add Group'
             }
-          }}
-          style={{ padding: 4, marginLeft: 8 }}
-          accessibilityLabel={
-            mode === 'individual'
-              ? 'Set Tasbih Target'
-              : selectedGroup
-                ? 'Group Progress'
-                : 'Group History'
-          }
-        >
-          {mode === 'individual' ? (
-            <Ionicons name="locate" size={24} color={colors.text} />
-          ) : selectedGroup ? (
-            <Ionicons name="stats-chart" size={24} color={colors.text} />
-          ) : groupSessions.length > 0 ? (
-            <Ionicons name="time" size={24} color={colors.text} />
-          ) : null}
-        </TouchableOpacity>
+          >
+            {mode === 'individual' ? (
+              <Ionicons name="locate" size={24} color={colors.text} />
+            ) : selectedGroup ? (
+              <Ionicons name="stats-chart" size={24} color={colors.text} />
+            ) : (
+              <Ionicons name="add" size={24} color={colors.text} />
+            )}
+          </TouchableOpacity>
+          {selectedGroup && selectedGroup.creator === 'You' && (
+            <TouchableOpacity
+              style={{ padding: 4 }}
+              onPress={() => {
+                Alert.alert(
+                  'Delete Group',
+                  'Are you sure you want to delete this group?',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Delete', style: 'destructive', onPress: () => {
+                      setGroupSessions(prev => prev.filter(g => g.id !== selectedGroup.id));
+                      setSelectedGroup(null);
+                    }},
+                  ]
+                );
+              }}
+              accessibilityLabel="Delete Group"
+            >
+              <Ionicons name="trash" size={20} color="#E53935" />
+            </TouchableOpacity>
+          )}
+        </View>
             {/* Group Contributions Modal */}
             <Modal visible={showContribModal} transparent animationType="fade">
               <View style={styles.modalOverlay}>
@@ -687,36 +764,208 @@ export default function ThasbihScreen() {
               }}
               activeOpacity={0.9}
             >
-              <Text style={{ color: colors.primary, fontSize: 22, fontWeight: 'bold', textAlign: 'center', letterSpacing: 0.5 }}>{selectedGroup.dhikrType}</Text>
+              <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: 'bold', textAlign: 'center', letterSpacing: 0.5 }}>{selectedGroup.dhikrType}</Text>
               <Text style={{ fontSize: 13, color: colors.text, textAlign: 'center', marginTop: 6 }}>hold for exit</Text>
             </TouchableOpacity>
           </Animated.View>
         ) : (
           /* Group Selection */
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 32 }}>
-              <TouchableOpacity
-                style={[
-                  styles.groupActionButton,
-                  {
-                    backgroundColor: colors.primary,
-                    width: 140,
-                    height: 140,
-                    borderRadius: 32,
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: 12,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.13,
-                    shadowRadius: 10,
-                    elevation: 6,
-                  },
-                ]}
-                onPress={() => setShowGroupModal(true)}
-                activeOpacity={0.85}
-              >
+          groupSessions.length > 0 ? (
+            <ScrollView style={{ flex: 1, width: '100%' }} showsVerticalScrollIndicator={false}>
+              <View style={{ padding: 20, paddingTop: 10 }}>
+                <Text style={[styles.appTitle, { color: colors.text, textAlign: 'center', marginBottom: 20 }]}>
+                  {isMalayalam ? 'നിങ്ങളുടെ തസ്ബീഹ് ഗ്രൂപ്പുകൾ' : 'Your Tasbih Groups'}
+                </Text>
+
+                {/* Created Groups Section */}
+                {(() => {
+                  const createdGroups = groupSessions.filter(group => 
+                    group.creator === 'You' && !(group.joinedMembers || []).includes('You')
+                  );
+                  if (createdGroups.length === 0) return null;
+
+                  return (
+                    <View style={{ marginBottom: 30 }}>
+                      <Text style={{ color: colors.text, fontSize: 18, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' }}>
+                        {isMalayalam ? 'സൃഷ്ടിച്ച ഗ്രൂപ്പുകൾ' : 'Created Groups'}
+                      </Text>
+                      {createdGroups.map((group) => {
+                        // Calculate progress for countdown mode (groups always count down from target to 0)
+                        const progressPercent = group.target > 0 ? 
+                          Math.min(Math.round(((group.target - group.currentCount) / group.target) * 100), 100) : 0;
+                        
+                        const isCompleted = group.target > 0 && group.currentCount === 0;
+                        
+                        return (
+                          <TouchableOpacity
+                            key={group.id}
+                            style={[styles.groupListItem, { 
+                              backgroundColor: colors.card, 
+                              marginBottom: 12,
+                              borderLeftWidth: 4,
+                              borderLeftColor: isCompleted ? colors.primary : colors.secondary
+                            }]}
+                            onPress={() => setSelectedGroup(group)}
+                          >
+                            <View style={{ flex: 1 }}>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                                <Text style={[styles.groupListName, { color: colors.text, flex: 1 }]}>
+                                  {group.name}
+                                </Text>
+                                {isCompleted && (
+                                  <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
+                                )}
+                              </View>
+                              
+                              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                                <Ionicons name="people" size={14} color={colors.accent} style={{ marginRight: 4 }} />
+                                <Text style={[styles.groupListInfo, { color: colors.accent, fontSize: 13 }]}>
+                                  {group.members.length} {group.members.length === 1 ? 'member' : 'members'}
+                                </Text>
+                              </View>
+                              
+                              <Text style={[styles.groupListInfo, { color: colors.accent, fontSize: 13, fontStyle: 'italic' }]}>
+                                {group.dhikrType}
+                              </Text>
+                              
+                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+                                <Text style={{ color: colors.text, fontSize: 14, fontWeight: '500' }}>
+                                  Progress: {group.currentCount}/{group.target}
+                                </Text>
+                              </View>
+                            </View>
+                            
+                            <View style={{ alignItems: 'center', justifyContent: 'center', marginLeft: 12 }}>
+                              <View style={{
+                                width: 50,
+                                height: 50,
+                                borderRadius: 25,
+                                borderWidth: 3,
+                                borderColor: isCompleted ? colors.primary : colors.secondary,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                marginBottom: 4
+                              }}>
+                                <Text style={{ color: colors.text, fontSize: 14, fontWeight: 'bold' }}>
+                                  {progressPercent}%
+                                </Text>
+                              </View>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  );
+                })()}
+
+                {/* Joined Groups Section */}
+                {(() => {
+                  const joinedGroups = groupSessions.filter(group => 
+                    (group.joinedMembers || []).includes('You')
+                  );
+                  if (joinedGroups.length === 0) return null;
+
+                  return (
+                    <View style={{ marginBottom: 30 }}>
+                      <Text style={{ color: colors.text, fontSize: 18, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' }}>
+                        {isMalayalam ? 'ചേർന്ന ഗ്രൂപ്പുകൾ' : 'Joined Groups'}
+                      </Text>
+                      {joinedGroups.map((group) => {
+                        // Calculate progress for countdown mode (groups always count down from target to 0)
+                        const progressPercent = group.target > 0 ? 
+                          Math.min(Math.round(((group.target - group.currentCount) / group.target) * 100), 100) : 0;
+                        
+                        const isCompleted = group.target > 0 && group.currentCount === 0;
+                        
+                        return (
+                          <TouchableOpacity
+                            key={group.id}
+                            style={[styles.groupListItem, { 
+                              backgroundColor: colors.card, 
+                              marginBottom: 12,
+                              borderLeftWidth: 4,
+                              borderLeftColor: isCompleted ? colors.primary : colors.secondary
+                            }]}
+                            onPress={() => setSelectedGroup(group)}
+                          >
+                            <View style={{ flex: 1 }}>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                                <Text style={[styles.groupListName, { color: colors.text, flex: 1 }]}>
+                                  {group.name}
+                                </Text>
+                                {isCompleted && (
+                                  <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
+                                )}
+                              </View>
+                              
+                              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                                <Ionicons name="people" size={14} color={colors.accent} style={{ marginRight: 4 }} />
+                                <Text style={[styles.groupListInfo, { color: colors.accent, fontSize: 13 }]}>
+                                  {group.members.length} {group.members.length === 1 ? 'member' : 'members'}
+                                </Text>
+                              </View>
+                              
+                              <Text style={[styles.groupListInfo, { color: colors.accent, fontSize: 13, fontStyle: 'italic' }]}>
+                                {group.dhikrType}
+                              </Text>
+                              
+                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+                                <Text style={{ color: colors.text, fontSize: 14, fontWeight: '500' }}>
+                                  Progress: {group.currentCount}/{group.target}
+                                </Text>
+                              </View>
+                            </View>
+                            
+                            <View style={{ alignItems: 'center', justifyContent: 'center', marginLeft: 12 }}>
+                              <View style={{
+                                width: 50,
+                                height: 50,
+                                borderRadius: 25,
+                                borderWidth: 3,
+                                borderColor: isCompleted ? colors.primary : colors.secondary,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                marginBottom: 4
+                              }}>
+                                <Text style={{ color: colors.text, fontSize: 14, fontWeight: 'bold' }}>
+                                  {progressPercent}%
+                                </Text>
+                              </View>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  );
+                })()}
+              </View>
+              <View style={{ height: 100 }} />
+            </ScrollView>
+          ) : (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 32 }}>
+                <TouchableOpacity
+                  style={[
+                    styles.groupActionButton,
+                    {
+                      backgroundColor: colors.primary,
+                      width: 140,
+                      height: 140,
+                      borderRadius: 32,
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      gap: 12,
+                      shadowColor: '#000',
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.13,
+                      shadowRadius: 10,
+                      elevation: 6,
+                    },
+                  ]}
+                  onPress={() => setShowGroupModal(true)}
+                  activeOpacity={0.85}
+                >
                 <Ionicons name="add" size={48} color="#FFFFFF" />
                 <Text style={{ color: '#fff', fontWeight: '600', fontSize: 18, textAlign: 'center', marginTop: 6 }}>{labels.createGroup}</Text>
               </TouchableOpacity>
@@ -747,6 +996,7 @@ export default function ThasbihScreen() {
               </TouchableOpacity>
             </View>
           </View>
+          )
         )
       )}
 
@@ -886,6 +1136,92 @@ export default function ThasbihScreen() {
                 <Text style={styles.modalButtonText}>{labels.join}</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Add Group Modal */}
+      <Modal visible={showAddModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              {isMalayalam ? 'ഗ്രൂപ്പ് ചേർക്കുക' : 'Add Group'}
+            </Text>
+            <Text style={[styles.modalSubtitle, { color: colors.text }]}>
+              {isMalayalam ? 'ഒരു പുതിയ ഗ്രൂപ്പ് സൃഷ്ടിക്കുക അല്ലെങ്കിൽ നിലവിലുള്ള ഗ്രൂപ്പിൽ ചേരുക' : 'Create a new group or join an existing one'}
+            </Text>
+            
+            <View style={{ flexDirection: 'row', gap: 16, marginTop: 20, justifyContent: 'center' }}>
+              <TouchableOpacity
+                style={{
+                  width: 120,
+                  height: 120,
+                  backgroundColor: colors.primary,
+                  borderRadius: 16,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 16,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 2,
+                }}
+                onPress={() => {
+                  setShowAddModal(false);
+                  setShowGroupModal(true);
+                }}
+              >
+                <Ionicons name="add-circle" size={32} color="#FFFFFF" style={{ marginBottom: 8 }} />
+                <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '600', textAlign: 'center' }}>
+                  {isMalayalam ? 'സൃഷ്ടിക്കുക' : 'Create'}
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={{
+                  width: 120,
+                  height: 120,
+                  backgroundColor: colors.secondary,
+                  borderRadius: 16,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 16,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 2,
+                }}
+                onPress={() => {
+                  setShowAddModal(false);
+                  setShowJoinModal(true);
+                }}
+              >
+                <Ionicons name="enter" size={32} color="#FFFFFF" style={{ marginBottom: 8 }} />
+                <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '600', textAlign: 'center' }}>
+                  {isMalayalam ? 'ചേരുക' : 'Join'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            
+            <TouchableOpacity
+              style={{
+                marginTop: 20,
+                paddingVertical: 12,
+                paddingHorizontal: 24,
+                borderRadius: 12,
+                alignItems: 'center',
+                backgroundColor: 'transparent',
+                borderWidth: 1,
+                borderColor: colors.accent,
+              }}
+              onPress={() => setShowAddModal(false)}
+            >
+              <Text style={{ color: colors.text, fontSize: 16, fontWeight: '600' }}>
+                {labels.cancel}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>

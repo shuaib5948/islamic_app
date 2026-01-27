@@ -23,17 +23,26 @@ export interface JuzAssignment {
   assignedDate: string;
 }
 
+export interface Khatam {
+  id: string;
+  name: string;
+  assignments: JuzAssignment[];
+  isCompleted: boolean;
+  completedDate?: string;
+}
+
 export interface KhatamGroup {
   id: string;
   name: string;
   description: string;
   createdDate: string;
   targetDate: string;
-  assignments: JuzAssignment[];
+  assignments: JuzAssignment[]; // Keep for backward compatibility
   isCompleted: boolean;
   completedDate?: string;
   dedication?: string; // For whom this khatam is dedicated
   joinCode: string; // 4-digit code for others to join
+  khatams: Khatam[];
 }
 
 // All 30 Juz of the Quran

@@ -1,4 +1,4 @@
-import { JuzAssignment, KhatamGroup, generateId } from '@/data/quran-khatam';
+import { JuzAssignment, Khatam, KhatamGroup, generateId } from '@/data/quran-khatam';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STORAGE_KEY = 'khatam_groups';
@@ -7,7 +7,21 @@ const STORAGE_KEY = 'khatam_groups';
 export const loadKhatamGroups = async (): Promise<KhatamGroup[]> => {
   try {
     const data = await AsyncStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    const groups = data ? JSON.parse(data) : [];
+    // Ensure assignments is always an array and migrate to khatams
+    return groups.map((group: any) => {
+      group.assignments = group.assignments || [];
+      if (!group.khatams || group.khatams.length === 0) {
+        group.khatams = [{
+          id: 'khatam1',
+          name: 'Khatam 1',
+          assignments: group.assignments,
+          isCompleted: group.isCompleted || false,
+          completedDate: group.completedDate
+        }];
+      }
+      return group;
+    });
   } catch (error) {
     console.error('Error loading khatam groups:', error);
     return [];
@@ -48,6 +62,12 @@ export const createKhatamGroup = async (
     isCompleted: false,
     dedication,
     joinCode,
+    khatams: [{
+      id: 'khatam1',
+      name: 'Khatam 1',
+      assignments: [],
+      isCompleted: false
+    }],
   };
   
   groups.push(newGroup);
@@ -66,16 +86,20 @@ export const deleteKhatamGroup = async (groupId: string): Promise<void> => {
 // Assign a Juz to a participant
 export const assignJuz = async (
   groupId: string,
+  khatamId: string,
   juzNumber: number,
   participantName: string
 ): Promise<JuzAssignment | null> => {
   const groups = await loadKhatamGroups();
-  const groupIndex = groups.findIndex(g => g.id === groupId);
+  const group = groups.find(g => g.id === groupId);
   
-  if (groupIndex === -1) return null;
+  if (!group) return null;
   
-  // Check if Juz is already assigned
-  const existingAssignment = groups[groupIndex].assignments.find(
+  const khatam = group.khatams.find(k => k.id === khatamId);
+  if (!khatam) return null;
+  
+  // Check if Juz is already assigned in this khatam
+  const existingAssignment = khatam.assignments.find(
     a => a.juzNumber === juzNumber
   );
   if (existingAssignment) return null;
@@ -88,7 +112,7 @@ export const assignJuz = async (
     assignedDate: new Date().toISOString(),
   };
   
-  groups[groupIndex].assignments.push(assignment);
+  khatam.assignments.push(assignment);
   await saveKhatamGroups(groups);
   
   return assignment;
@@ -97,14 +121,18 @@ export const assignJuz = async (
 // Remove a Juz assignment
 export const removeAssignment = async (
   groupId: string,
+  khatamId: string,
   juzNumber: number
 ): Promise<void> => {
   const groups = await loadKhatamGroups();
-  const groupIndex = groups.findIndex(g => g.id === groupId);
+  const group = groups.find(g => g.id === groupId);
   
-  if (groupIndex === -1) return;
+  if (!group) return;
   
-  groups[groupIndex].assignments = groups[groupIndex].assignments.filter(
+  const khatam = group.khatams.find(k => k.id === khatamId);
+  if (!khatam) return;
+  
+  khatam.assignments = khatam.assignments.filter(
     a => a.juzNumber !== juzNumber
   );
   await saveKhatamGroups(groups);
@@ -113,27 +141,31 @@ export const removeAssignment = async (
 // Mark a Juz as completed
 export const markJuzCompleted = async (
   groupId: string,
+  khatamId: string,
   juzNumber: number
 ): Promise<void> => {
   const groups = await loadKhatamGroups();
-  const groupIndex = groups.findIndex(g => g.id === groupId);
+  const group = groups.find(g => g.id === groupId);
   
-  if (groupIndex === -1) return;
+  if (!group) return;
   
-  const assignmentIndex = groups[groupIndex].assignments.findIndex(
+  const khatam = group.khatams.find(k => k.id === khatamId);
+  if (!khatam) return;
+  
+  const assignment = khatam.assignments.find(
     a => a.juzNumber === juzNumber
   );
   
-  if (assignmentIndex === -1) return;
+  if (!assignment) return;
   
-  groups[groupIndex].assignments[assignmentIndex].isCompleted = true;
-  groups[groupIndex].assignments[assignmentIndex].completedDate = new Date().toISOString();
+  assignment.isCompleted = true;
+  assignment.completedDate = new Date().toISOString();
   
-  // Check if all 30 Juz are completed
-  const completedCount = groups[groupIndex].assignments.filter(a => a.isCompleted).length;
+  // Check if all 30 Juz are completed for this khatam
+  const completedCount = khatam.assignments.filter(a => a.isCompleted).length;
   if (completedCount === 30) {
-    groups[groupIndex].isCompleted = true;
-    groups[groupIndex].completedDate = new Date().toISOString();
+    khatam.isCompleted = true;
+    khatam.completedDate = new Date().toISOString();
   }
   
   await saveKhatamGroups(groups);
@@ -142,23 +174,27 @@ export const markJuzCompleted = async (
 // Mark a Juz as incomplete
 export const markJuzIncomplete = async (
   groupId: string,
+  khatamId: string,
   juzNumber: number
 ): Promise<void> => {
   const groups = await loadKhatamGroups();
-  const groupIndex = groups.findIndex(g => g.id === groupId);
+  const group = groups.find(g => g.id === groupId);
   
-  if (groupIndex === -1) return;
+  if (!group) return;
   
-  const assignmentIndex = groups[groupIndex].assignments.findIndex(
+  const khatam = group.khatams.find(k => k.id === khatamId);
+  if (!khatam) return;
+  
+  const assignment = khatam.assignments.find(
     a => a.juzNumber === juzNumber
   );
   
-  if (assignmentIndex === -1) return;
+  if (!assignment) return;
   
-  groups[groupIndex].assignments[assignmentIndex].isCompleted = false;
-  groups[groupIndex].assignments[assignmentIndex].completedDate = undefined;
-  groups[groupIndex].isCompleted = false;
-  groups[groupIndex].completedDate = undefined;
+  assignment.isCompleted = false;
+  assignment.completedDate = undefined;
+  khatam.isCompleted = false;
+  khatam.completedDate = undefined;
   
   await saveKhatamGroups(groups);
 };
@@ -167,6 +203,38 @@ export const markJuzIncomplete = async (
 export const getKhatamGroup = async (groupId: string): Promise<KhatamGroup | null> => {
   const groups = await loadKhatamGroups();
   return groups.find(g => g.id === groupId) || null;
+};
+
+// Add a new khatam to a group
+export const addKhatamToGroup = async (groupId: string): Promise<Khatam | null> => {
+  const groups = await loadKhatamGroups();
+  const group = groups.find(g => g.id === groupId);
+  
+  if (!group) return null;
+  
+  const khatamNumber = group.khatams.length + 1;
+  const newKhatam: Khatam = {
+    id: generateId(),
+    name: `Khatam ${khatamNumber}`,
+    assignments: [],
+    isCompleted: false
+  };
+  
+  group.khatams.push(newKhatam);
+  await saveKhatamGroups(groups);
+  
+  return newKhatam;
+};
+
+// Remove a khatam from a group
+export const removeKhatamFromGroup = async (groupId: string, khatamId: string): Promise<void> => {
+  const groups = await loadKhatamGroups();
+  const group = groups.find(g => g.id === groupId);
+  
+  if (!group) return;
+  
+  group.khatams = group.khatams.filter(k => k.id !== khatamId);
+  await saveKhatamGroups(groups);
 };
 
 // Update khatam group details

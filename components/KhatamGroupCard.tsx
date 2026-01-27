@@ -1,5 +1,5 @@
 import { Colors } from '@/constants/theme';
-import { KhatamGroup, calculateKhatamProgress } from '@/data/quran-khatam';
+import { Khatam, KhatamGroup, calculateKhatamProgress } from '@/data/quran-khatam';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
@@ -8,16 +8,19 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 interface KhatamGroupCardProps {
   group: KhatamGroup;
   onPress: () => void;
+  onSelectKhatam: (group: KhatamGroup, khatam: Khatam) => void;
+  onAddKhatam: (group: KhatamGroup) => void;
 }
 
-export const KhatamGroupCard: React.FC<KhatamGroupCardProps> = ({ group, onPress }) => {
+export const KhatamGroupCard: React.FC<KhatamGroupCardProps> = ({ group, onPress, onSelectKhatam, onAddKhatam }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const colors = Colors[colorScheme];
 
-  const progress = calculateKhatamProgress(group.assignments);
-  const completedCount = group.assignments.filter(a => a.isCompleted).length;
-  const assignedCount = group.assignments.length;
+  const allAssignments = group.khatams.flatMap(k => k.assignments);
+  const progress = calculateKhatamProgress(allAssignments);
+  const completedCount = allAssignments.filter(a => a.isCompleted).length;
+  const assignedCount = allAssignments.length;
 
   const today = new Date();
   const targetDate = new Date(group.targetDate);

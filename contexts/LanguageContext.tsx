@@ -26,7 +26,7 @@ const translations: { [key: string]: { en: string; ml: string; ar: string } } = 
   'settings.about': { en: 'About', ml: 'About', ar: 'حول' },
 
   // Events Screen
-  'events.title': { en: 'Islamic Events', ml: 'ഇസ്ലാമിക മുഹൂർത്തങ്ങൾ', ar: 'المناسبات الإسلامية' },
+  'events.title': { en: 'Islamic Events', ml: 'Islamic Events', ar: 'المناسبات الإسلامية' },
   'events.subtitle': { en: 'المناسبات الإسلامية', ml: 'المناسبات الإسلامية', ar: 'المناسبات الإسلامية' },
   'events.search': { en: 'Search events...', ml: 'പരിപാടികൾ തിരയുക...', ar: 'البحث في المناسبات...' },
   'events.allMonths': { en: 'All Months', ml: 'എല്ലാ മാസങ്ങളും', ar: 'جميع الأشهر' },
@@ -42,10 +42,10 @@ const translations: { [key: string]: { en: string; ml: string; ar: string } } = 
   'events.practices': { en: 'Special Practices', ml: 'പ്രത്യേക ആചാരങ്ങൾ', ar: 'الممارسات الخاصة' },
 
   // Calendar
-  'calendar.title': { en: 'Hijri Calendar', ml: 'ഹിജ്‌രി കലണ്ടർ', ar: 'التقويم الهجري' },
+  'calendar.title': { en: 'Hijri Calendar', ml: 'Hijri Calendar', ar: 'التقويم الهجري' },
   
   // Faraid
-  'faraid.title': { en: 'Farā\'iḍ Calculator', ml: 'ഫറാഇദ് കാൽക്കുലേറ്റർ', ar: 'حاسبة الفرائض' },
+  'faraid.title': { en: 'Farā\'iḍ Calculator', ml: 'Farā\'iḍ Calculator', ar: 'حاسبة الفرائض' },
   'faraid.subtitle': { en: 'Islamic Inheritance', ml: 'ഇസ്ലാമിക അനന്തരാവകാശം', ar: 'الميراث الإسلامي' },
   'faraid.selectGender': { en: 'Select Gender of Deceased', ml: 'മരിച്ചയാളുടെ ലിംഗം തിരഞ്ഞെടുക്കുക', ar: 'اختر جنس المتوفى' },
   'faraid.male': { en: 'Male', ml: 'പുരുഷൻ', ar: 'ذكر' },

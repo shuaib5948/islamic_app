@@ -1,8 +1,11 @@
 import { Colors } from '@/constants/theme';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { GuidanceContent, MOOD_GUIDANCE } from '@/data/reflection-guidance';
+import { REFLECTION_QUESTIONS } from '@/data/reflection-questions';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -129,6 +132,72 @@ export default function HomeScreen() {
   const isMalayalam = language === 'ml';
   const colors = isDark ? Colors.dark : Colors.light;
 
+  const [showReflection, setShowReflection] = useState(false);
+  const [reflectionStep, setReflectionStep] = useState<'question' | 'mood' | 'guidance'>('question');
+  const [selectedMood, setSelectedMood] = useState<string>('');
+  const [guidance, setGuidance] = useState<GuidanceContent | null>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
+  const today = new Date().toISOString().split('T')[0];
+  const question = REFLECTION_QUESTIONS[currentQuestionIndex % REFLECTION_QUESTIONS.length];
+
+  // Auto-switch between hadith and reflection every 8 seconds
+  // But don't switch if user is actively in reflection steps (mood selection or guidance)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Don't auto-switch if user is in mood selection or viewing guidance
+      if (showReflection && (reflectionStep === 'mood' || reflectionStep === 'guidance')) {
+        return; // Skip this auto-switch cycle
+      }
+
+      setShowReflection(prev => {
+        const willShowReflection = !prev;
+        if (willShowReflection) {
+          // Reset reflection state when switching to reflection
+          setReflectionStep('question');
+          setSelectedMood('');
+          setGuidance(null);
+          // Move to next question each time reflection appears
+          setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+        }
+        return willShowReflection;
+      });
+    }, 8000); // 8 seconds
+
+    return () => clearInterval(interval);
+  }, [showReflection, reflectionStep]);
+
+  const handleReflectContinue = () => {
+    setReflectionStep('mood');
+  };
+
+  const handleMoodSelect = async (mood: string) => {
+    setSelectedMood(mood);
+    setGuidance(MOOD_GUIDANCE[mood]);
+    setReflectionStep('guidance');
+  };
+
+  const handleComplete = async () => {
+    // Show guidance for a moment, then move to next question
+    setTimeout(() => {
+      setCurrentQuestionIndex(prev => prev + 1); // Move to next question
+      setReflectionStep('question');
+      setSelectedMood('');
+      setGuidance(null);
+    }, 3000); // Show guidance for 3 seconds before moving to next question
+  };
+
+  const moods = [
+    { key: 'Happy', icon: 'happy-outline', label: isMalayalam ? 'സന്തുഷ്ടം' : 'Happy' },
+    { key: 'Sad', icon: 'sad-outline', label: isMalayalam ? 'ദുഃഖം' : 'Sad' },
+    { key: 'Angry', icon: 'flame-outline', label: isMalayalam ? 'കോപം' : 'Angry' },
+    { key: 'Worried', icon: 'warning-outline', label: isMalayalam ? 'ചിന്താകുലം' : 'Worried' },
+    { key: 'Calm', icon: 'leaf-outline', label: isMalayalam ? 'ശാന്തം' : 'Calm' },
+    { key: 'Tired', icon: 'battery-dead-outline', label: isMalayalam ? 'ക്ഷീണം' : 'Tired' },
+    { key: 'Lonely', icon: 'person-outline', label: isMalayalam ? 'ഏകാന്തം' : 'Lonely' },
+    { key: 'Confused', icon: 'help-circle-outline', label: isMalayalam ? 'ആശയക്കുഴപ്പം' : 'Confused' },
+  ];
+
   const features = [
     {
       icon: 'moon-outline',
@@ -197,23 +266,147 @@ export default function HomeScreen() {
           </Text>
         </View>
 
-        {/* Daily Hadith Card */}
-        <View style={[styles.hadithCard, { backgroundColor: colors.hadith }]}> 
-          <View style={styles.hadithHeader}> 
-            <Ionicons name="document-text-outline" size={18} color={colors.hadithText} style={styles.hadithIcon} /> 
-            <Text style={[styles.hadithLabel, { color: colors.hadithText }]}> 
-              {isMalayalam ? 'ഇന്നത്തെ ഹദീസ്' : 'Daily Hadith'}
-            </Text>
+        {/* Daily Hadith/Reflection Card */}
+        <View style={[styles.hadithCard, { backgroundColor: colors.hadith }]}>
+          {/* Content indicator */}
+          <View style={styles.contentIndicator}>
+            <View style={[styles.indicatorDot, { backgroundColor: showReflection ? colors.primary : 'transparent' }]} />
+            <View style={[styles.indicatorDot, { backgroundColor: !showReflection ? colors.primary : 'transparent' }]} />
           </View>
-          <Text style={[styles.hadithArabic, { color: colors.hadithText }]}>
-            {dailyHadith.arabic}
-          </Text>
-          <Text style={[styles.hadithEnglish, { color: colors.accent }]}>
-            {isMalayalam ? dailyHadith.malayalam : dailyHadith.english}
-          </Text>
-          <Text style={[styles.hadithSource, { color: colors.hadithText }]}>
-            — {dailyHadith.source}
-          </Text>
+
+          {showReflection ? (
+            // Reflection Content
+            <>
+              {reflectionStep === 'question' && (
+                <>
+                  <View style={styles.hadithHeader}>
+                    <Ionicons name="heart-outline" size={18} color={colors.hadithText} style={styles.hadithIcon} />
+                    <Text style={[styles.hadithLabel, { color: colors.hadithText }]}>
+                      {isMalayalam ? 'ഇന്നത്തെ ചിന്ത' : 'Daily Reflection'}
+                    </Text>
+                  </View>
+                  <Text style={[styles.reflectionQuestion, { color: colors.hadithText }]}>
+                    {question}
+                  </Text>
+                  <TouchableOpacity
+                    style={[styles.reflectButton, { backgroundColor: colors.primary }]}
+                    onPress={handleReflectContinue}
+                  >
+                    <Text style={styles.reflectButtonText}>
+                      {isMalayalam ? 'ചിന്തിച്ച് തുടരുക' : 'Reflect & Continue'}
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              )}
+
+              {reflectionStep === 'mood' && (
+                <>
+                  <View style={styles.hadithHeader}>
+                    <Ionicons name="happy-outline" size={18} color={colors.hadithText} style={styles.hadithIcon} />
+                    <Text style={[styles.hadithLabel, { color: colors.hadithText }]}>
+                      {isMalayalam ? 'നിങ്ങളുടെ മാനസികാവസ്ഥ എന്താണ്?' : 'How are you feeling?'}
+                    </Text>
+                  </View>
+                  <View style={styles.moodGrid}>
+                    {moods.map((mood) => (
+                      <TouchableOpacity
+                        key={mood.key}
+                        style={[styles.moodButton, { backgroundColor: colors.card }]}
+                        onPress={() => handleMoodSelect(mood.key)}
+                      >
+                        <Ionicons name={mood.icon as any} size={20} color={colors.primary} />
+                        <Text style={[styles.moodText, { color: colors.text }]}>{mood.label}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </>
+              )}
+
+              {reflectionStep === 'guidance' && guidance && (
+                <>
+                  <View style={styles.hadithHeader}>
+                    <Ionicons name="book-outline" size={18} color={colors.hadithText} style={styles.hadithIcon} />
+                    <Text style={[styles.hadithLabel, { color: colors.hadithText }]}>
+                      {isMalayalam ? 'നിങ്ങൾക്കുള്ള മാർഗനിർദ്ദേശം' : 'Guidance for You'}
+                    </Text>
+                  </View>
+                  <ScrollView style={styles.guidanceScroll} showsVerticalScrollIndicator={false}>
+                    <View style={styles.guidanceSection}>
+                      <Text style={[styles.guidanceTitle, { color: colors.primary }]}>
+                        {isMalayalam ? 'ഖുർആൻ' : 'Quranic Motivation'}
+                      </Text>
+                      <Text style={[styles.guidanceArabic, { color: colors.hadithText }]}>
+                        {guidance.quran.arabic}
+                      </Text>
+                      <Text style={[styles.guidanceEnglish, { color: colors.accent }]}>
+                        {guidance.quran.english}
+                      </Text>
+                      <Text style={[styles.guidanceSource, { color: colors.hadithText }]}>
+                        — {guidance.quran.reference}
+                      </Text>
+                    </View>
+
+                    <View style={styles.guidanceSection}>
+                      <Text style={[styles.guidanceTitle, { color: colors.primary }]}>
+                        {isMalayalam ? 'ധിക്ര്' : 'Dhikr'}
+                      </Text>
+                      <Text style={[styles.guidanceArabic, { color: colors.hadithText }]}>
+                        {guidance.dhikr.arabic}
+                      </Text>
+                      <Text style={[styles.guidanceEnglish, { color: colors.accent }]}>
+                        {guidance.dhikr.english}
+                      </Text>
+                      <Text style={[styles.guidanceTransliteration, { color: colors.hadithText }]}>
+                        {guidance.dhikr.transliteration}
+                      </Text>
+                    </View>
+
+                    <View style={styles.guidanceSection}>
+                      <Text style={[styles.guidanceTitle, { color: colors.primary }]}>
+                        {isMalayalam ? 'ഹദീസ്' : 'Hadith'}
+                      </Text>
+                      <Text style={[styles.guidanceArabic, { color: colors.hadithText }]}>
+                        {guidance.hadith.arabic}
+                      </Text>
+                      <Text style={[styles.guidanceEnglish, { color: colors.accent }]}>
+                        {guidance.hadith.english}
+                      </Text>
+                      <Text style={[styles.guidanceSource, { color: colors.hadithText }]}>
+                        — {guidance.hadith.source}
+                      </Text>
+                    </View>
+                  </ScrollView>
+                  <TouchableOpacity
+                    style={[styles.completeButton, { backgroundColor: colors.primary }]}
+                    onPress={handleComplete}
+                  >
+                    <Text style={styles.completeButtonText}>
+                      {isMalayalam ? 'പൂർത്തിയാക്കുക' : 'Complete Reflection'}
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </>
+          ) : (
+            // Daily Hadith Content
+            <>
+              <View style={styles.hadithHeader}>
+                <Ionicons name="document-text-outline" size={18} color={colors.hadithText} style={styles.hadithIcon} />
+                <Text style={[styles.hadithLabel, { color: colors.hadithText }]}>
+                  {isMalayalam ? 'ഇന്നത്തെ ഹദീസ്' : 'Daily Hadith'}
+                </Text>
+              </View>
+              <Text style={[styles.hadithArabic, { color: colors.hadithText }]}>
+                {dailyHadith.arabic}
+              </Text>
+              <Text style={[styles.hadithEnglish, { color: colors.accent }]}>
+                {isMalayalam ? dailyHadith.malayalam : dailyHadith.english}
+              </Text>
+              <Text style={[styles.hadithSource, { color: colors.hadithText }]}>
+                — {dailyHadith.source}
+              </Text>
+            </>
+          )}
         </View>
 
         {/* Feature Grid */}
@@ -337,4 +530,112 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   // cardTitleArabic removed
+  // Content indicator
+  contentIndicator: {
+    position: 'absolute',
+    top: 12,
+    right: 16,
+    flexDirection: 'row',
+    gap: 4,
+  },
+  indicatorDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  // Reflection Styles
+  reflectionQuestion: {
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 16,
+    fontWeight: '500',
+  },
+  reflectButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    alignSelf: 'center',
+  },
+  reflectButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  moodGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  moodButton: {
+    width: '23%',
+    aspectRatio: 1,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    padding: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  moodText: {
+    fontSize: 9,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  guidanceScroll: {
+    maxHeight: 200,
+  },
+  guidanceSection: {
+    marginBottom: 12,
+  },
+  guidanceTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  guidanceArabic: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 4,
+    lineHeight: 20,
+  },
+  guidanceEnglish: {
+    fontSize: 12,
+    textAlign: 'center',
+    fontStyle: 'italic',
+    lineHeight: 16,
+    marginBottom: 4,
+  },
+  guidanceTransliteration: {
+    fontSize: 11,
+    textAlign: 'center',
+    fontStyle: 'italic',
+    marginBottom: 4,
+    opacity: 0.8,
+  },
+  guidanceSource: {
+    fontSize: 11,
+    textAlign: 'right',
+    fontWeight: '500',
+  },
+  completeButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    alignSelf: 'center',
+    marginTop: 12,
+  },
+  completeButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
 });

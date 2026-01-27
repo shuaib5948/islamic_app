@@ -4,8 +4,8 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { DeceasedInfo, Estate, Gender, Heir, HEIR_CONFIGS, HeirConfig, InheritanceResult } from '@/types/inheritance';
 import { calculateInheritance } from '@/utils/faraid-calculator';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import { router, useNavigation } from 'expo-router';
+import React, { useLayoutEffect, useMemo, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -40,10 +40,21 @@ const CURRENCIES = [
 ];
 
 export default function FaraidScreen() {
+  const navigation = useNavigation();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const { language } = useLanguage();
   const isMalayalam = language === 'ml';
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      tabBarStyle: { display: 'none' },
+      headerTitleStyle: {
+        fontSize: 18,
+      },
+      headerTitleAlign: 'center',
+    });
+  }, [navigation]);
 
   // UI labels with Malayalam translations
   const labels = {
@@ -217,10 +228,10 @@ export default function FaraidScreen() {
   // Render Gender Selection
   const renderGenderSelection = () => (
     <View style={styles.centerContent}>
-      <Text style={[styles.stepTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+      <Text style={[styles.stepTitle, { color: isDark ? '#FFFFFF' : '#1A1A1A', fontSize: isMalayalam ? 18 : 22 }]}>
         {isMalayalam ? 'മയ്യിത്തിന്റെ ലിംഗം തിരഞ്ഞെടുക്കുക' : 'What is the gender of the Mayyith?'}
       </Text>
-      <Text style={[styles.stepSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
+      <Text style={[styles.stepSubtitle, { color: isDark ? '#B0BEC5' : '#757575', fontSize: isMalayalam ? 14 : 16 }]}>
         ما هو جنس المتوفى؟
       </Text>
 
@@ -230,7 +241,7 @@ export default function FaraidScreen() {
           onPress={() => { setDeceasedGender('male'); setStep('heirs'); }}
         >
           <Ionicons name="man" size={48} color={Colors[isDark ? 'dark' : 'light'].primary} />
-          <Text style={[styles.genderLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <Text style={[styles.genderLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A', fontSize: isMalayalam ? 16 : 18 }]}>
             {isMalayalam ? 'പുരുഷൻ' : 'Male'}
           </Text>
           <Text style={[styles.genderLabelArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}>ذكر</Text>
@@ -241,7 +252,7 @@ export default function FaraidScreen() {
           onPress={() => { setDeceasedGender('female'); setStep('heirs'); }}
         >
           <Ionicons name="woman" size={48} color={Colors[isDark ? 'dark' : 'light'].primary} />
-          <Text style={[styles.genderLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+          <Text style={[styles.genderLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A', fontSize: isMalayalam ? 16 : 18 }]}>
             {isMalayalam ? 'സ്ത്രീ' : 'Female'}
           </Text>
           <Text style={[styles.genderLabelArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}>أنثى</Text>
@@ -265,7 +276,7 @@ export default function FaraidScreen() {
       {Object.entries(groupedHeirs).map(([category, heirs]) => (
         <View key={category} style={[styles.categoryCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
           <View style={styles.categoryHeader}>
-            <Text style={[styles.categoryTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>
+            <Text style={[styles.categoryTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary, fontSize: isMalayalam ? 14 : 16 }]}>
               {isMalayalam ? categoryLabels[category]?.ml : categoryLabels[category]?.en || category}
             </Text>
             <Text style={[styles.categoryTitleArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}>
@@ -276,7 +287,7 @@ export default function FaraidScreen() {
           {heirs.map(heir => (
             <View key={heir.type} style={styles.heirRow}>
               <View style={styles.heirInfo}>
-                <Text style={[styles.heirLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                <Text style={[styles.heirLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A', fontSize: isMalayalam ? 13 : 15 }]}>
                   {isMalayalam && heir.labelMalayalam ? heir.labelMalayalam : heir.label}
                 </Text>
                 <Text style={[styles.heirLabelArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}>
@@ -347,14 +358,14 @@ export default function FaraidScreen() {
         </View>
 
         <View style={[styles.categoryCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-          <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>
+          <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary, fontSize: isMalayalam ? 16 : 18 }]}>
             {labels.deductions}
           </Text>
           <Text style={[styles.sectionSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
             الخصومات
           </Text>
 
-          <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>{labels.outstandingDebts}</Text>
+          <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A', fontSize: isMalayalam ? 12 : 14 }]}>{labels.outstandingDebts}</Text>
           <View style={styles.inputRow}>
             <Text style={[styles.inputPrefix, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>{currencySymbol}</Text>
             <TextInput
@@ -367,7 +378,7 @@ export default function FaraidScreen() {
             />
           </View>
 
-          <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>{labels.funeralExpenses}</Text>
+          <Text style={[styles.inputLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A', fontSize: isMalayalam ? 12 : 14 }]}>{labels.funeralExpenses}</Text>
           <View style={styles.inputRow}>
             <Text style={[styles.inputPrefix, { color: isDark ? '#4CAF50' : '#2E7D32' }]}>{currencySymbol}</Text>
             <TextInput
@@ -382,7 +393,7 @@ export default function FaraidScreen() {
         </View>
 
         <View style={[styles.categoryCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-          <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>
+          <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary, fontSize: isMalayalam ? 16 : 18 }]}>
             {labels.wasiyyah}
           </Text>
           <Text style={[styles.sectionSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>
@@ -438,19 +449,19 @@ export default function FaraidScreen() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Estate Summary */}
         <View style={[styles.categoryCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-          <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>{labels.estateSummary}</Text>
+          <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary, fontSize: isMalayalam ? 16 : 18 }]}>{labels.estateSummary}</Text>
           <View style={styles.summaryRow}>
-            <Text style={[styles.summaryLabel, { color: isDark ? '#B0BEC5' : '#757575' }]}>{labels.totalEstate}:</Text>
+            <Text style={[styles.summaryLabel, { color: isDark ? '#B0BEC5' : '#757575', fontSize: isMalayalam ? 12 : 14 }]}>{labels.totalEstate}:</Text>
             <Text style={[styles.summaryValue, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>{formatCurrency(result.estate.totalValue)}</Text>
           </View>
           {result.estate.debts > 0 && (
             <View style={styles.summaryRow}>
-              <Text style={[styles.summaryLabel, { color: isDark ? '#B0BEC5' : '#757575' }]}>{labels.debts}</Text>
+              <Text style={[styles.summaryLabel, { color: isDark ? '#B0BEC5' : '#757575', fontSize: isMalayalam ? 12 : 14 }]}>{labels.debts}</Text>
               <Text style={styles.deductionValue}>-{formatCurrency(result.estate.debts)}</Text>
             </View>
           )}
           <View style={[styles.summaryRow, { borderTopWidth: 1, borderTopColor: isDark ? '#333' : '#E0E0E0', paddingTop: 8, marginTop: 8 }]}>
-            <Text style={[styles.netLabel, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>{labels.netEstate}</Text>
+            <Text style={[styles.netLabel, { color: isDark ? Colors.dark.primary : Colors.light.primary, fontSize: isMalayalam ? 14 : 16 }]}>{labels.netEstate}</Text>
             <Text style={[styles.netValue, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>{formatCurrency(result.netEstate)}</Text>
           </View>
         </View>
@@ -473,13 +484,13 @@ export default function FaraidScreen() {
 
         {/* Distribution */}
         <View style={[styles.categoryCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
-          <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>{labels.distribution}</Text>
+          <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary, fontSize: isMalayalam ? 16 : 18 }]}>{labels.distribution}</Text>
           <Text style={[styles.sectionSubtitle, { color: isDark ? '#B0BEC5' : '#757575' }]}>توزيع الميراث</Text>
 
           {result.heirs.map((share, index) => (
             <View key={index} style={[styles.distributionRow, { borderBottomColor: isDark ? '#333' : '#E0E0E0' }]}>
               <View style={styles.heirInfo}>
-                <Text style={[styles.heirLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>
+                <Text style={[styles.heirLabel, { color: isDark ? '#FFFFFF' : '#1A1A1A', fontSize: isMalayalam ? 13 : 15 }]}>
                   {isMalayalam && share.heir.labelMalayalam ? share.heir.labelMalayalam : share.heir.label} {share.heir.count > 1 && `(×${share.heir.count})`}
                 </Text>
                 <Text style={[styles.heirLabelArabic, { color: isDark ? '#B0BEC5' : '#757575' }]}>
@@ -597,7 +608,8 @@ export default function FaraidScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
           <Text style={[styles.headerBackIcon, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>←</Text>
         </TouchableOpacity>
-        <Text style={[styles.title, { color: Colors[isDark ? 'dark' : 'light'].primary }]}>{isMalayalam ? 'ഫറാഇദ് കാൽക്കുലേറ്റർ' : "Farā'iḍ Calculator"}</Text>
+        <Text style={[styles.title, { color: Colors[isDark ? 'dark' : 'light'].primary, fontSize: isMalayalam ? 20 : 24, textAlign: 'center', flex: 1, textAlignVertical: 'center' }]}>{isMalayalam ? 'ഫറാഇദ് കാൽക്കുലേറ്റർ' : "Farā'iḍ Calculator"}</Text>
+        <View style={styles.headerRightPlaceholder} />
       </View>
 
       {/* Progress */}
@@ -650,8 +662,9 @@ export default function FaraidScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
-  headerBackButton: { position: 'absolute', left: 20, top: 16, padding: 4 },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8, minHeight: 56 },
+  headerBackButton: { padding: 4, justifyContent: 'center', alignItems: 'center' },
+  headerRightPlaceholder: { width: 32 },
   headerBackIcon: { fontSize: 24, fontWeight: '600' },
   title: { fontSize: 24, fontWeight: 'bold' },
   subtitle: { fontSize: 16, marginTop: 2 },

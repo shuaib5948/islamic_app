@@ -262,31 +262,31 @@ export default function PrayerScreen() {
         </View>
 
         {/* Combined Card: Next Prayer + Today's Goal */}
-        <View style={[styles.combinedCard, { backgroundColor: colors.card }]}>
+        <View style={[styles.combinedCard, { backgroundColor: colors.primary }]}>
           {/* Left: Next Prayer */}
           <View style={styles.combinedLeft}>
-            <Text style={[styles.combinedLabel, { color: colors.secondary }]}>
+            <Text style={[styles.combinedLabel, { color: colors.hadithText }]}>
               {labels.nextPrayer}
             </Text>
             {loadingPrayerTimes ? (
-              <ActivityIndicator size="small" color="#10B981" style={{ marginVertical: 10 }} />
+              <ActivityIndicator size="small" color={colors.hadithText} style={{ marginVertical: 10 }} />
             ) : (
               <>
                 <View style={styles.nextPrayerNameRow}>
                   <Ionicons 
                     name={PRAYER_ICONS[getNextPrayer.name] as any} 
                     size={20} 
-                    color={colors.text} 
+                    color={colors.hadithText} 
                     style={{ marginRight: 6 }}
                   />
-                  <Text style={[styles.combinedPrayerName, { color: colors.text }]}>
+                  <Text style={[styles.combinedPrayerName, { color: colors.hadithText }]}>
                     {getNextPrayer.info?.label}
                   </Text>
                 </View>
-                <Text style={[styles.combinedCountdown, { color: '#10B981' }]}>
+                <Text style={[styles.combinedCountdown, { color: colors.accent }]}>
                   {getNextPrayer.timeLeft}
                 </Text>
-                <Text style={[styles.combinedTime, { color: colors.secondary }]}>
+                <Text style={[styles.combinedTime, { color: colors.hadithText }]}>
                   at {getNextPrayer.timeString}
                 </Text>
               </>
@@ -294,30 +294,30 @@ export default function PrayerScreen() {
           </View>
 
           {/* Divider */}
-          <View style={[styles.combinedDivider, { backgroundColor: colors.secondary }]} />
+          <View style={[styles.combinedDivider, { backgroundColor: colors.hadithText }]} />
 
           {/* Right: Today's Goal */}
           <View style={styles.combinedRight}>
-            <Text style={[styles.combinedLabel, { color: colors.secondary }]}>
+            <Text style={[styles.combinedLabel, { color: colors.hadithText }]}>
               {labels.todayProgress}
             </Text>
             <View style={[
               styles.goalCircle,
               { 
-                borderColor: completedCount === 5 ? '#10B981' : colors.secondary,
-                backgroundColor: completedCount === 5 ? 'rgba(16, 185, 129, 0.1)' : 'transparent'
+                borderColor: completedCount === 5 ? colors.accent : colors.hadithText,
+                backgroundColor: completedCount === 5 ? 'rgba(232, 226, 216, 0.3)' : 'transparent'
               }
             ]}>
-              <Text style={[styles.goalCount, { color: completedCount === 5 ? '#10B981' : colors.text }]}>
+              <Text style={[styles.goalCount, { color: completedCount === 5 ? colors.accent : colors.hadithText }]}>
                 {completedCount}/5
               </Text>
             </View>
             {completedCount === 5 ? (
-              <Text style={styles.goalCompleteText}>🎉 Done!</Text>
+              <Text style={[styles.goalCompleteText, { color: colors.accent }]}>🎉 Done!</Text>
             ) : (
               <View style={styles.goalMiniStats}>
-                <Text style={[styles.goalMiniStat, { color: '#10B981' }]}>✓{onTimeCount}</Text>
-                <Text style={[styles.goalMiniStat, { color: '#F59E0B' }]}>⏱{lateCount}</Text>
+                <Text style={[styles.goalMiniStat, { color: colors.accent }]}>✓{onTimeCount}</Text>
+                <Text style={[styles.goalMiniStat, { color: colors.accent }]}>⏱{lateCount}</Text>
               </View>
             )}
           </View>

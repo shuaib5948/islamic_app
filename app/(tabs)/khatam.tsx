@@ -6,12 +6,14 @@ import {
   calculateKhatamProgress,
   getJuzInfo,
   getRemainingJuz,
+  Khatam,
   KHATAM_DUA,
   KhatamGroup,
   QURAN_JUZ
 } from '@/data/quran-khatam';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import {
+  addKhatamToGroup,
   assignJuz,
   createKhatamGroup,
   deleteKhatamGroup,
@@ -20,6 +22,7 @@ import {
   markJuzCompleted,
   markJuzIncomplete,
   removeAssignment,
+  removeKhatamFromGroup,
 } from '@/utils/khatam-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -29,6 +32,7 @@ import {
   Modal,
   RefreshControl,
   ScrollView,
+  Share,
   StatusBar,
   StyleSheet,
   Text,
@@ -81,6 +85,7 @@ export default function KhatamScreen() {
 
   const [groups, setGroups] = useState<KhatamGroup[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<KhatamGroup | null>(null);
+  const [selectedKhatam, setSelectedKhatam] = useState<Khatam | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showDuaModal, setShowDuaModal] = useState(false);
@@ -175,9 +180,9 @@ export default function KhatamScreen() {
   };
 
   const handleJuzPress = (juzNumber: number) => {
-    if (!selectedGroup) return;
+    if (!selectedGroup || !selectedKhatam) return;
     
-    const assignment = selectedGroup.assignments.find(a => a.juzNumber === juzNumber);
+    const assignment = selectedKhatam.assignments.find(a => a.juzNumber === juzNumber);
     
     if (!assignment) {
       setSelectedJuz(juzNumber);
@@ -192,24 +197,32 @@ export default function KhatamScreen() {
             ? [{ 
                 text: 'Mark Incomplete', 
                 onPress: async () => {
-                  await markJuzIncomplete(selectedGroup.id, juzNumber);
+                  await markJuzIncomplete(selectedGroup!.id, selectedKhatam!.id, juzNumber);
                   await loadData();
                   const updatedGroups = await loadKhatamGroups();
-                  setSelectedGroup(updatedGroups.find(g => g.id === selectedGroup.id) || null);
+                  const updatedGroup = updatedGroups.find(g => g.id === selectedGroup!.id);
+                  setSelectedGroup(updatedGroup || null);
+                  if (updatedGroup) {
+                    setSelectedKhatam(updatedGroup.khatams.find(k => k.id === selectedKhatam!.id) || null);
+                  }
                 }
               }]
             : [{ 
                 text: 'Mark Complete ✓', 
                 onPress: async () => {
-                  await markJuzCompleted(selectedGroup.id, juzNumber);
+                  await markJuzCompleted(selectedGroup!.id, selectedKhatam!.id, juzNumber);
                   await loadData();
                   const updatedGroups = await loadKhatamGroups();
-                  const updated = updatedGroups.find(g => g.id === selectedGroup.id);
-                  setSelectedGroup(updated || null);
-                  
-                  // Check if khatam is complete
-                  if (updated && calculateKhatamProgress(updated.assignments) === 100) {
-                    setShowDuaModal(true);
+                  const updatedGroup = updatedGroups.find(g => g.id === selectedGroup!.id);
+                  setSelectedGroup(updatedGroup || null);
+                  if (updatedGroup) {
+                    const updatedKhatam = updatedGroup.khatams.find(k => k.id === selectedKhatam!.id);
+                    setSelectedKhatam(updatedKhatam || null);
+                    
+                    // Check if khatam is complete
+                    if (updatedKhatam && calculateKhatamProgress(updatedKhatam.assignments) === 100) {
+                      setShowDuaModal(true);
+                    }
                   }
                 }
               }]
@@ -218,10 +231,14 @@ export default function KhatamScreen() {
             text: 'Remove Assignment', 
             style: 'destructive',
             onPress: async () => {
-              await removeAssignment(selectedGroup.id, juzNumber);
+              await removeAssignment(selectedGroup!.id, selectedKhatam!.id, juzNumber);
               await loadData();
               const updatedGroups = await loadKhatamGroups();
-              setSelectedGroup(updatedGroups.find(g => g.id === selectedGroup.id) || null);
+              const updatedGroup = updatedGroups.find(g => g.id === selectedGroup!.id);
+              setSelectedGroup(updatedGroup || null);
+              if (updatedGroup) {
+                setSelectedKhatam(updatedGroup.khatams.find(k => k.id === selectedKhatam!.id) || null);
+              }
             }
           },
         ]
@@ -246,22 +263,39 @@ export default function KhatamScreen() {
     setJoinCode('');
     setShowJoinModal(false);
     setSelectedGroup(group);
+    setSelectedKhatam(group.khatams[0]);
   };
 
   const handleAssignJuz = async () => {
-    if (!selectedGroup || selectedJuz === null) return;
+    if (!selectedGroup || !selectedKhatam || selectedJuz === null) return;
     if (!participantName.trim()) {
       Alert.alert('Error', 'Please enter participant name');
       return;
     }
 
-    await assignJuz(selectedGroup.id, selectedJuz, participantName.trim());
+    await assignJuz(selectedGroup.id, selectedKhatam.id, selectedJuz, participantName.trim());
     setParticipantName('');
     setSelectedJuz(null);
     setShowAssignModal(false);
     await loadData();
     const updatedGroups = await loadKhatamGroups();
-    setSelectedGroup(updatedGroups.find(g => g.id === selectedGroup.id) || null);
+    const updatedGroup = updatedGroups.find(g => g.id === selectedGroup.id);
+    setSelectedGroup(updatedGroup || null);
+    if (updatedGroup) {
+      setSelectedKhatam(updatedGroup.khatams.find(k => k.id === selectedKhatam.id) || null);
+    }
+  };
+
+  const handleSelectKhatam = (group: KhatamGroup, khatam: Khatam) => {
+    setSelectedGroup(group);
+    setSelectedKhatam(khatam);
+  };
+
+  const handleAddKhatam = async (group: KhatamGroup) => {
+    const newKhatam = await addKhatamToGroup(group.id);
+    if (newKhatam) {
+      await loadData();
+    }
   };
 
   const renderGroupList = () => (
@@ -329,7 +363,12 @@ export default function KhatamScreen() {
             <KhatamGroupCard
               key={group.id}
               group={group}
-              onPress={() => setSelectedGroup(group)}
+              onPress={() => {
+                setSelectedGroup(group);
+                setSelectedKhatam(group.khatams[0]);
+              }}
+              onSelectKhatam={handleSelectKhatam}
+              onAddKhatam={handleAddKhatam}
             />
           ))}
         </View>
@@ -349,36 +388,127 @@ export default function KhatamScreen() {
   );
 
   const renderGroupDetail = () => {
-    if (!selectedGroup) return null;
+    if (!selectedGroup || !selectedKhatam) return null;
 
-    const progress = calculateKhatamProgress(selectedGroup.assignments);
-    const remainingJuz = getRemainingJuz(selectedGroup.assignments);
+    const progress = calculateKhatamProgress(selectedKhatam.assignments);
+    const remainingJuz = getRemainingJuz(selectedKhatam.assignments);
 
     return (
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Back Button */}
         <View style={styles.backButton}>
           <TouchableOpacity 
-            onPress={() => setSelectedGroup(null)}
+            onPress={() => {
+              setSelectedGroup(null);
+              setSelectedKhatam(null);
+            }}
           >
             <Text style={[styles.backButtonText, { color: colors.primary }]}>
               ← Back to Groups
             </Text>
           </TouchableOpacity>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Ionicons name="link" size={14} color={colors.primary} />
-            <Text style={[styles.joinCodeText, { color: colors.text, marginLeft: 8 }]}>
-              {selectedGroup.joinCode}
-            </Text>
-          </View>
+          <TouchableOpacity 
+            onPress={() => Share.share({
+              message: `Join my Quran Khatam group "${selectedGroup.name}" with code: ${selectedGroup.joinCode}`
+            })}
+          >
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Ionicons name="link" size={14} color={colors.primary} />
+              <Text style={[styles.joinCodeText, { color: colors.text, marginLeft: 8 }]}>
+                {selectedGroup.joinCode}
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
+
+        {/* Khatam Buttons */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ marginHorizontal: 16, marginTop: 12, marginBottom: 8 }}
+          contentContainerStyle={{ flexDirection: 'row', gap: 8, paddingHorizontal: 4 }}
+        >
+          {selectedGroup.khatams.map(khatam => (
+            <TouchableOpacity
+              key={khatam.id}
+              style={[
+                {
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderRadius: 16,
+                  minWidth: 60,
+                  alignItems: 'center',
+                  backgroundColor: selectedKhatam?.id === khatam.id ? colors.primary : colors.secondary
+                }
+              ]}
+              onPress={() => setSelectedKhatam(khatam)}
+              onLongPress={() => {
+                Alert.alert(
+                  'Delete Khatam',
+                  `Are you sure you want to delete "${khatam.name}"?`,
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    { 
+                      text: 'Delete', 
+                      style: 'destructive',
+                      onPress: async () => {
+                        await removeKhatamFromGroup(selectedGroup.id, khatam.id);
+                        await loadData();
+                        const updatedGroups = await loadKhatamGroups();
+                        const updatedGroup = updatedGroups.find(g => g.id === selectedGroup.id);
+                        if (!updatedGroup || updatedGroup.khatams.length === 0) {
+                          setSelectedGroup(null);
+                          setSelectedKhatam(null);
+                        } else {
+                          setSelectedGroup(updatedGroup);
+                          if (selectedKhatam?.id === khatam.id) {
+                            setSelectedKhatam(updatedGroup.khatams[0]);
+                          } else {
+                            setSelectedKhatam(updatedGroup.khatams.find(k => k.id === selectedKhatam!.id) || updatedGroup.khatams[0]);
+                          }
+                        }
+                      }
+                    },
+                  ]
+                );
+              }}
+            >
+              <Text style={[
+                {
+                  fontSize: 12,
+                  fontWeight: '600',
+                  color: selectedKhatam?.id === khatam.id ? '#FFFFFF' : colors.text
+                }
+              ]}>
+                {khatam.name} {calculateKhatamProgress(khatam.assignments)}%
+              </Text>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity
+            style={[
+              {
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 16,
+                alignItems: 'center',
+                backgroundColor: 'transparent',
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderColor: colors.primary
+              }
+            ]}
+            onPress={() => handleAddKhatam(selectedGroup)}
+          >
+            <Ionicons name="add" size={16} color={colors.primary} />
+          </TouchableOpacity>
+        </ScrollView>
 
         {/* Group Header */}
         <View style={[styles.groupHeader, { backgroundColor: colors.card }]}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Ionicons name="book" size={20} color={colors.primary} />
             <Text style={[styles.groupTitle, { color: colors.text, marginLeft: 8 }]}>
-              {selectedGroup.name}
+              {selectedGroup.name} - {selectedKhatam?.name}
             </Text>
           </View>
           {selectedGroup.dedication && (
@@ -403,13 +533,13 @@ export default function KhatamScreen() {
           <View style={styles.quickStats}>
             <View style={styles.quickStatItem}>
               <Text style={[styles.quickStatValue, { color: '#4CAF50' }]}>
-                {selectedGroup.assignments.filter(a => a.isCompleted).length}
+                {selectedKhatam.assignments.filter(a => a.isCompleted).length}
               </Text>
               <Text style={[styles.quickStatLabel, { color: colors.secondary }]}>Done</Text>
             </View>
             <View style={styles.quickStatItem}>
               <Text style={[styles.quickStatValue, { color: '#FF9800' }]}>
-                {selectedGroup.assignments.filter(a => !a.isCompleted).length}
+                {selectedKhatam.assignments.filter(a => !a.isCompleted).length}
               </Text>
               <Text style={[styles.quickStatLabel, { color: colors.secondary }]}>In Progress</Text>
             </View>
@@ -443,7 +573,7 @@ export default function KhatamScreen() {
           </Text>
           <View style={[styles.gridCard, { backgroundColor: colors.card }]}>
             <JuzProgressGrid 
-              assignments={selectedGroup.assignments}
+              assignments={selectedKhatam.assignments}
               onJuzPress={handleJuzPress}
             />
             <View style={styles.legendContainer}>
@@ -472,7 +602,7 @@ export default function KhatamScreen() {
             <JuzCard
               key={juz.number}
               juz={juz}
-              assignment={selectedGroup.assignments.find(a => a.juzNumber === juz.number)}
+              assignment={selectedKhatam.assignments.find(a => a.juzNumber === juz.number)}
               onPress={() => handleJuzPress(juz.number)}
             />
           ))}
