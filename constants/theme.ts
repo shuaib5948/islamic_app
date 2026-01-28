@@ -24,7 +24,7 @@ export const Colors = {
     accent: '#E1D7CF',
 
     // 🟤 All cards use brown combination
-    card: '#FBF9F6',
+    card: '#FFFFFF',
     hadith: '#90674E',
     hadithText: '#F7F5F2',
 
@@ -51,7 +51,7 @@ export const Colors = {
     accent: '#6F4B3A',
 
     // 🟤 Dark brown cards
-    card: '#2A221E',
+    card: '#2D2D2D',
     hadith: '#90674E',
     hadithText: '#FFFFFF',
 

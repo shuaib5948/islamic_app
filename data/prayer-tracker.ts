@@ -91,11 +91,33 @@ export const getContributionLevel = (dailyPrayers: DailyPrayers): number => {
   return 4; // All 5 prayers
 };
 
-// Get color for contribution level - Modern emerald theme
+// Get color for contribution level - Theme-based colors
 export const getContributionColor = (level: number, isDark: boolean): string => {
-  const lightColors = ['#F4F1EC', '#E8E2D8', '#D4CCB8', '#B8B094', '#7F8F6A'];
-  const darkColors = ['#2A2A2A', '#4A4A3A', '#6A6A5A', '#8A8A7A', '#7F8F6A'];
-  return isDark ? darkColors[level] : lightColors[level];
+  const Colors = {
+    light: {
+      card: '#FBF9F6',
+      accent: '#E1D7CF',
+      secondary: '#B9A79A',
+      primary: '#90674E',
+    },
+    dark: {
+      card: '#2A221E',
+      accent: '#6F4B3A',
+      secondary: '#A88D7B',
+      primary: '#C4A792',
+    }
+  };
+
+  const theme = isDark ? Colors.dark : Colors.light;
+
+  switch (level) {
+    case 0: return theme.card; // No prayers
+    case 1: return theme.accent; // 1 prayer
+    case 2: return theme.secondary; // 2-3 prayers
+    case 3: return theme.primary; // 4 prayers
+    case 4: return theme.primary; // All 5 prayers
+    default: return theme.card;
+  }
 };
 
 // Format date helpers

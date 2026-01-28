@@ -66,7 +66,7 @@ export const TodayHighlight: React.FC<TodayHighlightProps> = ({
             )}
             {isFriday && isToday && (
               <View style={styles.fridayBadge}>
-                <Text style={styles.fridayBadgeText}>🕌 Jumu'ah</Text>
+                <Text style={styles.fridayBadgeText}>🕌 Jumu&apos;ah</Text>
               </View>
             )}
           </View>

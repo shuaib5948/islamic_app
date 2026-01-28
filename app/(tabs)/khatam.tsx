@@ -3,42 +3,42 @@ import { KhatamGroupCard } from '@/components/KhatamGroupCard';
 import { Colors } from '@/constants/theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
-  calculateKhatamProgress,
-  getJuzInfo,
-  getRemainingJuz,
-  Khatam,
-  KHATAM_DUA,
-  KhatamGroup,
-  QURAN_JUZ
+    calculateKhatamProgress,
+    getJuzInfo,
+    getRemainingJuz,
+    Khatam,
+    KHATAM_DUA,
+    KhatamGroup,
+    QURAN_JUZ
 } from '@/data/quran-khatam';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import {
-  addKhatamToGroup,
-  assignJuz,
-  createKhatamGroup,
-  deleteKhatamGroup,
-  getReminders,
-  loadKhatamGroups,
-  markJuzCompleted,
-  markJuzIncomplete,
-  removeAssignment,
-  removeKhatamFromGroup,
+    addKhatamToGroup,
+    assignJuz,
+    createKhatamGroup,
+    deleteKhatamGroup,
+    getReminders,
+    loadKhatamGroups,
+    markJuzCompleted,
+    markJuzIncomplete,
+    removeAssignment,
+    removeKhatamFromGroup,
 } from '@/utils/khatam-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
-  Alert,
-  Modal,
-  RefreshControl,
-  ScrollView,
-  Share,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    Modal,
+    RefreshControl,
+    ScrollView,
+    Share,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -155,7 +155,7 @@ export default function KhatamScreen() {
         'Group Created!',
         `Your group "${newGroup.name}" has been created.\n\nJoin Code: ${newGroup.joinCode}\n\nShare this code with others to join the group.`
       );
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to create group');
     }
   };
@@ -633,7 +633,7 @@ export default function KhatamScreen() {
             </TouchableOpacity>
             <Text style={[styles.modalTitle, { color: colors.text }]}>New Khatam</Text>
             <TouchableOpacity onPress={handleCreateGroup}>
-              <Text style={[styles.modalSave, { color: '#4CAF50' }]}>Create</Text>
+              <Text style={[styles.modalSave, { color: colors.primary }]}>Create</Text>
             </TouchableOpacity>
           </View>
 
@@ -674,7 +674,10 @@ export default function KhatamScreen() {
                   key={days}
                   style={[
                     styles.dayButton,
-                    { backgroundColor: newGroupTargetDate === getTargetDate(days) ? colors.primary : colors.card }
+                    { 
+                      backgroundColor: newGroupTargetDate === getTargetDate(days) ? colors.primary : colors.card,
+                      borderColor: colors.primary
+                    }
                   ]}
                   onPress={() => setNewGroupTargetDate(getTargetDate(days))}
                 >
@@ -726,16 +729,16 @@ export default function KhatamScreen() {
 
             <View style={styles.assignModalButtons}>
               <TouchableOpacity 
-                style={[styles.assignModalButton, styles.cancelButton]}
+                style={[styles.assignModalButton, styles.cancelButton, { backgroundColor: colors.card }]}
                 onPress={() => {
                   setShowJoinModal(false);
                   setJoinCode('');
                 }}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={[styles.cancelButtonText, { color: colors.secondary }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity 
-                style={[styles.assignModalButton, styles.confirmButton]}
+                style={[styles.assignModalButton, styles.confirmButton, { backgroundColor: colors.primary }]}
                 onPress={handleJoinGroup}
               >
                 <Text style={styles.confirmButtonText}>Join</Text>
@@ -774,17 +777,17 @@ export default function KhatamScreen() {
 
             <View style={styles.assignModalButtons}>
               <TouchableOpacity 
-                style={[styles.assignModalButton, styles.cancelButton]}
+                style={[styles.assignModalButton, styles.cancelButton, { backgroundColor: colors.card }]}
                 onPress={() => {
                   setShowAssignModal(false);
                   setSelectedJuz(null);
                   setParticipantName('');
                 }}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={[styles.cancelButtonText, { color: colors.secondary }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity 
-                style={[styles.assignModalButton, styles.confirmButton]}
+                style={[styles.assignModalButton, styles.confirmButton, { backgroundColor: colors.primary }]}
                 onPress={handleAssignJuz}
               >
                 <Text style={styles.confirmButtonText}>Assign</Text>
@@ -1189,7 +1192,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   confirmButton: {
-    backgroundColor: '#4CAF50',
+    // backgroundColor is applied inline
   },
   confirmButtonText: {
     color: '#FFFFFF',

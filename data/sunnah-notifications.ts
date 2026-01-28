@@ -142,7 +142,7 @@ export const SAMPLE_NOTIFICATIONS = [
 // Event notification templates based on event type
 export const EVENT_NOTIFICATION_TEMPLATES = {
   wafat: {
-    message: 'Remember {eventTitle}. Recite Fatiha for their soul. May Allah grant them the highest place in Jannah. إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ'
+    message: 'Remember {eventTitle}. Recite Fatiha for their soul. May Allah grant them the highest place in Jannah.'
   },
   religious: {
     message: '{eventTitle} is today. Increase your worship and seek Allah\'s blessings on this blessed day.'

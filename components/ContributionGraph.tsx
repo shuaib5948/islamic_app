@@ -1,8 +1,9 @@
+import { Colors } from '@/constants/theme';
 import {
-    DailyPrayers,
-    getContributionColor,
-    getContributionLevel,
-    getLastNDays,
+  DailyPrayers,
+  getContributionColor,
+  getContributionLevel,
+  getLastNDays,
 } from '@/data/prayer-tracker';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import React, { useMemo } from 'react';
@@ -18,6 +19,7 @@ interface ContributionGraphProps {
 export const ContributionGraph: React.FC<ContributionGraphProps> = ({ data, weeks = 12 }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const colors = Colors[colorScheme];
 
   const days = weeks * 7;
   const dates = useMemo(() => getLastNDays(days), [days]);
@@ -95,12 +97,12 @@ export const ContributionGraph: React.FC<ContributionGraphProps> = ({ data, week
   const cellGap = 2;
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? '#1C2128' : '#FFFFFF' }]}>
+    <View style={[styles.container, { backgroundColor: colors.card }]}>
       <View style={styles.headerRow}>
-        <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
+        <Text style={[styles.title, { color: colors.text }]}>
           📈 Prayer Consistency
         </Text>
-        <Text style={[styles.subtitle, { color: isDark ? '#8B949E' : '#64748B' }]}>
+        <Text style={[styles.subtitle, { color: colors.secondary }]}>
           Last {weeks} weeks
         </Text>
       </View>
@@ -113,7 +115,7 @@ export const ContributionGraph: React.FC<ContributionGraphProps> = ({ data, week
             style={[
               styles.monthLabel,
               { 
-                color: isDark ? '#8B949E' : '#64748B',
+                color: colors.secondary,
                 position: 'absolute',
                 left: item.weekIndex * (cellSize + cellGap),
               }
@@ -132,7 +134,7 @@ export const ContributionGraph: React.FC<ContributionGraphProps> = ({ data, week
               <Text
                 style={[
                   styles.dayLabel,
-                  { color: isDark ? '#8B949E' : '#64748B' },
+                  { color: colors.secondary },
                 ]}
               >
                 {index % 2 === 1 ? day : ''}
@@ -182,14 +184,14 @@ export const ContributionGraph: React.FC<ContributionGraphProps> = ({ data, week
 
       {/* Legend */}
       <View style={styles.legendContainer}>
-        <Text style={[styles.legendText, { color: isDark ? '#8B949E' : '#64748B' }]}>Less</Text>
+        <Text style={[styles.legendText, { color: colors.secondary }]}>Less</Text>
         {[0, 1, 2, 3, 4].map(level => (
           <View
             key={level}
             style={[styles.legendCell, { backgroundColor: getContributionColor(level, isDark) }]}
           />
         ))}
-        <Text style={[styles.legendText, { color: isDark ? '#8B949E' : '#64748B' }]}>More</Text>
+        <Text style={[styles.legendText, { color: colors.secondary }]}>More</Text>
       </View>
     </View>
   );

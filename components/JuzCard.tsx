@@ -14,7 +14,6 @@ interface JuzCardProps {
 
 export const JuzCard: React.FC<JuzCardProps> = ({ juz, assignment, onPress, onLongPress }) => {
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
   const colors = Colors[colorScheme];
 
   const isAssigned = !!assignment;
@@ -97,7 +96,6 @@ interface JuzGridProps {
 
 export const JuzProgressGrid: React.FC<JuzGridProps> = ({ assignments, onJuzPress }) => {
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
   const colors = Colors[colorScheme];
 
   const getJuzStatus = (juzNumber: number) => {

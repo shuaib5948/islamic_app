@@ -2,44 +2,43 @@ import { ContributionGraph } from '@/components/ContributionGraph';
 import { Colors } from '@/constants/theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
-    DailyPrayers,
-    PRAYERS,
-    PrayerName,
-    PrayerStats,
-    PrayerStatus,
-    createEmptyDailyPrayers,
-    formatDateKey,
-    getPrayerInfo,
+  DailyPrayers,
+  PRAYERS,
+  PrayerName,
+  PrayerStats,
+  PrayerStatus,
+  createEmptyDailyPrayers,
+  formatDateKey,
+  getPrayerInfo,
 } from '@/data/prayer-tracker';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import {
-    calculateStats,
-    getContributionData,
-    getPrayersForDate,
-    updatePrayerStatus,
+  calculateStats,
+  getContributionData,
+  getPrayersForDate,
+  updatePrayerStatus,
 } from '@/utils/prayer-storage';
 import {
-    PrayerTimes,
-    PrayerTimesData,
-    formatTimeDisplay,
-    getDefaultPrayerTimes,
-    getNextPrayerInfo,
-    getPrayerTimes,
+  PrayerTimes,
+  PrayerTimesData,
+  formatTimeDisplay,
+  getDefaultPrayerTimes,
+  getNextPrayerInfo,
+  getPrayerTimes,
 } from '@/utils/prayer-times';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-    ActivityIndicator,
-    Dimensions,
-    Modal,
-    RefreshControl,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Modal,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -51,8 +50,6 @@ const PRAYER_ICONS: Record<PrayerName, string> = {
   maghrib: 'cloudy-night-outline',
   isha: 'moon-outline',
 };
-
-const { width } = Dimensions.get('window');
 
 // Helper: get current prayer index (last whose time has started)
 const getCurrentPrayerIndex = (prayerTimes: PrayerTimes, now: Date) => {
@@ -198,18 +195,6 @@ export default function PrayerScreen() {
     };
   }, [currentTime, prayerTimes]);
 
-  // Get last 7 days for quick selection
-  const getRecentDates = () => {
-    const dates: string[] = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      dates.push(formatDateKey(date));
-    }
-    return dates;
-  };
-
-  const recentDates = getRecentDates();
   const isToday = selectedDate === today;
 
   return (
@@ -231,14 +216,19 @@ export default function PrayerScreen() {
                 {labels.prayerTracker}
               </Text>
             </View>
-            {stats && (
-              <View style={styles.streakContainer}>
-                <Ionicons name="flame" size={20} color="#F59E0B" />
-                <Text style={[styles.streakText, { color: colors.text }]}>
-                  {stats.currentStreak}
-                </Text>
-              </View>
-            )}
+            <View style={styles.headerRight}>
+              {stats && (
+                <View style={styles.streakContainer}>
+                  <Ionicons name="flame" size={20} color="#F59E0B" />
+                  <Text style={[styles.streakText, { color: colors.text }]}>
+                    {stats.currentStreak}
+                  </Text>
+                </View>
+              )}
+              <TouchableOpacity onPress={() => router.push('/notifications')} style={styles.notificationsButton}>
+                <Ionicons name="notifications-outline" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
           </View>
           {/* Location indicator */}
           <View style={[styles.locationContainer, { backgroundColor: colors.card }]}>
@@ -372,7 +362,6 @@ export default function PrayerScreen() {
             // Determine if prayer can be marked
             const isFutureDate = selectedDate > today;
             const isToday = selectedDate === today;
-            const isPastDate = selectedDate < today;
             const isFuturePrayer = isToday && idx > currentPrayerIdx;
             const canMark = !isFutureDate && (!isToday || !isFuturePrayer);
             return (
@@ -510,7 +499,7 @@ export default function PrayerScreen() {
         <View style={[styles.quoteCard, { backgroundColor: colors.card }]}>
           <Ionicons name="bulb-outline" size={24} color="#F59E0B" style={{ marginBottom: 8 }} />
           <Text style={[styles.quoteText, { color: colors.text }]}>
-            "The first matter the slave will be brought to account for is prayer."
+            &quot;The first matter the slave will be brought to account for is prayer.&quot;
           </Text>
           <Text style={[styles.quoteSource, { color: colors.secondary }]}>
             — Prophet Muhammad ﷺ
@@ -603,11 +592,9 @@ const styles = StyleSheet.create({
   headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
   },
   backButton: {
-    position: 'absolute',
-    left: 0,
     padding: 4,
   },
   headerTitles: {
@@ -621,9 +608,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 2,
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   streakContainer: {
-    position: 'absolute',
-    right: 0,
     flexDirection: 'row',
     alignItems: 'center',
     padding: 4,
@@ -632,6 +621,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     marginLeft: 4,
+  },
+  notificationsButton: {
+    padding: 4,
+    marginLeft: 8,
   },
   // Location Container
   locationContainer: {

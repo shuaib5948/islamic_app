@@ -21,7 +21,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface GroupSession {
   id: string;
@@ -41,8 +41,6 @@ export default function ThasbihScreen() {
   const [showContribModal, setShowContribModal] = useState(false);
   // Milestone modal state
   const [showMilestone, setShowMilestone] = useState(false);
-  const [milestoneMsg, setMilestoneMsg] = useState('');
-  const [milestoneInspire, setMilestoneInspire] = useState('');
   const milestoneAnim = useRef(new Animated.Value(0)).current;
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -60,7 +58,6 @@ export default function ThasbihScreen() {
   const [groupName, setGroupName] = useState('');
   const [groupTarget, setGroupTarget] = useState('100');
   const [groupDhikrType, setGroupDhikrType] = useState('Subhanallah');
-  const [groupJoinCode, setGroupJoinCode] = useState('');
   const [groupSessions, setGroupSessions] = useState<GroupSession[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<GroupSession | null>(null);
   const [showTargetModal, setShowTargetModal] = useState(false);
@@ -78,7 +75,6 @@ export default function ThasbihScreen() {
 
   // Touch circle state
   const [touchPos, setTouchPos] = useState<{x: number, y: number} | null>(null);
-  const [contentPosition, setContentPosition] = useState({x: 0, y: 0});
   const contentRef = useRef<View>(null);
 
   const labels = {
@@ -277,7 +273,6 @@ export default function ThasbihScreen() {
 
     // Generate a random 4-digit code
     const code = Math.floor(1000 + Math.random() * 9000).toString();
-    setGroupJoinCode(code);
 
     // Parse groupTarget as number, fallback to 0 if invalid
     const parsedTarget = parseInt(groupTarget) || 0;
@@ -391,7 +386,7 @@ export default function ThasbihScreen() {
                 You reached your goal!
               </Text>
               <Text style={{ color: colors.accent, fontSize: 18, textAlign: 'center', fontStyle: 'italic', marginTop: 2, marginBottom: 12 }}>
-                "Every dhikr brings light to your heart. Keep going!"
+                &quot;Every dhikr brings light to your heart. Keep going!&quot;
               </Text>
               <View style={{ marginTop: 18, alignItems: 'center' }}>
                 <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '500', textAlign: 'center' }}>
@@ -560,7 +555,6 @@ export default function ThasbihScreen() {
           onLayout={() => {
             if (contentRef.current) {
               contentRef.current.measureInWindow((x, y) => {
-                setContentPosition({ x, y });
               });
             }
           }}
@@ -629,9 +623,7 @@ export default function ThasbihScreen() {
         selectedGroup ? (
           <Animated.View 
             style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start', width: '100%', paddingTop: 20, paddingBottom: 20 }}
-            onLayout={(event) => {
-              const { x, y } = event.nativeEvent.layout;
-              setContentPosition({ x, y });
+            onLayout={() => {
             }}
           >
             <TouchableWithoutFeedback
@@ -764,7 +756,7 @@ export default function ThasbihScreen() {
               }}
               activeOpacity={0.9}
             >
-              <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: 'bold', textAlign: 'center', letterSpacing: 0.5 }}>{selectedGroup.dhikrType}</Text>
+              <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: 'bold', textAlign: 'center', letterSpacing: 0.5, marginTop: -30 }}>{selectedGroup.dhikrType}</Text>
               <Text style={{ fontSize: 13, color: colors.text, textAlign: 'center', marginTop: 6 }}>hold for exit</Text>
             </TouchableOpacity>
           </Animated.View>

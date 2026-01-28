@@ -284,7 +284,7 @@ export const ISLAMIC_EVENTS: IslamicEvent[] = [
     day: 10,
     title: 'Martyrdom of Imam Hussain (RA)',
     type: 'wafat',
-    description: 'Imam Hussain (RA), the grandson of Prophet Muhammad ﷺ, was martyred at Karbala on the Day of Ashura in 680 CE. His sacrifice stands as a symbol of standing up against injustice and oppression.\n\nമുഹറം മാസത്തിലെ സ്മരണകളിൽ ഏറ്റവും പ്രധാനം പ്രവാചകൻ മുഹമ്മദ് നബി (സ)യുടെ പൗത്രൻ ഇമാം ഹുസൈൻ (റ) വിന്റെ രക്തസാക്ഷിത്വമാണ്. ഹിജ്റ 61 മുഹറം 10-ന് കർബലയിൽ സത്യത്തിനും നീതിക്കും വേണ്ടി അദ്ദേഹം വഫാത്തായത്. His life teaches the Ummah lessons of sacrifice and steadfastness.',
+    description: 'Imam Hussain (RA), the grandson of Prophet Muhammad ﷺ, was martyred at Karbala on the Day of Ashura in 680 CE. His sacrifice stands as a symbol of standing up against injustice and oppression. His life teaches the Ummah lessons of sacrifice and steadfastness.',
   },
   {
     id: 'wafat-imam-ghazali',
@@ -542,290 +542,107 @@ export const ISLAMIC_EVENTS: IslamicEvent[] = [
     title: 'Wafat of Sheikh Abdul Qadir Jilani',
     type: 'wafat',
     description: 'Sheikh Abdul Qadir Jilani (1077-1166 CE) was a renowned Islamic scholar and Sufi saint from Baghdad. He founded the Qadiriyya Sufi order and was known as "Ghaus al-Azam" (the Supreme Helper).',
+
   },
-  // Added events from user input (Malayalam + English descriptions)
+
   {
-    id: 'wafat-mampuram-sayyid-alavi-thangal',
-    month: 1,
-    day: 7,
-    title: 'Wafat of Mampuram Sayyid Alavi Thangal',
-    type: 'wafat',
-    description: 'മമ്പുറം സയ്യിദ് അലവി തങ്ങൾ — Leader of Kerala\'s awliya and mujahids. Born in Halarmouth, Yemen (Hijri 1166) and arrived in Kerala at age 17. He inspired resistance to British rule and worked on spiritual training and institution-building across Malabar, leading hundreds of mosques and mahalls. He passed away on Muharram 7, 1260 AH; his maqam is at Mampuram in Malappuram district.',
-  },
-  {
-    id: 'wafat-veliyankode-umar-khazi',
-    month: 11,
-    day: 16,
-    title: 'Wafat of Veliyankode Umar Khazi',
-    type: 'wafat',
-    description: 'വെളിയങ്കോട് ഉമർ ഖാസി — A noted scholar, poet and courageous opponent of British taxes; a close friend of Mampuram Thangal and attributed with many karamat (miracles). He passed away on Dhu al-Qadah 16, 1273 AH and is buried at Veliyankode Juma Masjid.',
-  },
-  {
-    id: 'wafat-sainuddheen-makhdoom-i',
-    month: 8,
-    day: 16,
-    title: 'Wafat of Sainuddheen Makhdoom I (Shaikh Sainuddheen ibn Ali)',
-    type: 'wafat',
-    description: 'Sainuddheen Makhdoom I (Shaikh Sainuddheen ibn Ali) — Born in Kochi in Hijri 871. He played a major role in making Ponnani a centre of learning and constructed the Ponnani Juma Masjid. A scholar in tasawwuf and fiqh, and the author of the spiritual poem "Adkiya". He introduced the "vilakkathirikkal" dars tradition. He passed away on Rabi al-Awwal 928 AH and was buried at Ponnani Juma Masjid.',
-  },
-  {
-    id: 'wafat-sainuddheen-makhdoom-ii',
-    month: 8,
-    day: 16,
-    title: 'Wafat of Sainuddheen Makhdoom II (Shaikh Sainuddheen bin Abdul Aziz)',
-    type: 'wafat',
-    description: 'Sainuddheen Makhdoom II (Shaikh Sainuddheen bin Abdul Aziz) — Son of Makhdoom I. Renowned author of the jurisprudence text "Fathul Mu\'in" and of the historical work "Tuhfathul Mujahidin", which inspired resistance against the Portuguese and British. He taught at Ponnani for around 36 years and passed away on Shaban 16, 991 AH; he is buried at Chombal (near Mahik) in Malappuram district.',
-  },
-  {
-    id: 'wafat-ibn-ataullah-sikandari',
-    month: 6,
-    day: 16,
-    title: 'Wafat of Ibn Ata\'ullah al-Sikandari',
-    type: 'wafat',
-    description: 'ഇബ്നു അത്വാഉള്ളാഹി സിക്കന്ദരി — A famed Sufi master and scholar from Alexandria, Egypt, and the third murshid in the Shadhili order. Author of the renowned spiritual text "Al-Hikam", focusing on spiritual wisdom and purification of the heart. He passed away on Jumada al-Akhir 16.',
-  },
-  {
-    id: 'wafat-muriyad-hasan-musliyar',
-    month: 4,
-    day: 28,
-    title: 'Wafat of Muriyad Hasan Musliyar',
-    type: 'wafat',
-    description: 'മുരിയാട് ഹസൻ മുസ്‌ലിയാർ — A respected scholar and spiritual guide from Muriyad, Malappuram. Known for deep expertise in the traditional dars system and for training many disciples while leading a simple, devout life. He passed away on Rabi al-Akhir 28.',
-  },
-  {
-    id: 'wafat-ali-nellikuth',
-    month: 6,
-    day: 26,
-    title: 'Wafat of Ali Musliyar (Nellikuth)',
-    type: 'wafat',
-    description: 'അലി മുസ്‌ലിയാര്‍ (നെല്ലിക്കുത്ത്) — A brave leader in the Malabar uprising and a distinguished scholar. He studied in Ponnani and Mecca, led the Khilafat movement centered at Tirurangadi, and was executed by the British in 1922. Renowned for expertise in Quranic recitation (Tajweed) and other Islamic sciences.',
-  },
-  {
-    id: 'wafat-ahmad-koya-shaliyathi',
-    month: 1,
-    day: 27,
-    title: 'Wafat of Ahmad Koya Shaliyathi',
-    type: 'wafat',
-    description: 'അഹ്മദ് കോയ ശാലിയാത്തി — Known among Kerala\'s scholars as a great bibliophile and founder of the As\'hariyya Kutubkhana in Chaliyam. Author of many Arabic works and a scholar of tasawwuf and fiqh. Passed away on Muharram 27.',
-  },
-  {
-    id: 'wafat-beppur-pt-abdul-khader',
-    month: 1,
-    day: 21,
-    title: 'Wafat of Beppur Qazi P.T. Abdul Khader Musliyar',
-    type: 'wafat',
-    description: 'ബേപ്പൂർ ഖാസി പി.ടി. അബ്ദുൽ ഖാദർ മുസ്ലിയാർ — Influential jurist and long-serving qazi of Beppur (Kozhikode). A key member of Samastha Kerala Jamiyyathul Ulama, known for his deep knowledge in fiqh and practical legal rulings. Passed away in Muharram.',
-  },
-  {
-    id: 'wafat-kappil-umar',
-    month: 1,
-    day: 14,
-    title: 'Wafat of Kappil Umar Musliyar',
-    type: 'wafat',
-    description: 'കാപ്പിൽ ഉമർ മുസ്‌ലിയാർ — A major spiritual guide from Kappil in Malappuram, popularly known as "Kappil Ustad". A leading murshid of the Shadhili tariqa in Kerala with thousands of disciples. Passed away in Muharram 1414 AH.',
-  },
-  {
-    id: 'wafat-cheruvaloor-haydros',
-    month: 1,
-    day: 16,
-    title: 'Wafat of Cheruvaloor Hydros Musliyar',
-    type: 'wafat',
-    description: 'ചെറുവാളൂർ ഹൈദ്രോസ് മുസ്‌ലിയാർ — A noted scholar and spiritual leader centered in Cheruvaloor (Thrissur), known for deep knowledge of Quran and Hadith and for spiritual healing and supplication. Passed away in Muharram.',
-  },
-  {
-    id: 'wafat-imam-nasai',
-    month: 2,
-    day: 13,
-    title: 'Wafat of Imam al-Nasa\'i',
-    type: 'wafat',
-    description: 'Imam al‑Nasaʾi — Compiler of one of the six major hadith collections (Sunan al‑Nasaʾi). Renowned for his meticulous standards in hadith authentication. Passed away in Safar 303 AH.',
-  },
-  {
-    id: 'wafat-ahmad-sirhindi',
-    month: 2,
-    day: 28,
-    title: 'Wafat of Sheikh Ahmad Sirhindi',
-    type: 'wafat',
-    description: 'ശൈഖ് അഹ്മദ് സർഹിന്ദി — Known as Mujaddid Alf Thani, a major reviver of Islamic thought in the Indian subcontinent who opposed heterodox trends and sought to re-establish orthodox Islamic teachings. Passed away in Safar 1034 AH.',
-  },
-  {
-    id: 'wafat-salahuddin-ayubi',
-    month: 2,
-    day: 27,
-    title: 'Wafat of Salahuddin Ayyubi (Saladin)',
-    type: 'wafat',
-    description: 'صلاح الدين أيوب‎ (Salahuddin Ayyubi) — The historic Muslim leader who recaptured Jerusalem during the Crusades. Died on Safar 27, 589 AH. Remembered for leadership, chivalry and mercy.',
-  },
-  {
-    id: 'wafat-ahmad-raza-barelvi',
-    month: 2,
-    day: 25,
-    title: 'Wafat of Imam Ahmad Raza Khan Barelvi',
-    type: 'wafat',
-    description: 'Imam Ahmad Raza Khan Barelvi — Prominent scholar and prolific author in Arabic and Urdu, known for his devotional approach and defense of traditional Islamic beliefs. Passed away on Safar 25, 1340 AH.',
-  },
-  {
-    id: 'wafat-sayyid-muhammad-shadhili',
-    month: 2,
-    day: 15,
-    title: 'Wafat of Sayyid Muhammad al‑Shadhili',
-    type: 'wafat',
-    description: 'شَيْخ سَيِّد مُحَمَّد الشاذلي — Founder of the Shadhili tariqa; remembered as a leading spiritual guide who emphasized remembrance of Allah and inner purification. His death is commemorated in Safar.',
-  },
-  {
-    id: 'wafat-kundur-abdul-khadir',
-    month: 2,
-    day: 16,
-    title: 'Wafat of Kundur Abdul Khadir Musliyar',
-    type: 'wafat',
-    description: 'കുണ്ടൂർ അബ്ദുൽ ഖാദിർ മുസ്‌ലിയാർ — A major scholar from Kundur (Malappuram) known for founding Kundur Markaz and his spiritual influence. Commemorated in Safar.',
-  },
-  {
-    id: 'wafat-puthenpalli-muthukkoya',
-    month: 2,
-    day: 1,
-    title: 'Wafat of Puthenpalli Shaikh Jalaluddin Muthukkoya Thangal',
-    type: 'wafat',
-    description: 'പുത്തൻപള്ളി ശൈഖ് ജലാലുദ്ധീൻ മുത്തുക്കോയ തങ്ങൾ — A prominent sayyid associated with the Puthenpalli maqam; known for spiritual mercy and compassion. Passed away in Safar.',
-  },
-  {
-    id: 'wafat-beppur-pp-muhammad-koya',
-    month: 2,
-    day: 14,
-    title: 'Wafat of Beppur Qazi P.P. Muhammad Koya Musliyar',
-    type: 'wafat',
-    description: 'ബേപ്പൂർ ഖാസി പി.പി. മുഹമ്മദ് കോയ മുസ്‌ലിയാർ — Long-serving qazi of Beppur; respected for fiqh rulings and community leadership. Passed away in Safar.',
-  },
-  {
-    id: 'wafat-imam-malik',
-    month: 3,
-    day: 14,
-    title: 'Wafat of Imam Malik',
-    type: 'wafat',
-    description: 'Imam Malik ibn Anas — Founder of the Maliki madhhab and author of the Muwatta, a foundational work in Islamic jurisprudence. Passed away on Rabi al‑Awwal 179 AH.',
-  },
-  {
-    id: 'wafat-ek-koyakkutti',
-    month: 4,
-    day: 26,
-    title: 'Wafat of E.K. Koyakkutti Musliyar',
-    type: 'wafat',
-    description: 'ഇ.കെ. കോയക്കുട്ടി മുസ്‌ലിയാർ — Former president of Samastha Kerala Jamiyyathul Ulama, known as "Anakkar Ustad" and a guiding teacher to many scholars. Passed away in Rabi al‑Awwal.',
-  },
-  {
-    id: 'wafat-abubakkar-kakkidippuram',
-    month: 3,
-    day: 10,
-    title: 'Wafat of Abubakkar Musliyar (Kakkidippuram)',
-    type: 'wafat',
-    description: 'അബൂബക്കർ മുസ്‌ലിയാർ (കക്കിടിപ്പുറം) — A traditional scholar centered in Kakkidippuram, known for deep Sufi knowledge and spiritual healing; passed away on Rabi al‑Awwal 10.',
-  },
-  {
-    id: 'wafat-ok-musan-kutty',
-    month: 3,
-    day: 23,
-    title: 'Wafat of O.K. Musan Kutty Musliyar',
-    type: 'wafat',
-    description: 'ഒ.കെ. മൂസാൻ കുട്ടി മുസ്‌ലിയാർ — Noted scholar and brother of O.K. Sainuddheen Kutti Musliyar; a respected mudarris and teacher in the dars tradition. Passed away on Rabi al‑Awwal 23.',
-  },
-  {
-    id: 'wafat-vadakara-muhammad-haji',
-    month: 3,
-    day: 5,
-    title: 'Wafat of Vadakara Muhammad Haji',
-    type: 'wafat',
-    description: 'വടകര മുഹമ്മദ് ഹാജി — A leading scholar from Vadakara (Kozhikode) known for humility, love of the Prophet, and spiritual guidance; passed away in Rabi al‑Awwal.',
-  },
-  // HISTORIC BATTLES (Malayalam + English summaries)
-  {
+
     id: 'battle-badr',
+
     month: 9,
+
     day: 17,
-    title: 'ബദ്ər യുദ്ധം (Battle of Badr)',
+
+    title: 'Battle of Badr',
+
     type: 'historic',
-    description: 'ഇസ്‌ലാമിക ചരിത്രത്തിലെ ആദ്യത്തെ പ്രധാന യുദ്ധം. ഖുറൈശ് സൈന്യത്തെ ചെറു സംഖ്യയിലുള്ള മുസ്‌ലിംകൾ പരാജയപ്പെടുത്തി; സത്യവും അസത്യവും തമ്മിലുള്ള വേർതിരിവ് കാണിക്കുന്നതിനാലാണ് ഇതിനെ യൗമുൽ ഫുർഖാൻ എന്നു വിളിക്കുന്നത്. (English: The first major battle in Islamic history in which a small Muslim force defeated the Quraysh.)',
+
+    description: 'The first major battle in Islamic history in which a small Muslim force defeated the Quraysh.',
+
   },
+
   {
+
     id: 'battle-uhud',
+
     month: 10,
+
     day: 7,
-    title: 'ഉഹ്ദ് യുദ്ധം (Battle of Uhud)',
+
+    title: 'Battle of Uhud',
+
     type: 'historic',
-    description: 'ബദ്റിന്റെ തോൽവിക്ക് പകരം വീട്ടാൻ മക്കക്കാർ വലിയ സേനയുമായി വന്നപ്പോഴാണ് ഉഹ്ദ് യുദ്ധം. തുടക്കത്തിൽ മുസ്ലിംകൾ വിജയിച്ചെങ്കിലും അച്ചടക്കം ലംഘിച്ചതുമൂലമാണ് വലിയ തിരിച്ചടി. (English: The battle that taught the importance of discipline after initial Muslim success was undone by disobedience.)',
+
+    description: 'The battle that taught the importance of discipline after initial Muslim success was undone by disobedience.',
+
   },
+
   {
+
     id: 'battle-khandaq',
+
     month: 0,
+
     day: 0,
-    title: 'ഖന്തഖ് യുദ്ധം (Battle of the Trench)',
+
+    title: 'Battle of the Trench',
+
     type: 'historic',
-    description: 'മദീനയെ നശിപ്പിക്കാൻ പല ശത്രുശക്തികളും ഒന്നിച്ച് എത്തിയപ്പോൾ ഖന്ദക്/കിടങ്ങ് ഖനനം ചെയ്ത് പ്രതിരോധിച്ചതാണ് ഈ പോരാട്ടത്തിന്റെ പ്രധാന ഘടകം. ശത്രുക്കൾ ഏറെ വിലമതിക്കുന്ന നാശം കണ്ട് പിന്തിരിഞ്ഞു. (English: Defensive strategy of digging a trench around Medina that successfully repelled a confederate siege.)',
+
+    description: 'Defensive strategy of digging a trench around Medina that successfully repelled a confederate siege.',
+
   },
+
   {
+
     id: 'battle-khaybar',
+
     month: 0,
+
     day: 0,
-    title: 'ഖൈബർ യുദ്ധം (Battle of Khaybar)',
+
+    title: 'Battle of Khaybar',
+
     type: 'historic',
-    description: 'ഖൈബറിലെ കോട്ടകൾ കീഴടക്കിയ പോരാട്ടം; അലി (റ) വിന്റെ ധൈര്യത്തോടെ കോട്ടകൾ തകർത്തത് മദീനയുടെ സുരക്ഷ മെച്ചപ്പെട്ടു. (English: The conquest of the fortified oasis of Khaybar which secured Medina’s surroundings.)',
+
+    description: 'The conquest of the fortified oasis of Khaybar which secured Medina\'s surroundings.',
+
   },
+
   {
+
     id: 'conquest-makkah',
+
     month: 9,
+
     day: 20,
-    title: 'മക്ക വിജയം (Conquest of Makkah)',
+
+    title: 'Conquest of Makkah',
+
     type: 'historic',
-    description: 'പ്രവാചകൻ ﷺ മക്കയിലേക്ക് സമാധാനപൂർവം പ്രവേശിച്ചു; അനേകം പേരെ മാപ്പ് ചെയ്തു. ഇതിനെ ഒരു സമാധാനപരമായ വിപ്ലവമായി കാണപ്പെടുന്നു. (English: The Prophet ﷺ entered Makkah peacefully and granted a general amnesty to many of his former enemies.)',
+
+    description: 'The Prophet ? entered Makkah peacefully and granted a general amnesty to many of his former enemies.',
+
   },
+
   {
-    id: 'battle-mutah',
-    month: 0,
-    day: 0,
-    title: 'മുഅ്ത് യുദ്ധം (Battle of Mu\'tah)',
-    type: 'historic',
-    description: 'അറേബ്യക്ക് പുറത്തുള്ള പ്രധാന സൈനിക ഏറ്റുമുട്ടലുകളിൽ ഒന്നാണ് ഇത്; വലിയ ബൈസാന്റൈൻ/റോമൻ ശത്രുക്കളെ നേരിടാൻ musulimaanകൾ ശ്രമിച്ചു, ഖാലിദ് ബിൻ വലീദ് (റ) പോലുള്ള നായകർ പ്രധാന പങ്ക്പിട്ടു. (English: An early engagement beyond Arabia where Muslim commanders showed notable bravery against much larger forces.)',
-  },
-  {
-    id: 'battle-yarmouk',
-    month: 0,
-    day: 0,
-    title: 'യർമൂക് യുദ്ധം (Battle of Yarmouk)',
-    type: 'historic',
-    description: 'ഹിജ്റ 15 / AD 636 — ഖാലിദ് ബിൻ വലീദ് (റ) നയിച്ച ഏകദേശം 40,000 മുസ്ലിം സേന ബൈസാന്റൈൻ സേനയെ പരാജയപ്പെടുത്തി; സിറിയയും ഫലസ്തീനും മുസ്ലിം ഭരണത്തിന് കീഴിലേക്ക് പോയി. (English: Decisive victory over the Byzantine forces that brought Syria and Palestine under Muslim rule.)',
-  },
-  {
-    id: 'battle-qadisiyyah',
-    month: 0,
-    day: 0,
-    title: 'ഖാദിസിയ്യ യുദ്ധം (Battle of Qadisiyyah)',
-    type: 'historic',
-    description: 'ഹിജ്റ 15 / AD 636 — സഅദ് ബിൻ അബി വഖാസ് (റ) നയിച്ച മുസ്ലിം സേന പേർഷ്യൻ സേനയെ പരാജയപ്പെടുത്തി; ഇത് ഇറാഖ് പ്രദേശത്തിന്റെ ശാശ്വത മാറ്റത്തിന്റെ തുടക്കം ആണെന്ന് രേഖകളിൽ പറയുന്നു. (English: The battle that precipitated the fall of the Sasanian forces in Iraq.)',
-  },
-  {
-    id: 'battle-nahavand',
-    month: 0,
-    day: 0,
-    title: 'നഹാവന്ദ് യുദ്ധം (Battle of Nahavand)',
-    type: 'historic',
-    description: 'ഹിജ്റ 21 / AD 642 — പേർഷ്യൻ സാമ്രാജ്യത്തിന്റെ അവസാനരൂപമുള്ള ഏകത്തരം പ്രതിരോധം ഇവിടെ തകർന്നു; ഈ വിജയത്തോടെ ഇസ്‌ലാം കിഴക്കേ വ്യാപിച്ചു. (English: Known as the decisive victory that led to the effective end of organized Sasanian resistance.)',
-  },
-  {
-    id: 'battle-guadalete',
-    month: 0,
-    day: 0,
-    title: 'ജിബ്രാൾട്ടർ / സ്പെയിൻ വിജയം (Battle of Guadalete)',
-    type: 'historic',
-    description: 'ഹിജ്റ 92 / AD 711 — താരിഖ് ബിൻ സിയാദ് (റ) നയിച്ചോയായിരുന്നു സ്പെയിനിൽ പ്രവേശനം; വിസിഗോതിനെ പരാജയപ്പെടുത്തി ആൻഡലൂസിയുടെ തുടക്കം കുറിച്ചു. (English: The Muslim entry into Iberia under Tariq ibn Ziyad leading to long-lasting Andalusian rule.)',
-  },
-  {
+
     id: 'battle-hattin',
+
     month: 4,
+
     day: 24,
-    title: 'ഹൈത്തീൻ യുദ്ധം (Battle of Hattin)',
+
+    title: 'Battle of Hattin',
+
     type: 'historic',
-    description: 'AD 1187 — സലാഹുദ്ദീൻ അയൂബി (Saladin) നയിച്ച പോരാട്ടം; കുരിശുയുദ്ധകാലത്ത് നിർണ്ണായക വിജയം നേടി, ഫലസ്തീനും ഖുദ്സും തിരികെ പിടിച്ചു. (English: Saladin’s decisive victory over the Crusader armies leading to the recapture of Jerusalem.)',
-  },
+
+    description: 'Saladin\'s decisive victory over the Crusader armies leading to the recapture of Jerusalem.',
+
+  }
+
 ];
+
 
 // Helper function to get events for a specific date
 export const getEventsForDate = (month: number, day: number): IslamicEvent[] => {
@@ -859,3 +676,4 @@ export const getUpcomingEvents = (currentMonth: number, currentDay: number, coun
 
   return upcoming;
 };
+

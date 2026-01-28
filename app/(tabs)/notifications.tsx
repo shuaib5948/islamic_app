@@ -302,10 +302,33 @@ const generatePrayerNotifications = async (): Promise<NotificationItem[]> => {
           }
         }
       } else if (prayerStatus === 'prayed') {
-        // Prayer completed - send congratulatory message (optional, maybe once per day)
-        // For now, we'll skip this to avoid too many notifications
+        // Prayer completed - send congratulatory message
+        const existingNotification = notifications.find(n => n.id === `prayer-completed-${prayerName}`);
+        if (!existingNotification) {
+          notifications.push({
+            id: `prayer-completed-${prayerName}`,
+            title: `${prayerDisplayName} Prayer Completed! ✅`,
+            message: `Alhamdulillah! You have completed your ${prayerDisplayName} prayer. May Allah accept it.`,
+            time: prayerTime || 'Today',
+            read: false,
+            type: 'prayer',
+          });
+        }
       }
     });
+
+    // Check if all prayers are completed
+    const allCompleted = Object.values(prayersForToday.prayers).every(status => status === 'prayed' || status === 'late');
+    if (allCompleted) {
+      notifications.push({
+        id: `prayer-all-completed-${todayString}`,
+        title: 'All Prayers Completed! 🎉',
+        message: 'MashaAllah! You have completed all your daily prayers. May Allah accept your worship.',
+        time: 'Today',
+        read: false,
+        type: 'prayer',
+      });
+    }
 
     return notifications;
   } catch (error) {

@@ -2,8 +2,7 @@ import { CalendarGrid } from '@/components/CalendarGrid';
 import { TodayHighlight } from '@/components/TodayHighlight';
 import { Colors } from '@/constants/theme';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getEventsForDate, HIJRI_MONTHS } from '@/data/hijri-events';
-import { HIJRI_MONTHS_ML } from '@/data/hijri-events-ml';
+import { getEventsForDate } from '@/data/hijri-events';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { deleteCustomEvent, getCustomEvents, getCustomEventsML, saveCustomEvent } from '@/utils/event-storage';
 import {
@@ -140,7 +139,6 @@ export default function CalendarScreen() {
   );
 
   const monthName = getHijriMonthName(currentMonth);
-  const baseMonths = isMalayalam ? HIJRI_MONTHS_ML : HIJRI_MONTHS;
 
   const goToPreviousMonth = () => {
     if (currentMonth === 1) {

@@ -14,9 +14,6 @@ export const StatsCard: React.FC<StatsCardProps> = ({ stats, period = 'Last 30 d
 
   const motivationalMessage = getMotivationalMessage(stats.consistencyPercent);
 
-  // Calculate circle progress
-  const progressAngle = (stats.consistencyPercent / 100) * 360;
-
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
       <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#1A1A1A' }]}>

@@ -7,11 +7,9 @@
     "icon": "./assets/app_logo1.png",
     "scheme": "ruhtrack",
     "userInterfaceStyle": "automatic",
-
     "ios": {
       "supportsTablet": true
     },
-
     "android": {
       "package": "com.shuaib.ruhtrack",
       "adaptiveIcon": {
@@ -19,11 +17,9 @@
         "backgroundColor": "#F7F5F2"
       }
     },
-
     "web": {
       "output": "static"
     },
-
     "plugins": [
       "expo-router",
       [
@@ -37,6 +33,12 @@
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "05b83551-da18-4e8b-a0a6-2e19800edbb7"
+      }
+    }
   }
 }

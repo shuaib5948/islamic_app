@@ -6,23 +6,25 @@ import { HIJRI_MONTHS, ISLAMIC_EVENTS, IslamicEvent } from '@/data/hijri-events'
 import { HIJRI_MONTHS_ML, ISLAMIC_EVENTS_ML, IslamicEventML } from '@/data/hijri-events-ml';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { deleteCustomEvent, getCustomEvents, getCustomEventsML, saveCustomEvent } from '@/utils/event-storage';
+import { getTodayHijri } from '@/utils/hijri-date';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, InteractionManager, Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, InteractionManager, Modal, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function EventsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const isMalayalam = language === 'ml';
   const colors = isDark ? Colors.dark : Colors.light;
 
   // Use fast fallback Hijri date (sync)
-  const todayHijri = require('@/utils/hijri-date').getTodayHijri();
+  const todayHijri = getTodayHijri();
   const todayHijriMonth = todayHijri.month;
   const todayHijriDay = todayHijri.day;
   const [selectedMonth, setSelectedMonth] = useState<number | null>(todayHijriMonth);

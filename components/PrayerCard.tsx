@@ -21,7 +21,6 @@ export const PrayerCard: React.FC<PrayerCardProps> = ({ prayer, status, onStatus
   const isDark = colorScheme === 'dark';
   
   const prayerInfo = getPrayerInfo(prayer);
-  const statusConfig = STATUS_CONFIG[status];
 
   const statusOptions: PrayerStatus[] = ['prayed', 'late', 'qaza', 'missed'];
 
@@ -86,7 +85,6 @@ export const DailyPrayerTracker: React.FC<DailyPrayerTrackerProps> = ({
   const isDark = colorScheme === 'dark';
 
   const dateObj = new Date(date);
-  const isToday = new Date().toISOString().split('T')[0] === date;
   const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
   const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const isFriday = dateObj.getDay() === 5;
@@ -94,7 +92,6 @@ export const DailyPrayerTracker: React.FC<DailyPrayerTrackerProps> = ({
   // Calculate completion for the day
   const statuses = Object.values(dailyPrayers.prayers);
   const prayedCount = statuses.filter(s => s === 'prayed' || s === 'late').length;
-  const trackedCount = statuses.filter(s => s !== 'not_tracked').length;
 
   return (
     <View style={styles.trackerContainer}>

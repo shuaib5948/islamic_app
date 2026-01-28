@@ -97,9 +97,6 @@ interface FeatureCardProps {
 }
 
 const FeatureCard = ({ icon, title, titleMl, color, onPress, isMalayalam, colors, isLast }: FeatureCardProps) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-
   return (
     <TouchableOpacity
       style={[
@@ -136,11 +133,9 @@ export default function HomeScreen() {
 
   const [showReflection, setShowReflection] = useState(false);
   const [reflectionStep, setReflectionStep] = useState<'question' | 'mood' | 'guidance'>('question');
-  const [selectedMood, setSelectedMood] = useState<string>('');
   const [guidance, setGuidance] = useState<GuidanceContent | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  const today = new Date().toISOString().split('T')[0];
   const question = REFLECTION_QUESTIONS[currentQuestionIndex % REFLECTION_QUESTIONS.length];
 
   // Handle swipe between hadith and reflection
@@ -154,7 +149,6 @@ export default function HomeScreen() {
       if (isReflectionPage) {
         // Reset reflection state when switching to reflection
         setReflectionStep('question');
-        setSelectedMood('');
         setGuidance(null);
         // Move to next question
         setCurrentQuestionIndex(prevIndex => prevIndex + 1);
@@ -184,7 +178,6 @@ export default function HomeScreen() {
         if (willShowReflection) {
           // Reset reflection state when switching to reflection
           setReflectionStep('question');
-          setSelectedMood('');
           setGuidance(null);
           // Move to next question each time reflection appears
           setCurrentQuestionIndex(prevIndex => prevIndex + 1);
@@ -200,7 +193,6 @@ export default function HomeScreen() {
   };
 
   const handleMoodSelect = async (mood: string) => {
-    setSelectedMood(mood);
     setGuidance(MOOD_GUIDANCE[mood]);
     setReflectionStep('guidance');
   };
@@ -210,7 +202,6 @@ export default function HomeScreen() {
     setTimeout(() => {
       setCurrentQuestionIndex(prev => prev + 1); // Move to next question
       setReflectionStep('question');
-      setSelectedMood('');
       setGuidance(null);
     }, 3000); // Show guidance for 3 seconds before moving to next question
   };
