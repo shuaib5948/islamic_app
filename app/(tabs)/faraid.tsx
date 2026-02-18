@@ -7,18 +7,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useNavigation } from 'expo-router';
 import React, { useLayoutEffect, useMemo, useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  Share,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    Share,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -676,7 +676,7 @@ const styles = StyleSheet.create({
   stepTitle: { fontSize: 22, fontWeight: '600', textAlign: 'center', marginBottom: 4 },
   stepSubtitle: { fontSize: 16, textAlign: 'center', marginBottom: 32 },
   genderOptions: { flexDirection: 'row', gap: 20 },
-  genderCard: { width: 140, height: 160, borderRadius: 16, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
+  genderCard: { width: '38%', maxWidth: 160, aspectRatio: 0.875, borderRadius: 16, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
   genderIcon: { fontSize: 48, marginBottom: 8 },
   genderLabel: { fontSize: 18, fontWeight: '600' },
   genderLabelArabic: { fontSize: 14, marginTop: 4 },

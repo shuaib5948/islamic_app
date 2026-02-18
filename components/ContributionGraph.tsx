@@ -1,15 +1,14 @@
 import { Colors } from '@/constants/theme';
 import {
-  DailyPrayers,
-  getContributionColor,
-  getContributionLevel,
-  getLastNDays,
+    DailyPrayers,
+    getContributionColor,
+    getContributionLevel,
+    getLastNDays,
 } from '@/data/prayer-tracker';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useResponsiveDimensions } from '@/hooks/use-responsive';
 import React, { useMemo } from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import { StyleSheet, Text, View } from 'react-native';
 
 interface ContributionGraphProps {
   data: Record<string, DailyPrayers>;
@@ -20,6 +19,11 @@ export const ContributionGraph: React.FC<ContributionGraphProps> = ({ data, week
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const colors = Colors[colorScheme];
+  
+  // Use responsive dimensions that update on resize/rotation
+  const { width: screenWidth } = useResponsiveDimensions();
+  // Clamp to max content width for web
+  const effectiveWidth = Math.min(screenWidth, 500);
 
   const days = weeks * 7;
   const dates = useMemo(() => getLastNDays(days), [days]);
@@ -31,7 +35,7 @@ export const ContributionGraph: React.FC<ContributionGraphProps> = ({ data, week
   const GRID_GAP = 2;
   const TOTAL_GAPS = weeks - 1;
   
-  const containerWidth = SCREEN_WIDTH - CARD_MARGIN - CONTAINER_PADDING;
+  const containerWidth = effectiveWidth - CARD_MARGIN - CONTAINER_PADDING;
   const gridWidth = containerWidth - DAY_LABEL_WIDTH - 4;
   const cellSize = Math.floor((gridWidth - (TOTAL_GAPS * GRID_GAP)) / weeks);
   const actualGridWidth = (cellSize * weeks) + (TOTAL_GAPS * GRID_GAP);

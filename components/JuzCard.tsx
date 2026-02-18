@@ -156,6 +156,7 @@ const styles = StyleSheet.create({
   numberContainer: {
     width: 44,
     height: 44,
+    maxWidth: 48,
     borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
@@ -215,8 +216,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   gridCell: {
-    width: 44,
-    height: 44,
+    width: '12%',
+    maxWidth: 48,
+    aspectRatio: 1,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',

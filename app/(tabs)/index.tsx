@@ -3,14 +3,12 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { GuidanceContent, MOOD_GUIDANCE } from '@/data/reflection-guidance';
 import { REFLECTION_QUESTIONS } from '@/data/reflection-questions';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useResponsiveDimensions } from '@/hooks/use-responsive';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Dimensions, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const { width } = Dimensions.get('window');
-const CARD_SIZE = (width - 56) / 3; // 3 columns with padding
 
 // Daily Hadith collection with Malayalam
 const DAILY_HADITHS = [
@@ -94,28 +92,34 @@ interface FeatureCardProps {
   isMalayalam: boolean;
   colors: any;
   isLast?: boolean;
+  cardSize: number;
+  screenWidth: number;
 }
 
-const FeatureCard = ({ icon, title, titleMl, color, onPress, isMalayalam, colors, isLast }: FeatureCardProps) => {
+const FeatureCard = ({ icon, title, titleMl, color, onPress, isMalayalam, colors, isLast, cardSize, screenWidth }: FeatureCardProps) => {
   return (
     <TouchableOpacity
       style={[
         styles.card,
         {
           backgroundColor: colors.card,
-          width: CARD_SIZE,
-          height: CARD_SIZE,
-          marginLeft: isLast ? (width - CARD_SIZE) / 2 - 12 : 4, // Center the last card
-          marginRight: isLast ? (width - CARD_SIZE) / 2 - 12 : 4,
+          width: cardSize,
+          height: cardSize,
+          marginLeft: isLast ? (screenWidth - cardSize) / 2 - 12 : 4,
+          marginRight: isLast ? (screenWidth - cardSize) / 2 - 12 : 4,
+          ...(Platform.OS === 'web' ? {
+            cursor: 'pointer' as any,
+            transition: 'transform 0.15s ease, box-shadow 0.15s ease' as any,
+          } : {}),
         },
       ]}
       onPress={onPress}
       activeOpacity={0.7}
     >
       <View style={[styles.iconContainer, { backgroundColor: color }]}>
-        <Ionicons name={icon} size={24} color="white" />
+        <Ionicons name={icon} size={Math.max(20, Math.min(24, cardSize * 0.22))} color="white" />
       </View>
-      <Text style={[styles.cardTitle, { color: colors.text }]}>
+      <Text style={[styles.cardTitle, { color: colors.text, fontSize: Math.max(10, Math.min(12, cardSize * 0.11)) }]}>
         {isMalayalam ? titleMl : title}
       </Text>
     </TouchableOpacity>
@@ -129,6 +133,12 @@ export default function HomeScreen() {
   const isMalayalam = language === 'ml';
   const colors = isDark ? Colors.dark : Colors.light;
 
+  // Use responsive dimensions that update on resize/rotation
+  const { width } = useResponsiveDimensions();
+  // Clamp width for web desktop (content already maxed at 500px by root layout)
+  const effectiveWidth = Math.min(width, 500);
+  const CARD_SIZE = (effectiveWidth - 56) / 3;
+
   const scrollViewRef = useRef<ScrollView>(null);
 
   const [showReflection, setShowReflection] = useState(false);
@@ -141,7 +151,7 @@ export default function HomeScreen() {
   // Handle swipe between hadith and reflection
   const handleScrollEnd = (event: any) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
-    const page = Math.round(scrollPosition / width);
+    const page = Math.round(scrollPosition / effectiveWidth);
     const isReflectionPage = page === 1;
     
     if (isReflectionPage !== showReflection) {
@@ -159,10 +169,10 @@ export default function HomeScreen() {
   useEffect(() => {
     if (scrollViewRef.current) {
       const pageIndex = showReflection ? 1 : 0;
-      const scrollX = pageIndex * (width - 64);
+      const scrollX = pageIndex * (effectiveWidth - 64);
       scrollViewRef.current.scrollTo({ x: scrollX, animated: true });
     }
-  }, [showReflection]);
+  }, [showReflection, effectiveWidth]);
 
   // Auto-switch between hadith and reflection every 8 seconds
   // But don't switch if user is actively in reflection steps (mood selection or guidance)
@@ -302,7 +312,7 @@ export default function HomeScreen() {
             style={styles.swipeContainer}
           >
             {/* Hadith Page */}
-            <View style={styles.pageContainer}>
+            <View style={[styles.pageContainer, { width: effectiveWidth - 64 }]}>
               <View style={styles.hadithHeader}>
                 <Ionicons name="document-text-outline" size={18} color={colors.hadithText} style={styles.hadithIcon} />
                 <Text style={[styles.hadithLabel, { color: colors.hadithText }]}>
@@ -321,7 +331,7 @@ export default function HomeScreen() {
             </View>
 
             {/* Reflection Page */}
-            <View style={styles.pageContainer}>
+            <View style={[styles.pageContainer, { width: effectiveWidth - 64 }]}>
               {reflectionStep === 'question' && (
                 <>
                   <View style={styles.hadithHeader}>
@@ -448,6 +458,8 @@ export default function HomeScreen() {
               isMalayalam={isMalayalam}
               colors={colors}
               isLast={index === features.length - 1}
+              cardSize={CARD_SIZE}
+              screenWidth={effectiveWidth}
             />
           ))}
         </View>
@@ -575,7 +587,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   pageContainer: {
-    width: width - 64,
     paddingVertical: 16,
   },
   // Reflection Styles

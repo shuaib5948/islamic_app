@@ -2,7 +2,7 @@ import { Colors } from '@/constants/theme';
 import { getEventsForDate } from '@/data/hijri-events';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import React from 'react';
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const toArabicNumerals = (num: number): string => {
   const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
@@ -177,9 +177,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dayContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: Platform.OS === 'android' ? 20 : 18,
+    width: '85%',
+    aspectRatio: 1,
+    maxWidth: 38,
+    maxHeight: 38,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -232,7 +234,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyCell: {
-    width: 36,
-    height: 36,
+    width: '85%',
+    aspectRatio: 1,
+    maxWidth: 38,
+    maxHeight: 38,
   },
 });

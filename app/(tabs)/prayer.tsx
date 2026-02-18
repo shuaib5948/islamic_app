@@ -2,43 +2,43 @@ import { ContributionGraph } from '@/components/ContributionGraph';
 import { Colors } from '@/constants/theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
-  DailyPrayers,
-  PRAYERS,
-  PrayerName,
-  PrayerStats,
-  PrayerStatus,
-  createEmptyDailyPrayers,
-  formatDateKey,
-  getPrayerInfo,
+    DailyPrayers,
+    PRAYERS,
+    PrayerName,
+    PrayerStats,
+    PrayerStatus,
+    createEmptyDailyPrayers,
+    formatDateKey,
+    getPrayerInfo,
 } from '@/data/prayer-tracker';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import {
-  calculateStats,
-  getContributionData,
-  getPrayersForDate,
-  updatePrayerStatus,
+    calculateStats,
+    getContributionData,
+    getPrayersForDate,
+    updatePrayerStatus,
 } from '@/utils/prayer-storage';
 import {
-  PrayerTimes,
-  PrayerTimesData,
-  formatTimeDisplay,
-  getDefaultPrayerTimes,
-  getNextPrayerInfo,
-  getPrayerTimes,
+    PrayerTimes,
+    PrayerTimesData,
+    formatTimeDisplay,
+    getDefaultPrayerTimes,
+    getNextPrayerInfo,
+    getPrayerTimes,
 } from '@/utils/prayer-times';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
-  Modal,
-  RefreshControl,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Modal,
+    RefreshControl,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -704,6 +704,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 6,
+    maxWidth: 80,
   },
   goalCount: {
     fontSize: 22,

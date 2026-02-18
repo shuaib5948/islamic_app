@@ -18,7 +18,14 @@
       }
     },
     "web": {
-      "output": "static"
+      "output": "static",
+      "favicon": "./assets/app_logo1.png",
+      "name": "RuhTrack",
+      "shortName": "RuhTrack",
+      "description": "Islamic daily companion app",
+      "backgroundColor": "#F7F5F2",
+      "themeColor": "#90674E",
+      "bundler": "metro"
     },
     "plugins": [
       "expo-router",

@@ -3,7 +3,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, Modal, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Modal, Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/theme';
 import { ADHKAR_COLLECTIONS, SECTIONS } from '../../data/adhkar-collections';
@@ -24,7 +24,8 @@ type AdhkarCollection = {
 };
 
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+// Use dynamic height for responsive modals
+const getScreenHeight = () => Dimensions.get('window').height;
 
 // Adhkar List Item Component
 interface AdhkarListItemProps {
@@ -170,7 +171,7 @@ function AdhkarModal({ visible, adhkar, onClose, isDark, isMalayalam }: AdhkarMo
                 <Ionicons name="close" size={26} color={isDark ? Colors.dark.primary : Colors.light.primary} />
               </TouchableOpacity>
             </View>
-            <ScrollView style={{ maxHeight: SCREEN_HEIGHT * 0.5 }}>
+            <ScrollView style={{ maxHeight: getScreenHeight() * 0.5 }}>
               {adhkar.meaningMl && (
                 <View style={{ marginBottom: 14 }}>
                   <Text style={[styles.infoLabel, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>{isMalayalam ? 'അർത്ഥം' : 'Meaning'}</Text>
@@ -552,7 +553,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   modalScrollView: {
-    maxHeight: SCREEN_HEIGHT * 0.5,
+    maxHeight: '50%',
+    ...(Platform.OS === 'web' ? { maxHeight: '60vh' } as any : {}),
   },
   modalScrollContent: {
     padding: 16,

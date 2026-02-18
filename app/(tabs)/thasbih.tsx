@@ -6,22 +6,19 @@ import * as Haptics from 'expo-haptics';
 import { router, useNavigation } from 'expo-router';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
-  Alert,
-  Animated,
-  Dimensions,
-  Modal,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
+    Alert,
+    Animated,
+    Modal,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface GroupSession {
   id: string;
@@ -364,7 +361,7 @@ export default function ThasbihScreen() {
           >
             <View style={{
               backgroundColor: colors.card,
-              width: SCREEN_WIDTH,
+              width: '100%',
               paddingHorizontal: 32,
               paddingVertical: 44,
               borderTopLeftRadius: 36,
