@@ -263,7 +263,7 @@ export default function FaraidScreen() {
 
   // Render Heir Selection
   const renderHeirSelection = () => (
-    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>
       <View style={[styles.infoBar, { backgroundColor: isDark ? Colors.dark.primary : Colors.light.primary }]}>
         <Text style={[styles.infoText, { color: isDark ? '#FFFFFF' : '#FFFFFF' }]}>
           {isMalayalam 
@@ -326,7 +326,7 @@ export default function FaraidScreen() {
   // Render Estate Input
   const renderEstateInput = () => (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>
         <View style={[styles.categoryCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
           <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary }]}>
             {labels.totalEstate}
@@ -446,7 +446,7 @@ export default function FaraidScreen() {
     if (!result) return null;
 
     return (
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>
         {/* Estate Summary */}
         <View style={[styles.categoryCard, { backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF' }]}>
           <Text style={[styles.sectionTitle, { color: isDark ? Colors.dark.primary : Colors.light.primary, fontSize: isMalayalam ? 16 : 18 }]}>{labels.estateSummary}</Text>

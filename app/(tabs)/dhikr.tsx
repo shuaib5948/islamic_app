@@ -475,6 +475,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
     paddingTop: 8,
+    paddingBottom: 80,
   },
   // List Item Styles
   listItem: {

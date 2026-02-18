@@ -93,8 +93,9 @@ export function injectWebStyles() {
     /* === PWA / Fullscreen appearance === */
     @media (display-mode: standalone) {
       body {
+        /* Safe area handled by React Native SafeAreaView - only set top for status bar */
         padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
+        padding-bottom: 0;
         padding-left: env(safe-area-inset-left);
         padding-right: env(safe-area-inset-right);
       }
@@ -121,11 +122,12 @@ export function injectWebStyles() {
       transform: scale(0.97);
     }
 
-    /* === Safe area support === */
+    /* === Safe area support (browser mode) === */
     @supports (padding: env(safe-area-inset-top)) {
       body {
         padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
+        /* Bottom safe area handled by React Native tab bar */
+        padding-bottom: 0;
       }
     }
   `;

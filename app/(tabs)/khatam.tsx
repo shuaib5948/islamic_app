@@ -301,6 +301,7 @@ export default function KhatamScreen() {
   const renderGroupList = () => (
     <ScrollView
       showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 80 }}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
@@ -394,7 +395,7 @@ export default function KhatamScreen() {
     const remainingJuz = getRemainingJuz(selectedKhatam.assignments);
 
     return (
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>
         {/* Back Button */}
         <View style={styles.backButton}>
           <TouchableOpacity 

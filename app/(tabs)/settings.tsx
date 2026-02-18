@@ -201,7 +201,7 @@ export default function SettingsScreen() {
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.content}>
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.content} contentContainerStyle={{ paddingBottom: 80 }}>
         {/* Language Section */}
         <SettingSection title={labels.language} isDark={isDark}>
           <SettingItem

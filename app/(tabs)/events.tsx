@@ -773,7 +773,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   listContent: {
-    paddingTop: 8, // increased top padding to give more space below month cards
+    paddingTop: 8,
+    paddingBottom: 80,
   },
   emptyContainer: {
     flex: 1,

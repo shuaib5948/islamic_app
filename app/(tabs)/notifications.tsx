@@ -444,7 +444,7 @@ export default function NotificationsScreen() {
           <View style={styles.placeholder} />
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>
           {loading ? (
             <View style={styles.emptyContainer}>
               <Ionicons name="hourglass-outline" size={64} color={isDark ? Colors.dark.secondary : Colors.light.secondary} />
