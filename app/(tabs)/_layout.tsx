@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import { Platform } from 'react-native';
 
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -15,18 +14,6 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.tabIconSelected,
         tabBarInactiveTintColor: colors.tabIconDefault,
         headerShown: false,
-        tabBarStyle: Platform.OS === 'web' ? {
-          height: 56,
-          paddingBottom: 6,
-          paddingTop: 6,
-          borderTopWidth: 1,
-          borderTopColor: colors.accent,
-          backgroundColor: colors.card,
-        } : undefined,
-        tabBarLabelStyle: Platform.OS === 'web' ? {
-          fontSize: 11,
-          fontWeight: '500',
-        } : undefined,
       }}
     >
       <Tabs.Screen
